@@ -1,0 +1,44 @@
+#! /usr/bin/env python
+
+"""\
+%prog yodafile [rootfile]
+
+Convert a YODA data file to the ROOT data format.
+"""
+
+import yoda, os, sys, optparse
+from yoda.script_helpers import parse_x2y_args, filter_aos
+
+parser = optparse.OptionParser(usage=__doc__)
+parser.add_option("-m", "--match", dest="MATCH", metavar="PATT", default=None,
+                  help="Only write out histograms whose path matches this regex")
+parser.add_option("-M", "--unmatch", dest="UNMATCH", metavar="PATT", default=None,
+                  help="Exclude histograms whose path matches this regex")
+
+opts, args = parser.parse_args()
+in_out = parse_x2y_args(args, ".yoda", ".root")
+if not in_out:
+    sys.stderr.write("You must specify the YODA and ROOT file names\n")
+    sys.exit(1)
+
+import ROOT
+for i, o in in_out:
+    of = ROOT.TFile(o, "recreate")
+    analysisobjects = yoda.readYODA(i)
+    filter_aos(analysisobjects, opts.MATCH, opts.UNMATCH)
+    rootobjects = [yoda.to_root(ao) for ao in analysisobjects.values()]
+
+    ## Protect against "/" in the histogram name, which ROOT does not like
+    for obj in rootobjects:
+        ## Split the name on "/" directory separators
+        parts = obj.GetName().split("/")
+        ## Walk down dir tree, making it as we go
+        d = of
+        for part in parts[:-1]:
+            subdir = d.GetDirectory(part)
+            if not subdir:
+                subdir = d.mkdir(part)
+            d = subdir
+        ## Write the histo into the leaf dir
+        d.WriteTObject(obj, parts[-1])
+    of.Close()

@@ -1,0 +1,291 @@
+#! /usr/bin/env python
+
+"""\
+Usage: %prog <yodafile1> [<yodafile2> ...] -r <yodareffile_or_dir> [-r ...]
+
+Rescale YODA histograms by constant factors or to match (partial) normalizations
+of histos in a reference file.
+
+Examples:
+
+%prog run1.yoda run2.yoda -r refdir/ -r reffile.yoda
+  Rescales histograms in run1 and run2 to their namesakes in the given ref files
+  (including all .yoda found in refdir). Writes out to run{1,2}-scaled.yoda
+
+%prog -c '.* 0.123x' foo.yoda
+  Rescales all histograms in foo.yoda by the factor 0.123.
+
+This latter example is a demonstration of the general scaling specification
+syntax, many of which can be either given with -c/--spec command-line options,
+or can be placed in a file read by the -f/--specfile options.
+
+The scaling specification syntax is a histogram path pattern followed by a
+definition of the scaling to be done on that histogram (or histograms). The path
+pattern consists of a regular expression, optionally followed by a range
+specifier. The best explanation is probably a few examples:
+  /path/to/hist      (match all bins in that particular histogram)
+  /.*pt              (match all bins in histograms ending in 'pt')
+  /myhist@5          (match bins with high edge >= 5 in /myhist)
+  /myhist@@10        (match bins with low edge <= 10 in /myhist)
+  /myhist@3@10       (match bins with edges within 3-10 in /myhist)
+  /myhist#3:10       (match bins with index 3-10 inclusive in /myhist)
+  /myhist#5          (match bins with index >= 5 in /myhist)
+  /myhist##10        (match bins with index <= 10 in /myhist)
+Mixing of bin index and bin position range locators is not currently allowed.
+
+The scaling definition which follows this path pattern can also take several
+forms. Again, examples:
+  10         (scale the matching histos/bin ranges to normalize to 10)
+  2x         (scale the matching histos by a factor of 2)
+  2xREF      (scale the matching histos/ranges to 2x the normalization of
+              their reference namesake)
+  3.14x/some/other/path  (rescale to the normalization of a different ref histo)
+
+This scheme is fairly complex and may evolve slightly as we try to make the
+syntax as natural as possible, particularly for the simplest & most common cases,
+while retaining the general power evident from the examples above. Please report
+bugs and wishes to the YODA authors at yoda@projects.hepforge.org
+
+TODO:
+ * x scaling of only the given range?
+ * check that ref norm scaling respects the range limits
+ * check that ranges can also be given on the RHS path
+ * y-scaling of profile histograms (requires scaleY & scaleZ etc. methods)
+ * add overflow inclusion in normalization for binned types
+"""
+
+
+## Parse command line args
+import optparse
+op = optparse.OptionParser(usage=__doc__)
+# TODO: how to look up ref histos?
+op.add_option("-r", "--ref", dest="REFS", action="append", default=[],
+              help="File or folder with reference histos")
+op.add_option("--ref-prefix", dest="REF_PREFIX", metavar="NAME", default="REF",
+              help="Treat /NAME/foo as a reference plot for /foo, and don't rescale /NAME histos")
+op.add_option("-c", "--spec", dest="SPECS", metavar="SPECSTR", action="append", default=[],
+              help="Provide a single scaling specification on the command line. Multiple -c options " +
+              "may be given. Specs will be _appended_ to any read from a file with -f/--specfile")
+op.add_option("-f", "--specfile", dest="SPECFILE", metavar="FILE", default=None,
+              help="Specify a file with histogram path patterns (and bin ranges) that are to be normalised")
+op.add_option("-i", "--in-place", dest="IN_PLACE", default=False, action="store_true",
+              help="Overwrite input file(s) rather than making <input>-scaled.yoda")
+op.add_option("-q", "--quiet", dest="VERBOSITY", action="store_const", const=0, default=1,
+              help="Reduce printouts to errors-only")
+op.add_option("-v", "--debug", dest="VERBOSITY", action="store_const", const=2, default=1,
+              help="Increase printouts to include debug info")
+opts, args = op.parse_args()
+
+
+## Define parser for scale specification strings
+from yoda.search import PointMatcher
+def parse_specstr(line):
+    ## Strip comments
+    if " #" in line:
+        line = line[:line.index(" #")]
+    ## Split whitespace-separated target and ref parts
+    parts = line.split()
+    pathpatt, scalespec = parts[0], " ".join(parts[1:])
+    ## Match and extract the spec command structure
+    import re
+    re_scalespec = re.compile(r"([\d\.eE\+\-]+x?)?(.*)")
+    m = re_scalespec.match(scalespec)
+    if not m:
+        raise Exception("Invalid scaling spec string: '%s'" % scalespec)
+    scalearg, refpatt = m.groups()
+    scaleop = "="
+    if not scalearg:
+        scalearg = "1x"
+    if scalearg.endswith("x"):
+        scaleop = "x"
+        scalearg = scalearg[:-1]
+    scalenum = float(scalearg)
+    rtn = (PointMatcher(pathpatt), PointMatcher(refpatt), scaleop, scalenum)
+    #print rtn
+    return rtn
+
+
+## Parse spec file and command-line specs
+SPECS = []
+if opts.SPECFILE:
+    with open(opts.SPECFILE, "r") as f:
+        for line in f:
+            line = line.strip()
+            if line.startswith("#"):
+                continue
+            SPECS.append( parse_specstr(line) )
+SPECS += [parse_specstr(s) for s in opts.SPECS]
+
+
+## Read reference histograms
+import yoda, os, glob
+reffiles = []
+for r in opts.REFS:
+    if os.path.isdir(r):
+        reffiles += glob.glob( os.path.join(r, "*.yoda") ) #< TODO: Add a yoda.util function for finding files that it can read
+    elif r.endswith(".yoda"):
+        reffiles.append(r)
+aos_ref = {}
+for r in reffiles:
+    aos = yoda.read(r)
+    for aopath, ao in aos.iteritems():
+        ## Use /REF_PREFIX/foo as a ref plot for /foo, if the ref prefix is set
+        if opts.REF_PREFIX and aopath.startswith("/%s/" % opts.REF_PREFIX):
+            aopath = aopath.replace("/%s/" % opts.REF_PREFIX, "/", 1) # NB. ao.path is unchanged
+        aos_ref[aopath] = ao
+if opts.VERBOSITY > 1:
+    print "DEBUG: %d reference histos" % len(aos_ref)
+
+
+## Loop over input files for rescaling
+for infile in args:
+    aos_out = {}
+    aos_in = yoda.read(infile)
+    for aopath, ao in sorted(aos_in.iteritems()):
+
+        ## Default is to write out the unrescaled AO if no match is found
+        aos_out[aopath] = ao
+
+        ## Don't rescale /REF_PREFIX objects
+        if aopath.startswith("/%s/" % opts.REF_PREFIX):
+            if opts.VERBOSITY > 1:
+                print "DEBUG: not rescaling ref object '%s'" % aopath
+            continue
+
+
+        ## Match specs to MC AO path, and thence ref AOs
+        aospecs = []
+        for s in SPECS:
+            if s[0].search_path(aopath):
+                aoref, (matcher, mode, factor) = None, s[1:]
+                if s[1].path is not None:
+                    refpaths = []
+                    if s[1].path.pattern == "REF":
+                        if aos_ref.has_key(aopath):
+                            refpaths = [aopath]
+                    else:
+                        refpaths = [p for p in aos_ref.keys() if (s[1] and s[1].search_path(p))]
+                    if opts.VERBOSITY > 1:
+                        print "DEBUG:", aopath, "=>", refpaths
+                    if not refpaths:
+                        print "ERROR: No reference histogram '%s' found for '%s'. Not rescaling" % (s[1].path.pattern, aopath)
+                        # TODO: should we actually skip it from the output entirely in this case?
+                        continue
+                    if len(refpaths) > 1:
+                        if opts.VERBOSITY > 0:
+                            print "WARNING: Multiple reference histograms found for '%s'. Using first: '%s'" % (aopath, refpaths[0])
+                    aoref = aos_ref[refpaths[0]]
+
+                aospecs.append( [aoref, s[1], mode, factor] )
+
+        ## Identify and check spec to be used for scaling determination
+        if not aospecs:
+            if opts.VERBOSITY > 1:
+                print "DEBUG: No scaling spec found for '%s'. Output is unscaled" % aopath
+            aoref, matcher, mode, factor = None, None, "x", 1.0
+        else:
+            if len(aospecs) > 1:
+                if opts.VERBOSITY > 0:
+                    print "WARNING: Multiple scaling specs found for '%s'. Using first: '%r'" % (aopath, aospecs[0])
+            aoref, matcher, mode, factor = aospecs[0]
+
+
+        ## Work out scalefactor
+        if aoref is None and mode == "x":
+            sf = factor
+        else:
+
+            # TODO: check binning compatibility (between types... hmm, check via equiv scatters?)
+            # TODO: need a function on Scatter for this? Or would break symmetry? (including 3D scatters)
+
+            ## Convert types to scatters
+            # TODO: depends on mode and types. Histo/Profile have outflows, Scatters do not
+            # TODO: provide a mode to only do rescales on Histos, not Profiles and Scatters?
+            # TODO: ranges (index or val) from spec file. Need syntax for 2D ranges
+            # TODO: assume full integral for now, but ignore overflows
+            # TODO: check that the Scatter type attribute matches the non-Scatter type
+            ## Note that we are assuming that it is the Scatter y (or z) axis that is to be rescaled
+            s = ao.mkScatter()
+            sref = None
+            if aoref:
+                sref = aoref.mkScatter()
+            if sref and type(s) is not type(sref):
+                if opts.VERBOSITY > 0:
+                    print "WARNING: Type mismatch between Scatter reps of '%s'. Are input and ref histos of same dimension?" % aopath
+                continue
+
+            def matchpoint(i, p):
+                class Pt(object):
+                    def __init__(self, n, xmin, xmax):
+                        self.n    = n
+                        self.xmin = xmin
+                        self.xmax = xmax
+                pt = Pt(i, p.xMin, p.xMax)
+                result = matcher.match_pos(pt)
+                #print result
+                return result
+
+
+            ## Work out normalisations
+            # TODO: Are these at all appropriate (with width factor?) for profiles? And ratios? Need an "ignore width" mode flag?
+            if type(s) is yoda.Scatter2D:
+                ## NOTE: sum(errs) only works if there's only one +- pair
+                # TODO: only loop over specified bins/points
+                assert(all(len(p.xErrs) == 2 for p in s.points))
+                norm = sum(p.y * sum(p.xErrs) for i, p in enumerate(s.points) if matchpoint(i, p))
+                if norm == 0:
+                    print "ERROR: Normalisation of given range is 0; cannot rescale this to a finite value. Result will be unscaled"
+                    sf = 1.0
+                elif mode == "=":
+                    sf = factor/norm
+                elif mode == "x":
+                    assert(all(len(p.xErrs) == 2 for p in sref.points))
+                    refnorm = sum(p.y * sum(p.xErrs) for i, p in enumerate(sref.points) if matchpoint(i, p))
+                    sf = factor*refnorm/norm
+            #
+            elif type(s) is yoda.Scatter3D:
+                ## NOTE: sum(errs) only works if there's only one +- pair
+                # TODO: only loop over specified bins/points
+                if opts.VERBOSITY > 0:
+                    print "WARNING: Point/bin range restrictions are not yet implemented for 2D scatter / 3D histo types"
+                assert(all(len(p.xErrs) == 2 and len(p.yErrs) == 2) for p in s.points)
+                norm = sum(p.z * sum(p.xErrs) * sum(p.yErrs) for p in s.points)
+                if norm == 0:
+                    print "ERROR: Normalisation of given range is 0; cannot rescale this to a finite value. Result will be unscaled"
+                    sf = 1.0
+                elif mode == "=":
+                    sf = factor/norm
+                elif mode == "x":
+                    assert(all(len(p.xErrs) == 2 and len(p.yErrs) == 2) for p in sref.points)
+                    refnorm = sum(p.z * sum(p.xErrs) * sum(p.yErrs) for p in sref.points)
+                    sf = factor*refnorm/norm
+
+
+        ## Rescale
+        if opts.VERBOSITY > 1:
+            print "DEBUG: '%s' rescaled by factor %.3g" % (aopath, sf)
+        if type(ao) in (yoda.Histo1D, yoda.Histo2D):
+            ao.scaleW(sf)
+        elif type(ao) is yoda.Profile1D:
+            # TODO: should this scale y or sumW? A: sumW... only relevant for merging & "norm" is wrong concept
+            print "WARNING:", ao.path, "no scaling applied to Profile1D"
+        elif type(ao) is yoda.Profile2D:
+            # TODO: should this scale z or sumW? A: sumW... only relevant for merging & "norm" is wrong concept
+            print "WARNING:", ao.path, "no scaling applied to Profile2D"
+        elif type(ao) is yoda.Scatter2D:
+            ao.scale(1, sf)
+        elif type(ao) is yoda.Scatter3D:
+            ao.scale(1, 1, sf)
+
+
+        ## Store rescaled result
+        # TODO: should apply scaling to original type or to the scatter?
+        aos_out[aopath] = ao
+
+    ## Write out rescaled file, possibly in-place (i.e. replace input -- not the default behaviour!)
+    if not opts.IN_PLACE:
+        infileparts = os.path.splitext( os.path.basename(infile) )
+        outfile = infileparts[0] + "-scaled.yoda"
+    else:
+        outfile = infile
+    yoda.write(sorted(aos_out.values()), outfile)

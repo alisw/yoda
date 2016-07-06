@@ -1,0 +1,3 @@
+#! /usr/bin/env bash
+
+yoda2root ${YODA_TESTS_SRC}/test1.yoda

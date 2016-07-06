@@ -1,0 +1,13 @@
+#! /usr/bin/env python
+
+import yoda
+
+s = yoda.Scatter1D("/foo")
+s.addPoint(3, 0.1)
+s.addPoint(10, (0.1,0.2))
+print s
+
+yoda.write([s], "s1d.yoda")
+aos = yoda.read("s1d.yoda")
+for _, ao in aos.iteritems():
+    print ao

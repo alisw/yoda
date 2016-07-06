@@ -1,0 +1,22 @@
+#! /usr/bin/env python
+
+import yoda, random
+
+p = yoda.Profile2D(5,0.,10., 5,0.,10., "/bar")
+for _ in xrange(100):
+    p.fill(random.gauss(5, 3), random.gauss(5, 2), random.gauss(10, 0.5))
+print p
+
+yoda.write([p], "p2d.yoda")
+aos = yoda.read("p2d.yoda")
+for _, ao in aos.iteritems():
+    print ao
+
+yoda.write([p], "p2d.dat")
+# aos = yoda.read("p2d.dat")
+# for _, ao in aos.iteritems():
+#     print ao
+
+s = yoda.mkScatter(p)
+s = p.mkScatter()
+s2 = s.mkScatter()

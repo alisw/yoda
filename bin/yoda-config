@@ -1,0 +1,60 @@
+#! /usr/bin/env bash
+## bin/yoda-config.  Generated from yoda-config.in by configure.
+
+## These variables need to exist
+## Note no use of $DESTDIR... we ignore it so that destdir can be used
+## for temp installs later copied to /
+prefix=/home/andy/heplocal
+exec_prefix=${prefix}
+datarootdir=${prefix}/share
+
+tmp=$(echo $* | egrep -- '--\<help\>|-\<h\>')
+if test $# -eq 0 || test -n "$tmp"; then
+    echo "yoda-config: configuration tool for the YODA data analysis library"
+    echo
+    echo "Usage: $( basename $0 ) [--help|-h] | "
+    echo "           [--{prefix,datadir,libdir,includedir}] | "
+    echo "           [--{cxxflags,ldflags,libs}] | "
+    echo "           [--version]"
+    echo "Options:"
+    echo "  --help | -h   : show this help message"
+    echo
+    echo "  --prefix      : show the installation prefix (cf. autoconf)"
+    echo "  --includedir  : show the path to the directory containing the YODA headers"
+    echo "  --libdir      : show the path to the directory containing the YODA libraries"
+    echo "  --pythonpath  : show the path(s) to the directory containing YODA's Python package"
+    echo
+    echo "  --cppflags    : returns a '-I' string for insertion into CPPFLAGS"
+    echo "  --libs        : returns a '-L/-l' string for insertion into LIBS or LIBADD"
+    echo
+    echo "  --version     : returns the YODA release version number"
+    exit 0
+fi
+
+OUT=""
+
+## "Atomic" build info
+tmp=$( echo "$*" | egrep -- '--\<prefix\>')
+test -n "$tmp" && OUT="$OUT /home/andy/heplocal"
+
+tmp=$( echo "$*" | egrep -- '--\<includedir\>')
+test -n "$tmp" && OUT="$OUT ${prefix}/include"
+
+tmp=$( echo "$*" | egrep -- '--\<libdir\>')
+test -n "$tmp" && OUT="$OUT ${exec_prefix}/lib"
+
+tmp=$( echo "$*" | egrep -- '--\<pythonpath\>')
+test -n "$tmp" && OUT="$OUT /home/andy/heplocal/lib/python2.7/site-packages"
+
+## "Pre-rolled" build info
+tmp=$( echo "$*" | egrep -- '--\<cppflags|cxxflags\>')
+test -n "$tmp" && OUT="$OUT -I${prefix}/include "
+
+tmp=$( echo "$*" | egrep -- '--\<ldflags|libs\>')
+test -n "$tmp" && OUT="$OUT -L${exec_prefix}/lib -lYODA"
+
+## Version
+tmp=$( echo "$*" | egrep -- '--\<version\>')
+test -n "$tmp" && echo 1.4.0 && exit 0
+
+echo $OUT
