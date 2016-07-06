@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2015 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
 //
 #include "YODA/ReaderAIDA.h"
 #include "YODA/Utils/StringUtils.h"
@@ -46,7 +46,6 @@ namespace YODA {
         const string plotname = dpsE->Attribute("name");
 
         // DPS to be stored
-        /// @todo Use a proper path handling class... like Boost.Filesystem's path, but without the PITA linking
         string sep = "/";
         if (plotpath.rfind("/") == plotpath.size()-1 || plotname.find("/") == 0) sep = "";
         /// @todo Clarify the memory management resulting from this... need shared_ptr?

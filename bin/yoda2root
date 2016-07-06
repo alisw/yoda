@@ -10,6 +10,8 @@ import yoda, os, sys, optparse
 from yoda.script_helpers import parse_x2y_args, filter_aos
 
 parser = optparse.OptionParser(usage=__doc__)
+parser.add_option("-g", "--as-graphs", dest="AS_GRAPHS", action="store_true", default=False,
+                  help="Convert to ROOT TGraphs rather than native types")
 parser.add_option("-m", "--match", dest="MATCH", metavar="PATT", default=None,
                   help="Only write out histograms whose path matches this regex")
 parser.add_option("-M", "--unmatch", dest="UNMATCH", metavar="PATT", default=None,
@@ -26,10 +28,13 @@ for i, o in in_out:
     of = ROOT.TFile(o, "recreate")
     analysisobjects = yoda.readYODA(i)
     filter_aos(analysisobjects, opts.MATCH, opts.UNMATCH)
-    rootobjects = [yoda.to_root(ao) for ao in analysisobjects.values()]
+    rootobjects = [yoda.root.to_root(ao, asgraph=opts.AS_GRAPHS) for ao in analysisobjects.values()]
 
     ## Protect against "/" in the histogram name, which ROOT does not like
     for obj in rootobjects:
+        ## It's possible for the ROOT objects to be null, if conversion failed
+        if obj is None:
+            continue
         ## Split the name on "/" directory separators
         parts = obj.GetName().split("/")
         ## Walk down dir tree, making it as we go

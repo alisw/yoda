@@ -1,3 +1,326 @@
+2016-04-28  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Version 1.6.1 release!
+
+	* Add a unit test for annotation handling correctness.
+
+	* Fix numerical precision of string storage of floating-point attributes.
+
+	* Fix a bug in use of the replacement for lexical_cast.
+
+2016-04-20  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Version 1.6.0 release!
+
+2016-04-16  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Extend SFINAE craziness to allow writing of any object
+	(e.g. smart pointer) that can be dereferenced to something that
+	has AnalysisObject as its base class... and also to any container
+	of them! Amazing what you can do with C++11!
+
+2016-04-14  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add a few consts to the arguments in Scatter error setting via pairs.
+
+	* Fix double-writing of minus errors in WriterYODA for Scatter1D
+	and Scatter3D. Thanks to Graeme Watt for the report and fix.
+
+2016-04-12  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Remove Boost dependency and require C++11 compilation.
+
+2016-04-08  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add a --guess-prefix flag to yoda-config, cf. fastjet-config.
+
+2015-12-20  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Change AO uncomputable division and mkScatter operations to
+	return/set NaN rather than 0 -- behaviour change requires new
+	major version series 1.6.
+
+2016-03-09  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Version 1.5.9! (oh no, we're out of convenient version number space!!)
+
+2016-03-08  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add abs function to eq calculation in yodadiff.
+
+2016-02-29  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Remove blocking of builds against ROOT6 -- it works fine.
+
+2016-02-16  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add a --add option to yodamerge, for simple histo
+	stacking. Thanks to Chris Gutschow for the patch, although my
+	spidey sense is tingling...
+
+2015-12-21  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Version 1.5.8!
+
+	* Add a rebinning unit test, pytest-rebin.
+
+	* Add optional range arguments to rebinBy methods, allowing block
+	rebinnings to be applied only within a range of (original) bin
+	indices.
+
+	* Add missing root.py submodule file. Oops!
+
+2015-12-20  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Convert linspace to use multiplication rather than repeated
+	addition to construct edge values, reducing precision errors.
+	Thanks to Holger Schulz for the suggestion.
+
+2015-12-15  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add xEdges() methods to Axis1D and the Histo1D and Profile1D
+	that use it. The returned edge lists are finite only, i.e. they do
+	not contain the +-inf values on the ends of the internal
+	BinSearcher edges.
+
+2015-12-13  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Version 1.5.7!
+
+	* Extend batch-adding in ReaderYODA to include Scatter types.
+
+	* Add a match_aos function to Python, for filtering AO lists/dicts
+	on path patterns and anti-patterns.
+
+2015-12-12  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add a flag to yoda2root to change whether the conversion is to
+	'proper' types or to (more robustly) TGraphAsymmErrors objects.
+
+	* Fix accidental use of S2D_MODE flag where S1D_MODE should have
+	been used, in yodamerge. Thanks again to Radek Podskubka.
+
+	* Allow new rebinTo() merging to restrict to a subset of the bin
+	range, merging the outside bins into the overflow distributions.
+
+2015-12-11  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add a rebinTo() method on Axis1D, allowing rebinning to a new
+	given set of bin edges. Add an explicitly named rebinBy(), and
+	overloaded rebin() aliases for both, and pass through to Histo1D
+	and Profile1D APIs. Plus other internal tweaks to binning
+	functionality... anticipating/fuelling the fundamental rewrite.
+
+2015-12-10  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Improve ReaderYODA to use temporary bin containers, to minimise
+	calling sort when adding bins to histos. A quick test suggests
+	this has sped up big file reading by a factor of 30 or so!!!
+
+	* Add missing addBins() operators (only in C++ so far) to Histo
+	and Profile classes.
+
+	* Fix Counter::numEntries to return an unsigned long rather than double.
+	Thanks to Radek Podskubka for the bug discovery and detective work.
+
+	* Improve sortedvector to insert new elements into the sorted
+	position, rather than resorting the whole vector. This should be a
+	bit more efficient, but I think the asymptotic complexity is the
+	same. Might help a bit with reading big data files.
+
+2015-12-04  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add yoda.HAS_ROOT_SUPPORT flag, for API user convenience.
+
+2015-11-22  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Version 1.5.6!
+
+	* Make AO path setting and retrieval prepend a leading slash if it
+	is missing (unless the path is completely empty).
+
+2015-11-21  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add root2yoda conversion script.
+
+	* Deprecating yoda.to_root() in favour of yoda.root module, which
+	contains to_root and to_yoda functions, as well as a ROOT file
+	walking function.
+
+2015-11-17  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Map ROOT-to-YODA (as scatter) functions to Python. Phew.
+
+	* Map new to-ROOT functions, including TGraph ones, to Python.
+
+2015-11-16  Andy Buckley  <andy.buckley@cern.ch>
+
+	* ROOTCnv.h: Add toScatter3D ROOT->YODA, and toNew* YODA->ROOT
+	conversion routines.
+
+	* ROOTCnv.h: Fix bug in toTH2D(const Histo2D& h) as used with
+	ROOT6. Thanks to Tim Martin.
+
+2015-11-05  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Fix double-dealloc in new Point class hierarchy Python mapping.
+
+2015-10-23  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Make the version() function inline, and the numerical constants static.
+
+	* Change the default plotting backend to MPL rather than the much slower PGF.
+
+2015-10-09  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Reinstate __getitem__  special methods for Scatters in Python.
+
+	* Provide dim() methods/attributes for the Point and Bin base classes.
+
+	* Rename set*Err to set*Errs for the asymmetric variants. Plural
+	aliases are also provided for the symm case.
+
+2015-10-08  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Pass std::pairs by reference in Point*D error setting functions.
+
+	* Add Point base class with generic accessors to Point*D
+	properties via an integer axis ID argument.
+
+2015-10-07  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Version 1.5.5 release.
+
+	* Counter.pyx: Typo fix in sumW mapping.
+
+	* yodamerge: Re-add checking for non-emptiness before merging, in
+	case the empty ones are missing a ScaledBy attribute. Won't
+	normally apply to Profiles, since they don't usually get
+	normalised, but we might as well include them in the vetoing since
+	empty histos don't contribute to the merging. Added a command-line
+	option to disable this heuristic since in very strange situations
+	a null sumW does not mean no fills.
+
+2015-10-06  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Version 1.5.4 release.
+
+	* ReaderYODA: Typo fixes in Counter filling of sumW and Scatter3D reader state flag.
+
+	* yodamerge: add merging heuristics for Scatter1D and Scatter3D (needs unification)
+
+2015-10-05  Andy Buckley  <andy.buckley@cern.ch>
+
+	* yodamerge: add a fix for empty-in-all-runs histo merging; thanks
+	to Daniel Rauch.
+
+2015-10-04  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Adding dim() function and corresponding Python attribute to AnalysisObject.
+
+	* Map Counter arithmetic operations into Python.
+
+	* Map Counter mkScatter() into Python (as bound method).
+
+	* Add a YODA::version() function, mapped into Python and used to
+	set the yoda.__version__ variable.
+
+2015-10-01  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Expose the yoda.plot() Python function in a way that doesn't
+	automatically induce a dependence on matplotlib.
+
+2015-09-30  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Fix yodals to work with Counters.
+
+2015-09-23  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Version 1.5.3 release.
+
+	* Update Boost version requirement to 1.48, due to use of
+	type_traits/has_dereference, and add a check for that feature's
+	header.
+
+2015-09-19  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Further improvements to handling leading _multiple_ # marks on
+	YODA format BEGIN lines.
+
+2015-09-11  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Version 1.5.2 release.
+
+	* Tolerate leading # symbols without separating whitespace on
+	BEGIN lines in YODA format parsing.
+
+	* Further improvements to handling LowStatsErrors in YODA format writing.
+
+	* Fix shadowed variables that made ReaderYODA unhappy.
+
+2015-09-03  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Version 1.5.1 release.
+
+	* Fix bugs in Python wrapper for Point3D.
+
+2015-08-28  Peter Richardson  <Peter.Richardson@durham.ac.uk>
+
+	* Catch LowStatsError when writing multiple histograms so only the
+	histogram with the problem is not written
+
+2015-08-28  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Version 1.5.0 release.
+
+2015-08-24  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Improve protection of efficiency calculation against the weird
+	world of general weighted events.
+
+2015-08-17  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add some protection against calling matplotlib's legend() method
+	if there are no valid labels to display, to suppress an MPL
+	warning message when using yoda.plot().
+
+2015-08-12  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Fix cut & paste typo, and add LowStatsError catching in Profile division.
+
+2015-08-11  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Replace old Spirit-based ReaderYODA with the new hand-rolled one.
+
+	* Adding filling of Histo1D, Profile1D, Histo2D and Profile2D in
+	new ReaderYODA. More hacking of Axis and Histo/Profile
+	interfaces... needs clean-up, and infinite binning implementation.
+
+2015-08-07  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Convert the ReaderFLAT parser to also use a simple hand-written parser rather than Spirit.
+
+2015-08-04  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add methods for Counter, Axis and Histo1D internal state
+	access/setting, mainly for new persistency. NEEDS PRE-RELEASE TESTING!!!
+
+2015-07-30  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Remove # markers from YODA format BEGIN/END output. The parser
+	will continue to accept them.
+
+2015-07-29  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add SFINAE trait magic to restrict write(RANGE) functions to
+	accepting iterables. Also generalising to allow either
+	container-of-objects or container-of-pointers args by providing a
+	writeBody(AO*) function to complement writeBody(AO&). Based on a
+	patch from Lukas Heinrich.
+
+	* Add configuration of output streams to throw exceptions on
+	bad/fail state (based on patch from Lukas Heinrich).
+
 2015-07-01  Andy Buckley  <andy.buckley@cern.ch>
 
 	* 1.4.0 release.

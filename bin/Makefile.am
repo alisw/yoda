@@ -14,7 +14,7 @@ dist_bin_SCRIPTS += yodacmp yodaplot
 ## Data format conversion
 dist_bin_SCRIPTS += yodacnv yoda2aida yoda2flat aida2yoda aida2flat flat2yoda
 if ENABLE_ROOT
-dist_bin_SCRIPTS += yoda2root
+dist_bin_SCRIPTS += yoda2root root2yoda
 endif
 
 endif

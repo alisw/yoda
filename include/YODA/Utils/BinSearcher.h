@@ -1,19 +1,18 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2015 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_BINSEARCHER_H
 #define YODA_BINSEARCHER_H
 
+#include "YODA/Utils/fastlog.h"
+#include "YODA/Utils/MathUtils.h"
 #include <cstdlib>
 #include <cmath>
 #include <vector>
 #include <limits>
-#include "YODA/Utils/fastlog.h"
-#include "YODA/Utils/MathUtils.h"
-#include <boost/shared_ptr.hpp>
-#include <boost/shared_array.hpp>
+#include <memory>
 
 namespace YODA {
   namespace Utils {
@@ -141,9 +140,9 @@ namespace YODA {
     public:
 
       /// Default constructor
-      /// @todo What's the point?
+      /// @todo What's the point? Remove?
       BinSearcher() {
-        _est.reset(new LinEstimator(1, 0, 1));
+        _est = std::make_shared<LinEstimator>(0, 0, 1);
       }
 
       /// Copy constructor
@@ -168,10 +167,9 @@ namespace YODA {
         _updateEdges(edges);
 
         if (edges.empty()) {
-          _est.reset(new LinEstimator(0, 0, 0));
+          _est = std::make_shared<LinEstimator>(0, 0, 1);
         } else if (edges.front() <= 0.0) {
-          _est.reset(new LinEstimator(edges.size()-1,
-				      edges.front(), edges.back()));
+          _est = std::make_shared<LinEstimator>(edges.size()-1, edges.front(), edges.back());
         } else {
           LinEstimator linEst(edges.size()-1, edges.front(), edges.back());
           LogEstimator logEst(edges.size()-1, edges.front(), edges.back());
@@ -189,9 +187,9 @@ namespace YODA {
           // subtle bug here if the if statement is the other way around, as
           // (nan < linsum) -> false always.  But (nan > linsum) -> false also.
           if (log_avg < lin_avg) { //< Use log estimator if its avg performance is better than lin
-            _est.reset(new LogEstimator(logEst));
+            _est = std::make_shared<LogEstimator>(logEst);
           } else { // Else use linear estimation
-            _est.reset(new LinEstimator(linEst));
+            _est = std::make_shared<LinEstimator>(linEst);
           }
         }
       }
@@ -225,6 +223,79 @@ namespace YODA {
         if (i == 0 || i == _edges.size()-1) return -1;
         return i;
       }
+
+
+      /// Public access to the list of bin edges, including infinities at either end
+      const std::vector<double>& edges() const { return _edges; }
+
+      /// Public access to a bin edge value
+      double edge(size_t i) const { return edges().at(i); }
+
+      /// How many bin edges in this searcher?
+      size_t size() const { return _edges.size(); }
+
+
+      /// Check if two BinSearcher objects have the same edges
+      bool same_edges(const BinSearcher& other) const {
+        if (size() != other.size()) return false;
+        for (size_t i = 1; i < size()-1; i++) {
+          /// @todo Be careful about using fuzzyEquals... should be an exact comparison?
+          if (!fuzzyEquals(edge(i), other.edge(i))) return false;
+        }
+        return true;
+      }
+
+
+      /// Find edges which are shared between BinSearcher objects, within numeric tolerance
+      /// @note The return vector is sorted and includes -inf and inf
+      std::vector<double> shared_edges(const BinSearcher& other) const {
+        std::vector<double> rtn;
+        rtn.push_back(-std::numeric_limits<double>::infinity());
+
+        // Primarily loop over the smaller axis, since shared_edges \in {smaller}
+        const int ndiff = size() - other.size();
+        const BinSearcher& larger = (ndiff > 0) ? *this : other;
+        const BinSearcher& smaller = (ndiff > 0) ? other : *this;
+        size_t jmin = 1; //< current index in inner axis, to avoid unnecessary recomparisons (since vectors are sorted)
+        for (size_t i = 1; i < smaller.size()-1; ++i) {
+          const double x = smaller.edge(i);
+          for (size_t j = jmin; j < larger.size()-1; ++j) {
+            if (fuzzyEquals(x, larger.edge(j))) {
+              rtn.push_back(x);
+              jmin = j+1;
+              break;
+            }
+          }
+        }
+
+        rtn.push_back(std::numeric_limits<double>::infinity());
+        std::sort(rtn.begin(), rtn.end());
+        return rtn;
+      }
+
+
+      // /// Check if two BinSearcher objects have compatible edges, i.e. one is a subset of the other
+      // bool subset_edges(const BinSearcher& other) const {
+      //   if (_edges.size() != other._edges.size()) return false;
+
+      //   const int ndiff = numBins() - other.numBins();
+      //   if (ndiff == 0) return same_edges(other);
+
+      //   const BinSearcher& larger = (ndiff > 0) ? *this : other;
+      //   const BinSearcher& smaller = (ndiff < 0) ? other : *this;
+      //   size_t jmin = 1; //< current index in larger axis, to avoid unnecessary recomparisons
+      //   for (size_t i = 1; i < smaller.size()-1; ++i) {
+      //     bool found_match = false;
+      //     for (size_t j = jmin; j < larger.size()-1; ++j) {
+      //       if (fuzzyEquals(smaller.edge(i), larger.edge(j))) {
+      //         found_match = true;
+      //         jmin = j+1;
+      //         break;
+      //       }
+      //     }
+      //     if (!found_match) return false;
+      //   }
+      // }
 
 
     protected:
@@ -294,21 +365,10 @@ namespace YODA {
       }
 
 
-      /// Check if two BinSearcher objects have the same edges
-      bool sameBinning(const BinSearcher& other) const {
-        if (_edges.size() != other._edges.size()) return false;
-        for (size_t i = 1; i < _edges.size()-1; i++) {
-          /// @todo Be careful about using fuzzyEquals... should be an exact comparison?
-          if (!fuzzyEquals(_edges[i], other._edges[i])) return false;
-        }
-        return true;
-      }
-
-
     protected:
 
       /// Estimator object to be used for making fast bin index guesses
-      boost::shared_ptr<Estimator> _est;
+      std::shared_ptr<Estimator> _est;
 
       /// List of bin edges, including +- inf at either end
       std::vector<double> _edges;

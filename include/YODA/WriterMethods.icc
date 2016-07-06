@@ -3,7 +3,6 @@
 // the Writer base class, but code duplication can't be avoided without a
 // preprocessor hack like this, AFAIK.
 
-
 /// @name Writing a single analysis object.
 //@{
 
@@ -12,10 +11,20 @@ static void write(std::ostream& stream, const AnalysisObject& ao) {
   create().write(stream, ao);
 }
 
+/// Write out pointer-like object @a ao to output stream @a stream.
+template <typename T>
+static typename std::enable_if<DerefableToAO<T>::value>::type //< -> void if valid
+write(std::ostream& stream, const T& ao) { write(stream, *ao); }
+
 /// Write out object @a ao to file @a filename.
 static void write(const std::string& filename, const AnalysisObject& ao) {
   create().write(filename, ao);
 }
+
+/// Write out pointer-like object @a ao to file @a filename.
+template <typename T>
+static typename std::enable_if<DerefableToAO<T>::value>::type //< -> void if valid
+write(const std::string& filename, const T& ao) { write(filename, *ao); }
 
 //@}
 
@@ -23,43 +32,16 @@ static void write(const std::string& filename, const AnalysisObject& ao) {
 /// @name Writing multiple analysis objects by collection.
 //@{
 
-/// Write out a collection of objects @a objs to output stream @a stream.
-static void write(std::ostream& stream, const std::vector<AnalysisObject*>& aos) {
-  create().write(stream, aos.begin(), aos.end());
-}
-/// Write out a collection of objects @a objs to file @a filename.
-static void write(const std::string& filename, const std::vector<AnalysisObject*>& aos) {
-  create().write(filename, aos.begin(), aos.end());
+template <typename RANGE>
+static typename std::enable_if<CIterable<RANGE>::value>::type
+write(std::ostream& stream, const RANGE& aos) {
+  create().write(stream, std::begin(aos), std::end(aos));
 }
 
-
-/// Write out a collection of objects @a objs to output stream @a stream.
-static void write(std::ostream& stream, const std::list<AnalysisObject*>& aos) {
-  create().write(stream, aos.begin(), aos.end());
-}
-/// Write out a collection of objects @a objs to file @a filename.
-static void write(const std::string& filename, const std::list<AnalysisObject*>& aos) {
-  create().write(filename, aos.begin(), aos.end());
-}
-
-
-/// Write out a collection of objects @a objs to output stream @a stream.
-static void write(std::ostream& stream, const std::set<AnalysisObject*>& aos) {
-  create().write(stream, aos.begin(), aos.end());
-}
-/// Write out a collection of objects @a objs to file @a filename.
-static void write(const std::string& filename, const std::set<AnalysisObject*>& aos) {
-  create().write(filename, aos.begin(), aos.end());
-}
-
-
-/// Write out a collection of objects @a objs to output stream @a stream.
-static void write(std::ostream& stream, const std::deque<AnalysisObject*>& aos) {
-  create().write(stream, aos.begin(), aos.end());
-}
-/// Write out a collection of objects @a objs to file @a filename.
-static void write(const std::string& filename, const std::deque<AnalysisObject*>& aos) {
-  create().write(filename, aos.begin(), aos.end());
+template <typename RANGE>
+static typename std::enable_if<CIterable<RANGE>::value>::type
+write(const std::string& filename, const RANGE& aos) {
+  create().write(filename, std::begin(aos), std::end(aos));
 }
 
 //@}
@@ -70,17 +52,19 @@ static void write(const std::string& filename, const std::deque<AnalysisObject*>
 
 /// Write out the objects specified by start iterator @a begin and end
 /// iterator @a end to output stream @a stream.
+///
+/// @todo Add SFINAE trait checking for AOITER = DerefableToAO
 template <typename AOITER>
-static void write(std::ostream& stream,
-                  const AOITER& begin, const AOITER& end) {
+static void write(std::ostream& stream, const AOITER& begin, const AOITER& end) {
   create().write(stream, begin, end);
 }
 
 /// Write out the objects specified by start iterator @a begin and end
 /// iterator @a end to file @a filename.
+///
+/// @todo Add SFINAE trait checking for AOITER = DerefableToAO
 template <typename AOITER>
-static void write(const std::string& filename,
-                  const AOITER& begin, const AOITER& end) {
+static void write(const std::string& filename, const AOITER& begin, const AOITER& end) {
   create().write(filename, begin, end);
 }
 

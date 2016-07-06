@@ -1,13 +1,12 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2015 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
 //
 #include "YODA/Writer.h"
 #include "YODA/WriterYODA.h"
 #include "YODA/WriterAIDA.h"
 #include "YODA/WriterFLAT.h"
-#include "boost/algorithm/string.hpp"
 #include <iostream>
 #include <typeinfo>
 #include <sstream>
@@ -19,7 +18,7 @@ namespace YODA {
 
   Writer& mkWriter(const std::string& name) {
     const size_t lastdot = name.find_last_of(".");
-    const string fmt = boost::to_lower_copy((lastdot == std::string::npos) ? name : name.substr(lastdot+1));
+    const string fmt = Utils::toLower((lastdot == std::string::npos) ? name : name.substr(lastdot+1));
     // cout << "File extension: " << fmt << endl;
     if (fmt == "yoda") return WriterYODA::create();
     if (fmt == "aida") return WriterAIDA::create();
@@ -37,12 +36,20 @@ namespace YODA {
 
   void Writer::write(const std::string& filename, const AnalysisObject& ao) {
     ofstream outstream;
-    // cout << "Opening " << filename << " for writing" << endl;
-    outstream.open(filename.c_str());
-    write(outstream, ao);
-    outstream.close();
+    outstream.exceptions ( std::ifstream::failbit | std::ifstream::badbit );
+    try {
+      outstream.open(filename.c_str());
+      write(outstream, ao);
+      outstream.close();
+    } catch(std::ifstream::failure e) {
+      throw WriteError("writing to filename " + filename + " failed: " + e.what());
+    }
   }
 
+  void Writer::writeBody(std::ostream& stream, const AnalysisObject* ao) {
+    if(!ao) throw WriteError("attempting to write a null AnalysisObject");
+    writeBody(stream,*ao);
+  }
 
   void Writer::writeBody(std::ostream& stream, const AnalysisObject& ao) {
     const string aotype = ao.type();

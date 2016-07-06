@@ -34,4 +34,8 @@ for i, f in enumerate(filenames):
         extrainfo = ""
         if opts.VERBOSITY >= 2 and hasattr(ao, "sumW"):
             extrainfo = " sumW={sumw:.3g}".format(sumw=ao.sumW())
-        print "{path:<50} {type:<10} {nobjs:4d} bins/pts".format(path=p, type=ao.type, nobjs=len(ao)), extrainfo
+        try:
+            nobjstr = "{n:4d}".format(n=len(ao))
+        except:
+            nobjstr = "   -"
+        print "{path:<50} {type:<10} {nobjs} bins/pts".format(path=p, type=ao.type, nobjs=nobjstr) + extrainfo

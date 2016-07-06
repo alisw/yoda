@@ -10,6 +10,13 @@ cdef class Bin(util.Base):
 
 
     @property
+    def dim(self):
+        """None -> int
+        Dimension of the fill space (should match containing Histo/Profile)"""
+        return self.bptr().dim()
+
+
+    @property
     def numEntries(self):
         """
         The number of entries that have filled the bin.

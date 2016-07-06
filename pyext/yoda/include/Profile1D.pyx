@@ -1,4 +1,3 @@
-
 cdef class Profile1D(AnalysisObject):
     """
     1D profile histogram, used to measure mean values of a y variable, binned in x.
@@ -29,9 +28,6 @@ cdef class Profile1D(AnalysisObject):
 
     cdef inline c.Profile1D* p1ptr(self) except NULL:
         return <c.Profile1D*> self.ptr()
-    # TODO: remove
-    cdef inline c.Profile1D* _Profile1D(self) except NULL:
-        return <c.Profile1D*> self.ptr()
 
 
     def __init__(self, *args, **kwargs):
@@ -61,9 +57,11 @@ cdef class Profile1D(AnalysisObject):
 
 
     def __len__(self):
+        "Number of bins"
         return self.p1ptr().bins().size()
 
     def __getitem__(self, i):
+        "Direct access to bins"
         cdef size_t ii = cutil.pythonic_index(i, self.p1ptr().bins().size())
         return cutil.new_borrowed_cls(ProfileBin1D, & self.p1ptr().bin(ii), self)
 
@@ -186,6 +184,11 @@ cdef class Profile1D(AnalysisObject):
         """High x edge of the histo."""
         return self.p1ptr().xMax()
 
+    @property
+    def xEdges(self):
+        """All x edges of the histo."""
+        return self.p1ptr().xEdges()
+
 
     @property
     def numBins(self):
@@ -223,15 +226,31 @@ cdef class Profile1D(AnalysisObject):
         self.p1ptr().addBins(cedges)
         return self
 
+
     def mergeBins(self, a, b):
         """mergeBins(ia, ib) -> None.
         Merge bins from indices ia through ib."""
         self.p1ptr().mergeBins(a, b)
 
-    def rebin(self, int n):
-        """(low, high) -> None.
-        Add a bin."""
-        self.p1ptr().rebin(n)
+    def rebinBy(self, n, begin=0, end=None):
+        """(n) -> None.
+        Merge every group of n bins together (between begin and end, if specified)."""
+        if end is None:
+            end = self.numBins
+        self.p1ptr().rebinBy(int(n), begin, end)
+
+    def rebinTo(self, edges):
+        """([edges]) -> None.
+        Merge bins to produce the given new edges... which must be a subset of the current ones."""
+        self.p1ptr().rebinTo(edges)
+
+    def rebin(self, arg, **kwargs):
+        """(n) -> None or ([edges]) -> None
+        Merge bins, like rebinBy if an int argument is given; like rebinTo if an iterable is given."""
+        if hasattr(arg, "__iter__"):
+            self.rebinTo(arg, **kwargs)
+        else:
+            self.rebinBy(arg, **kwargs)
 
 
     def mkScatter(self, usefocus=False, usestddev=False):

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2015 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_SCATTER1D_H
 #define YODA_SCATTER1D_H
@@ -115,6 +115,10 @@ namespace YODA {
     //@}
 
 
+    /// Dimension of this data object
+    size_t dim() const { return 1; }
+
+
     /// @name Modifiers
     //@{
 
@@ -125,7 +129,7 @@ namespace YODA {
 
     /// Scaling of x axis
     void scaleX(double scalex) {
-      BOOST_FOREACH (Point1D& p, _points) p.scaleX(scalex);
+      for (Point1D& p : _points) p.scaleX(scalex);
     }
 
     //@}
@@ -201,7 +205,7 @@ namespace YODA {
 
     /// Insert a collection of new points
     void addPoints(const Points& pts) {
-      BOOST_FOREACH (const Point1D& pt, pts) addPoint(pt);
+      for (const Point1D& pt : pts) addPoint(pt);
     }
 
     //@}
@@ -218,7 +222,7 @@ namespace YODA {
     /// @todo Better name? Make this the add operation?
     /// @todo Convert/extend to accept a Range or generic
     void combineWith(const std::vector<Scatter1D>& others) {
-      BOOST_FOREACH (const Scatter1D& s, others) combineWith(s);
+      for (const Scatter1D& s : others) combineWith(s);
     }
 
     //@}
@@ -279,42 +283,6 @@ namespace YODA {
 
 
   /////////////////////////////////
-
-
-  // /// @name Combining scatters: global operators, assuming aligned points
-  // /// @todo This "1D histo-like behaviour" breaks the x/y symmetry... is there another way?
-  // //@{
-
-  // /// Add two scatters
-  // Scatter1D add(const Scatter1D& first, const Scatter1D& second);
-
-
-  // /// Add two scatters
-  // inline Scatter1D operator + (const Scatter1D& first, const Scatter1D& second) {
-  //   return add(first, second);
-  // }
-
-
-  // /// Subtract two scatters
-  // Scatter1D subtract(const Scatter1D& first, const Scatter1D& second);
-
-
-  // /// Subtract two scatters
-  // inline Scatter1D operator - (const Scatter1D& first, const Scatter1D& second) {
-  //   return subtract(first, second);
-  // }
-
-
-  // /// Divide two scatters
-  // Scatter1D divide(const Scatter1D& numer, const Scatter1D& denom);
-
-
-  // /// Divide two scatters
-  // inline Scatter1D operator / (const Scatter1D& numer, const Scatter1D& denom) {
-  //   return divide(numer, denom);
-  // }
-
-  // //@}
 
 
   /// @name Transforming operations on Scatter1D

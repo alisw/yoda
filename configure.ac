@@ -1,7 +1,7 @@
 ## Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([YODA],[1.4.0],[yoda@projects.hepforge.org],[YODA])
+AC_INIT([YODA],[1.6.1],[yoda@projects.hepforge.org],[YODA])
 
 ## Check and block installation into the src/build dir
 if test "$prefix" = "$PWD"; then
@@ -31,42 +31,16 @@ AC_CEDAR_OSX
 ## Set default compiler flags
 if test "x$CXXFLAGS" = "x"; then CXXFLAGS="-O3"; fi
 
-## Make compiler error messages more readable if gfilt is installed.
-#AC_CEDAR_CXXFILTER
-
-## Checks for programs.
+## Compiler setup
 AC_LANG(C++)
 AC_PROG_CXX
-
-dnl this block can go once we decide to have C++11 always on
-AC_MSG_CHECKING([whether to include C++11 flag for testing])
-AC_ARG_ENABLE(stdcxx11,
-        AC_HELP_STRING([--enable-stdcxx11],
-        [turn on C++11 flag (only for testing, do not use in production!)]),
-        [],
-        [enable_stdcxx11=no]
-        )
-
-
-if test "x$enable_stdcxx11" = "xyes"; then
-AC_MSG_RESULT([yes])
-dnl remove the wrapper if block and "optional" once we decide to have C++11 always on
-AX_CXX_COMPILE_STDCXX_11([noext],[optional])
-if test "x$HAVE_CXX11" != "x1"; then
-AC_MSG_ERROR([compiler does not recognize requested c++11 option])
-fi
-else
-AC_MSG_RESULT([no])
-fi
-
-
+AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory])
 
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_DISABLE_STATIC
 AC_LIBTOOL_DLOPEN
 AC_PROG_LIBTOOL
-
 
 ## Work out library suffix for the build
 LIB_SUFFIX=\\\"$shrext_cmds\\\"
@@ -76,24 +50,13 @@ AC_SUBST([LIB_SUFFIX])
 AC_CEDAR_CHECKCXXFLAG([-pedantic], [AM_CXXFLAGS="$AM_CXXFLAGS -pedantic"])
 AC_CEDAR_CHECKCXXFLAG([-Wall], [AM_CXXFLAGS="$AM_CXXFLAGS -Wall -Wno-format"])
 dnl AC_CEDAR_CHECKCXXFLAG([-std=c++98], [AM_CXXFLAGS="$AM_CXXFLAGS -std=c++98"])
+dnl AC_CEDAR_CHECKCXXFLAG([-Wno-unused-variable], [AM_CXXFLAGS="$AM_CXXFLAGS -Wno-unused-variable"])
 
 ## Debug flag (default=none)
 AC_ARG_ENABLE([debug], [AC_HELP_STRING(--enable-debug, [build with debugging symbols  @<:@default=no@:>@])], [], [enable_debug=no])
 if test x$enable_debug = xyes; then
   [AM_CXXFLAGS="$AM_CXXFLAGS -g"]
 fi
-
-
-## Required Boost C++ utility library
-BOOST_REQUIRE([1.41.0])
-BOOST_FOREACH
-BOOST_SMART_PTR
-BOOST_FIND_HEADER([boost/lexical_cast.hpp])
-BOOST_FIND_HEADER([boost/assign.hpp])
-BOOST_FIND_HEADER([boost/spirit/include/qi.hpp])
-BOOST_FIND_HEADER([boost/spirit/include/phoenix_operator.hpp])
-BOOST_FIND_HEADER([boost/fusion/include/adapt_struct.hpp])
-BOOST_BUG_IN_FOREACH
 
 
 ## Optional ROOT compatibility
@@ -111,17 +74,17 @@ if test "x$enable_root" = "xyes"; then
     ROOT_MINOR_VERSION=`echo $ROOT_VERSION | cut -d. -f2 | cut -d/ -f1`
     ROOT_MICRO_VERSION=`echo $ROOT_VERSION | cut -d. -f2 | cut -d/ -f2`
     AC_MSG_RESULT([$ROOT_VERSION ($ROOT_MAJOR_VERSION,$ROOT_MINOR_VERSION,$ROOT_MICRO_VERSION)])
-    if test "$ROOT_MAJOR_VERSION" -ne 5; then
+    if test "$ROOT_MAJOR_VERSION" -lt 5; then
       enable_root=no;
-      AC_MSG_WARN([ROOT major version is not 5 -- not building extra ROOT compatibility tools])
-    fi
-    if test "$ROOT_MINOR_VERSION" -lt 33; then
-      enable_root=no;
-      AC_MSG_WARN([ROOT version is less than 5.33 -- not building extra ROOT compatibility tools])
-    fi
-    if test "$ROOT_MINOR_VERSION" -eq 33 && test "$ROOT_MICRO_VERSION" -lt 2; then
-      enable_root=no;
-      AC_MSG_WARN([ROOT version is less than 5.33/02 -- not building extra ROOT compatibility tools])
+      AC_MSG_WARN([ROOT major version is < 5 -- not building extra ROOT compatibility tools])
+    elif test "$ROOT_MAJOR_VERSION" -eq 5; then
+      if test "$ROOT_MINOR_VERSION" -lt 33; then
+        enable_root=no;
+        AC_MSG_WARN([ROOT version is less than 5.33 -- not building extra ROOT compatibility tools])
+      elif test "$ROOT_MINOR_VERSION" -eq 33 && test "$ROOT_MICRO_VERSION" -lt 2; then
+        enable_root=no;
+        AC_MSG_WARN([ROOT version is less than 5.33/02 -- not building extra ROOT compatibility tools])
+      fi
     fi
     # TODO: Test for existence of TPython, instance_from_void API, etc.
     #AM_CXXFLAGS="$AM_CXXFLAGS -Wno-long-long"
@@ -175,6 +138,7 @@ fi
 ## Finish Python extension testing
 if test x$enable_pyext == xyes; then
   ## Set extra Python extension build flags (to cope with Cython output code oddities)
+  PYEXT_CXXFLAGS=$CXXFLAGS
   AC_CEDAR_CHECKCXXFLAG([-Wno-unused-but-set-variable], [PYEXT_CXXFLAGS="$PYEXT_CXXFLAGS -Wno-unused-but-set-variable"])
   AC_CEDAR_CHECKCXXFLAG([-Wno-sign-compare], [PYEXT_CXXFLAGS="$PYEXT_CXXFLAGS -Wno-sign-compare"])
   AC_CEDAR_CHECKCXXFLAG([-Wno-strict-prototypes], [PYEXT_CXXFLAGS="$PYEXT_CXXFLAGS -Wno-strict-prototypes"])
@@ -196,7 +160,6 @@ AM_CONDITIONAL(WITH_CYTHON, [test x$CYTHON_FOUND = xyes])
 
 ## Extend and substitute the default build flags after lib testing
 AM_CPPFLAGS="-I\$(top_srcdir)/include -I\$(top_builddir)/include"
-AM_CPPFLAGS="$AM_CPPFLAGS $BOOST_CPPFLAGS"
 AC_SUBST(AM_CPPFLAGS)
 AC_SUBST(AM_CXXFLAGS)
 

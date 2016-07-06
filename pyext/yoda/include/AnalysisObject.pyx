@@ -6,11 +6,11 @@ cdef class AnalysisObject(util.Base):
     """
 
     # Pointer upcasting mechanism
-    # DEPRECATED
     cdef inline c.AnalysisObject* aoptr(self) except NULL:
         return <c.AnalysisObject*> self.ptr()
 
     # Pointer upcasting mechanism
+    # DEPRECATED
     cdef inline c.AnalysisObject* _AnalysisObject(self) except NULL:
         return <c.AnalysisObject*> self.ptr()
 
@@ -23,8 +23,13 @@ cdef class AnalysisObject(util.Base):
 
     @property
     def type(self):
+        "String identifier for this type"
         return self.aoptr().type()
 
+    @property
+    def dim(self):
+        "Fill dimension or plot dimension of this object, for fillables and scatters respectively"
+        return self.aoptr().dim()
 
     @property
     def annotations(self):

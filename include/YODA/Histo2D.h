@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2015 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Histo2D_h
 #define YODA_Histo2D_h
@@ -117,7 +117,9 @@ namespace YODA {
     //@}
 
 
-  public:
+    /// Fill dimension of this data object
+    size_t dim() const { return 2; }
+
 
     /// @name Modifiers
     //@{
@@ -167,21 +169,27 @@ namespace YODA {
     /// Add a bin to an axis described by its x and y ranges.
     void addBin(Axis::EdgePair1D xrange, Axis::EdgePair1D yrange) {
        _axis.addBin(xrange, yrange);
-     }
+    }
 
-
-    /// @brief Bins addition operator
+    /// @brief Bin addition operator
     ///
-    /// Add multiple bins from edge cuts without resetting
-    void addBins(const Axis::Edges &xcuts, const Axis::Edges &ycuts) {
-      _axis.addBins(xcuts, ycuts);
+    /// Add a bin, possibly already populated
+    void addBin(const Bin& bin) {
+      _axis.addBin(bin);
     }
 
 
     /// @brief Bins addition operator
     ///
+    /// Add multiple bins from edge cuts without resetting
+    void addBins(const Axis::Edges& xcuts, const Axis::Edges& ycuts) {
+      _axis.addBins(xcuts, ycuts);
+    }
+
+    /// @brief Bins addition operator
+    ///
     /// Add multiple bins without resetting
-    void addBins(const Bins &bins) {
+    void addBins(const Bins& bins) {
       _axis.addBins(bins);
     }
 
@@ -210,6 +218,7 @@ namespace YODA {
     // void rebin(size_t factorX, size_t factorY){
     //   _axis.rebin(factorX, factorY);
     // }
+
 
     void eraseBin(size_t index) {
       _axis.eraseBin(index);
@@ -270,6 +279,8 @@ namespace YODA {
     Dbn2D& totalDbn() { return _axis.totalDbn(); }
     /// Access summary distribution, including gaps and overflows (const version)
     const Dbn2D& totalDbn() const { return _axis.totalDbn(); }
+    /// Set summary distribution, including gaps and overflows
+    void setTotalDbn(const Dbn2D& dbn) { _axis.setTotalDbn(dbn); }
 
 
     // /// @brief Access an outflow (non-const)

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2015 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_MathUtils_H
 #define YODA_MathUtils_H
@@ -23,21 +23,25 @@
 #include <numeric>
 #include <cassert>
 #include <limits>
+#include <climits>
+#include <cfloat>
 
 namespace YODA {
 
 
-  const double MAXDOUBLE = std::numeric_limits<double>::max();
-  const double MAXINT = std::numeric_limits<int>::max();
+  /// Pre-defined numeric type limits
+  /// @deprecated Prefer the standard DBL/INT_MAX
+  const static double MAXDOUBLE = DBL_MAX; // was std::numeric_limits<double>::max(); -- warns in GCC5
+  const static double MAXINT = INT_MAX; // was std::numeric_limits<int>::max(); -- warns in GCC5
 
   /// A pre-defined value of \f$ \pi \f$.
-  const double PI = M_PI;
+  static const double PI = M_PI;
 
   /// A pre-defined value of \f$ 2\pi \f$.
-  const double TWOPI = 2*M_PI;
+  static const double TWOPI = 2*M_PI;
 
   /// A pre-defined value of \f$ \pi/2 \f$.
-  const double HALFPI = M_PI_2;
+  static const double HALFPI = M_PI_2;
 
   /// Enum for signs of numbers.
   enum Sign { MINUS = -1, ZERO = 0, PLUS = 1 };
@@ -250,10 +254,8 @@ namespace YODA {
     assert(nbins > 0);
     std::vector<double> rtn;
     const double interval = (end-start)/static_cast<double>(nbins);
-    double edge = start;
     for (size_t i = 0; i < nbins; ++i) {
-      rtn.push_back(edge);
-      edge += interval;
+      rtn.push_back(start + i*interval);
     }
     assert(rtn.size() == nbins);
     if (include_end) rtn.push_back(end); // exact end, not result of n * interval

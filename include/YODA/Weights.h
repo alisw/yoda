@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2015 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Weights_h
 #define YODA_Weights_h
@@ -217,7 +217,7 @@ namespace YODA {
     }
 
     /// Not equals
-    bool operator == (const Weights& other) {
+    bool operator != (const Weights& other) const {
       return !(*this == other);
     }
 

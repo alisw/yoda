@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2015 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_SORTEDVECTOR_H
 #define YODA_SORTEDVECTOR_H
@@ -15,9 +15,14 @@ namespace YODA {
   namespace Utils {
 
 
-    /// Specialisation of std::vector to allow indexed access to ordered elements
+    /// @brief Specialisation of std::vector to allow indexed access to ordered elements
+    ///
+    /// @warning This still scales as n^2 log n or so, if inserting n
+    /// elements. Prefer to populate a whole std::vector first, then add, so the
+    /// sorting/searchin only needs to be done once.
     ///
     /// @todo Need to template on the value-comparison definition?
+    /// @todo Generalise the type of source container for constructor argument
     template <typename T>
     class sortedvector : public std::vector<T> {
     public:
@@ -33,8 +38,12 @@ namespace YODA {
 
       /// Insertion operator (push_back should not be used!)
       void insert(const T& val) {
-        std::vector<T>::push_back(val);
-        std::sort(this->begin(), this->end());
+        // Dumb way:
+        //   std::vector<T>::push_back(val);
+        //   std::sort(this->begin(), this->end());
+        //
+        // A bit better:
+        std::vector<T>::insert(std::upper_bound(std::vector<T>::begin(), std::vector<T>::end(), val), val);
       }
 
 

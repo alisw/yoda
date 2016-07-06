@@ -58,7 +58,7 @@ cdef class Counter(AnalysisObject):
     def sumW(self):
         """() -> float
         Sum of weights filled into this counter."""
-        return self.h1ptr().sumW()
+        return self.cptr().sumW()
 
     #@property
     def sumW2(self):
@@ -91,45 +91,43 @@ cdef class Counter(AnalysisObject):
         self.cptr().scaleW(w)
 
 
-    # def mkScatter(self):
-    #     """None -> Scatter1D.
-    #     Convert this Counter to a Scatter1D, with x representing the value and error."""
-    #     cdef c.Scatter1D s1 = c.mkScatter_Counter(deref(self.cptr()))
-    #     return cutil.new_owned_cls(Scatter1D, s1.newclone())
+    def mkScatter(self):
+        """None -> Scatter1D.
+        Convert this Counter to a Scatter1D, with x representing the value and error."""
+        cdef c.Scatter1D s1 = c.mkScatter_Counter(deref(self.cptr()))
+        return cutil.new_owned_cls(Scatter1D, s1.newclone())
 
-    # def divide(self, Counter c, efficiency=False):
-    #     cdef c.Scatter1D s1
-    #     if not efficiency:
-    #         s1 = c.Histo1D_div_Histo1D(deref(self.cptr()), deref(c.cptr()))
-    #     else:
-    #         s1 = c.Histo1D_eff_Histo1D(deref(self.cptr()), deref(c.cptr()))
-    #     return cutil.new_owned_cls(Scatter1D, s1.newclone())
+    def divideBy(self, Counter other, efficiency=False):
+        cdef c.Scatter1D s1
+        if not efficiency:
+            s1 = c.Counter_div_Counter(deref(self.cptr()), deref(other.cptr()))
+        else:
+            s1 = c.Counter_eff_Counter(deref(self.cptr()), deref(other.cptr()))
+        return cutil.new_owned_cls(Scatter1D, s1.newclone())
 
 
     ## In-place special methods
 
-    # def __iadd__(Histo1D self, Histo1D other):
-    #     c.Histo1D_iadd_Histo1D(self.h1ptr(), other.h1ptr())
-    #     return self
+    def __iadd__(Counter self, Counter other):
+        c.Counter_iadd_Counter(self.cptr(), other.cptr())
+        return self
 
-    # def __isub__(Histo1D self, Histo1D other):
-    #     c.Histo1D_isub_Histo1D(self.h1ptr(), other.h1ptr())
-    #     return self
+    def __isub__(Counter self, Counter other):
+        c.Counter_isub_Counter(self.cptr(), other.cptr())
+        return self
 
 
     ## Unbound special methods
 
-    # def __add__(Histo1D self, Histo1D other):
-    #     h = Histo1D()
-    #     cutil.set_owned_ptr(h, c.Histo1D_add_Histo1D(self.h1ptr(), other.h1ptr()))
-    #     return h
+    def __add__(Counter self, Counter other):
+        h = Counter()
+        cutil.set_owned_ptr(h, c.Counter_add_Counter(self.cptr(), other.cptr()))
+        return h
 
-    # def __sub__(Histo1D self, Histo1D other):
-    #     h = Histo1D()
-    #     cutil.set_owned_ptr(h, c.Histo1D_sub_Histo1D(self.h1ptr(), other.h1ptr()))
-    #     return h
+    def __sub__(Counter self, Counter other):
+        h = Counter()
+        cutil.set_owned_ptr(h, c.Counter_sub_Counter(self.cptr(), other.cptr()))
+        return h
 
-    # def __div__(Histo1D self, Histo1D other):
-    #     h = Histo1D()
-    #     cutil.set_owned_ptr(h, c.Histo1D_div_Histo1D(self.h1ptr(), other.h1ptr()))
-    #     return h
+    def __div__(Counter self, Counter other):
+        return self.divideBy(other)

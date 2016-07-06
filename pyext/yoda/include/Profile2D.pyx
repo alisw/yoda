@@ -29,9 +29,6 @@ cdef class Profile2D(AnalysisObject):
 
     cdef inline c.Profile2D* p2ptr(self) except NULL:
         return <c.Profile2D*> self.ptr()
-    # TODO: Remove
-    cdef inline c.Profile2D* _Profile2D(self) except NULL:
-        return <c.Profile2D*> self.ptr()
 
 
     def __init__(self, *args, **kwargs):
@@ -48,10 +45,14 @@ cdef class Profile2D(AnalysisObject):
         cutil.set_owned_ptr(self, new c.Profile2D(nxbins, xlow, xhigh,  nybins, ylow, yhigh,  string(path), string(title)))
 
 
-    # TODO: remove
+    def __len__(self):
+        return self.p2ptr().numBins()
+
     def __getitem__(self, py_ix):
+        "Direct access to bins"
         cdef size_t i = cutil.pythonic_index(py_ix, self.p2ptr().numBins())
         return cutil.new_borrowed_cls(ProfileBin2D, & self.p2ptr().bins().at(i), self)
+
 
     def __repr__(self):
         return "<%s '%s' %d bins, sumw=%0.2g>" % (self.__class__.__name__, self.path, len(self.bins), self.sumW())
@@ -232,9 +233,6 @@ cdef class Profile2D(AnalysisObject):
     def numBins(self):
         """() -> int
         Number of bins (not including overflows)."""
-        return self.p2ptr().numBins()
-
-    def __len__(self):
         return self.p2ptr().numBins()
 
     @property

@@ -14,8 +14,7 @@ cdef class Scatter2D(AnalysisObject):
     TODO: more documentation!
     """
 
-    # TODO: replace with e.g. self.tptr() [typed ptr]
-    cdef inline c.Scatter2D* _Scatter2D(self) except NULL:
+    cdef inline c.Scatter2D* s2ptr(self) except NULL:
         return <c.Scatter2D*> self.ptr()
 
     def __init__(self, *args, **kwargs):
@@ -31,7 +30,7 @@ cdef class Scatter2D(AnalysisObject):
     def clone(self):
         """() -> Scatter2D.
         Clone this Scatter2D."""
-        return cutil.new_owned_cls(Scatter2D, self._Scatter2D().newclone())
+        return cutil.new_owned_cls(Scatter2D, self.s2ptr().newclone())
 
     def __repr__(self):
         return "<%s '%s' %d points>" % (self.__class__.__name__, self.path, len(self.points))
@@ -41,7 +40,7 @@ cdef class Scatter2D(AnalysisObject):
     def numPoints(self):
         """() -> int
         Number of points in this scatter."""
-        return self._Scatter2D().numPoints()
+        return self.s2ptr().numPoints()
 
     def __len__(self):
         return self.numPoints
@@ -54,12 +53,11 @@ cdef class Scatter2D(AnalysisObject):
 
     def point(self, size_t i):
         """Access the i'th point."""
-        return cutil.new_borrowed_cls(Point2D, &self._Scatter2D().point(i), self)
+        return cutil.new_borrowed_cls(Point2D, &self.s2ptr().point(i), self)
 
-    # TODO: remove?
-    # def __getitem__(self, py_ix):
-    #     cdef size_t i = cutil.pythonic_index(py_ix, self._Scatter2D().numPoints())
-    #     return cutil.new_borrowed_cls(Point2D, &self._Scatter2D().point(i), self)
+    def __getitem__(self, py_ix):
+        cdef size_t i = cutil.pythonic_index(py_ix, self.s2ptr().numPoints())
+        return cutil.new_borrowed_cls(Point2D, &self.s2ptr().point(i), self)
 
 
     def addPoint(self, *args, **kwargs):
@@ -77,7 +75,7 @@ cdef class Scatter2D(AnalysisObject):
         self.__addPoint_point(Point2D(x, y, xerrs, yerrs))
 
     def __addPoint_point(self, Point2D p):
-        self._Scatter2D().addPoint(p._Point2D()[0])
+        self.s2ptr().addPoint(p.p2ptr()[0])
 
     def addPoints(self, iterable):
         """Add several new points."""
@@ -93,33 +91,33 @@ cdef class Scatter2D(AnalysisObject):
         except TypeError:
             # Could be an iterable...
             for other in others:
-                self._Scatter2D().combineWith(deref(other._Scatter2D()))
+                self.s2ptr().combineWith(deref(other.s2ptr()))
         else:
-            self._Scatter2D().combineWith(deref(other._Scatter2D()))
+            self.s2ptr().combineWith(deref(other.s2ptr()))
 
 
     def mkScatter(self):
         """None -> Scatter2D.
         Make a new Scatter2D. Exists to allow mkScatter calls on any AnalysisObject,
         even if it already is a scatter."""
-        cdef c.Scatter2D s2 = c.mkScatter_Scatter2D(deref(self._Scatter2D()))
+        cdef c.Scatter2D s2 = c.mkScatter_Scatter2D(deref(self.s2ptr()))
         return cutil.new_owned_cls(Scatter2D, s2.newclone())
 
 
     def scaleX(self, a):
         """(float) -> None
         Scale the x values and errors of the points in this scatter by factor a."""
-        self._Scatter2D().scaleX(a)
+        self.s2ptr().scaleX(a)
 
     def scaleY(self, a):
         """(float) -> None
         Scale the y values and errors of the points in this scatter by factor a."""
-        self._Scatter2D().scaleY(a)
+        self.s2ptr().scaleY(a)
 
     def scaleXY(self, ax=1.0, ay=1.0):
         """(float=1, float=1) -> None
         Scale the values and errors of the points in this scatter by factors ax, ay."""
-        self._Scatter2D().scaleXY(ax, ay)
+        self.s2ptr().scaleXY(ax, ay)
 
     # TODO: remove
     def scale(self, ax=1.0, ay=1.0):
@@ -138,7 +136,7 @@ cdef class Scatter2D(AnalysisObject):
         except:
             raise RuntimeError("Callback is not of type (double) -> double")
         fptr = (<c.dbl_dbl_fptr*><size_t>ctypes.addressof(callback))[0]
-        c.Scatter2D_transformX(deref(self._Scatter2D()), fptr)
+        c.Scatter2D_transformX(deref(self.s2ptr()), fptr)
 
     def transformY(self, f):
         """(fn) -> None
@@ -149,13 +147,13 @@ cdef class Scatter2D(AnalysisObject):
         except:
             raise RuntimeError("Callback is not of type (double) -> double")
         fptr = (<c.dbl_dbl_fptr*><size_t>ctypes.addressof(callback))[0]
-        c.Scatter2D_transformY(deref(self._Scatter2D()), fptr)
+        c.Scatter2D_transformY(deref(self.s2ptr()), fptr)
 
 
     # # TODO: remove?
     # def __add__(Scatter2D self, Scatter2D other):
-    #     return cutil.new_owned_cls(Scatter2D, c.Scatter2D_add_Scatter2D(self._Scatter2D(), other._Scatter2D()))
+    #     return cutil.new_owned_cls(Scatter2D, c.Scatter2D_add_Scatter2D(self.s2ptr(), other.s2ptr()))
 
     # # TODO: remove?
     # def __sub__(Scatter2D self, Scatter2D other):
-    #     return cutil.new_owned_cls(Scatter2D, c.Scatter2D_sub_Scatter2D(self._Scatter2D(), other._Scatter2D()))
+    #     return cutil.new_owned_cls(Scatter2D, c.Scatter2D_sub_Scatter2D(self.s2ptr(), other.s2ptr()))

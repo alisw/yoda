@@ -18,4 +18,13 @@
 #undef YODA_VERSION
 
 
+#include <string>
+namespace YODA {
+  /// Namespaced version string function
+  inline std::string version() {
+    return YODA_VERSION;
+  }
+}
+
+
 #endif

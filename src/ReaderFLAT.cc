@@ -1,10 +1,11 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2015 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
 //
 #include "YODA/ReaderFLAT.h"
 #include "YODA/Utils/StringUtils.h"
+#include "YODA/Utils/getline.h"
 #include "YODA/Exceptions.h"
 
 #include "YODA/Counter.h"
@@ -17,154 +18,138 @@ using namespace std;
 
 namespace YODA {
 
-  qi::symbols<char, int> ReaderFLAT::bgroup;
-  qi::symbols<char, int> ReaderFLAT::egroup;
-  //ReaderFLAT::counter ReaderFLAT::_counter;
-  ReaderFLAT::scatter1d ReaderFLAT::_scatter1d;
-  ReaderFLAT::scatter2d ReaderFLAT::_scatter2d;
-  ReaderFLAT::scatter3d ReaderFLAT::_scatter3d;
-  map<string, string> ReaderFLAT::_annotations;
 
+  void ReaderFLAT::read(istream& stream, vector<AnalysisObject*>& aos) {
 
-  namespace {
+    // Data format parsing states, representing current data type
+    enum Context { NONE, //< outside any data block
+                   SCATTER1D, SCATTER2D, SCATTER3D };
 
-    /// @todo Move to Utils?
-    // Portable version of getline taken from
-    // http://stackoverflow.com/questions/6089231/getting-std-ifstream-to-handle-lf-cr-and-crlf
-    istream& safe_getline(istream& is, string& t) {
-      t.clear();
-
-      // The characters in the stream are read one-by-one using a streambuf.
-      // That is faster than reading them one-by-one using the istream.
-      // Code that uses streambuf this way must be guarded by a sentry object.
-      // The sentry object performs various tasks,
-      // such as thread synchronization and updating the stream state.
-      istream::sentry se(is, true);
-      streambuf* sb = is.rdbuf();
-
-      for (;;) {
-        int c = sb->sbumpc();
-        switch (c) {
-        case '\n':
-          return is;
-        case '\r':
-          if (sb->sgetc() == '\n')
-            sb->sbumpc();
-          return is;
-        case EOF:
-          // Also handle the case when the last line has no line ending
-          if (t.empty())
-            is.setstate(ios::eofbit);
-          return is;
-        default:
-          t += (char)c;
-        }
-      }
-    }
-
-  }
-
-
-  void ReaderFLAT::_readDoc(istream& stream, vector<AnalysisObject*>& aos) {
-
-    // These are the context groups we know. We need
-    // that map to dynamically change the parser depending
-    // on what we read in.
-    map<int, string> groups;
-    groups[1] = "HISTOGRAM";
-    groups[2] = "HISTO1D";
-    groups[3] = "HISTO2D";
-    groups[4] = "COUNTER";
-
-    // Initialize the group parser
-    pair <int, string> pis;  // To make boost's BOOST_FOREACH happy
-    BOOST_FOREACH(pis, groups) {
-      bgroup.add(pis.second, pis.first);
-    }
-
-    // The grammars for content (data) and context (group)
-    data_grammar<string::iterator, ascii::space_type> data_parser;
-    group_grammar<string::iterator> group_parser;
-
-    // Now loop over all lines of the input file
-    int context = 0;
-    bool contextchange = false;
+    /// State of the parser: line number, line, parser context, and pointer(s) to the object currently being assembled
+    unsigned int nline = 0;
     string s;
-    while (safe_getline(stream, s)) {
-      // First check if we found a "# BEGIN ..." or "# END ..." line.
-      // This marks a context change.
-      int newcontext = 0;
-      // if (qi::parse(s.begin(), s.end(), group_parser, newcontext)) { //< Only supported in Boost 1.47+
-      string::iterator it1 = s.begin();
-      if (qi::parse(it1, s.end(), group_parser, newcontext)) { //< End patch
-        context = newcontext;
-        if (context > 0) {
-          // We are inside a group now, so we are looking for the corresponding END and ignore all BEGINs
-          //cout << "New context = " << context << endl;
-          bgroup.clear();
-          egroup.add(groups[context], -context);
-        }
-        if (context < 0) {
-          // We are outside a group, so we are looking for any BEGIN and ignore all ENDs
-          egroup.remove(groups[-context]);
-          BOOST_FOREACH(pis, groups) bgroup.add(pis.second, pis.first);
-          contextchange = true;
-        }
-      }
+    Context context = NONE;
+    //
+    AnalysisObject* aocurr = NULL; //< Generic current AO pointer (useful or not?)
+    Scatter1D* s1curr = NULL;
+    Scatter2D* s2curr = NULL;
+    Scatter3D* s3curr = NULL;
 
-      // Depending on the context, we either want to parse the line as data,
-      // or to write out what we parsed so far (when leaving a group).
-      switch (context) {
-        case 1:  // we are inside HISTOGRAM
-        case 2:  // we are inside HISTO1D
-        case 3:  // we are inside HISTO2D
-        case 4:  // we are inside COUNTER
-          // if (! qi::phrase_parse(s.begin(), s.end(), data_parser, ascii::space) ) { //< Only supported in Boost 1.47+
-          { //< Why the explicit scoping? Added by supplied patch from Andrii Verbytskyi
-            string::iterator it2 = s.begin();
-            if (! qi::phrase_parse(it2, s.end(), data_parser, ascii::space) ) { //< End patch
-              cerr << "failed parsing this line:\n" << s << endl;
-            }
-          } //< End patch scoping
-          break;
-        case -1:  // we left HISTOGRAM
-        case -2:  // we left HISTO1D
-        case -3:  // we left HISTO2D
-          if (contextchange) {
-            YODA::AnalysisObject* ao = NULL;
-            if (!_scatter1d.points.empty()) {
-              // cout << "S1D" << endl;
-              ao = new YODA::Scatter1D(_scatter1d.points);
-            } else if (!_scatter2d.points.empty()) {
-              // cout << "S2D" << endl;
-              ao = new YODA::Scatter2D(_scatter2d.points);
-            } else if (!_scatter3d.points.empty()) {
-              // cout << "S3D" << endl;
-              ao = new YODA::Scatter3D(_scatter3d.points);
-            } else {
-              throw YODA::ReadError("No data points found in flat histogram reading!");
-            }
-            pair<string, string> pss; // to make boost's BOOST_FOREACH happy
-            BOOST_FOREACH (pss, _annotations) ao->setAnnotation(pss.first, pss.second);
-            aos.push_back(ao);
-            cleanup();
-            contextchange = false;
+    // Loop over all lines of the input file
+    while (Utils::getline(stream, s)) {
+      nline += 1;
+
+      // Trim the line
+      Utils::itrim(s);
+
+      // Ignore blank lines
+      if (s.empty()) continue;
+
+      // Ignore comments (whole-line only, without indent, and still allowed for compatibility on BEGIN/END lines)
+      if (s.find("#") == 0 && s.find("BEGIN") == string::npos && s.find("END") == string::npos) continue;
+
+
+      // Now the context-sensitive part
+      if (context == NONE) {
+
+        // We require a BEGIN line to start a context
+        if (s.find("BEGIN ") == string::npos) throw ReadError("Unexpected line in YODA format parsing when BEGIN expected");
+
+        // Split into parts
+        vector<string> parts;
+        istringstream iss(s); string tmp;
+        while (iss >> tmp) {
+          if (tmp != "#") parts.push_back(tmp);
+        }
+
+        // Extract context from BEGIN type
+        assert(parts.size() >= 2 && parts[0] == "BEGIN");
+        const string ctxstr = parts[1];
+
+        // Get block path if possible
+        const string path = (parts.size() >= 3) ? parts[2] : "";
+
+        // Set the new context and create a new AO to populate
+        if (ctxstr == "VALUE") {
+          context = SCATTER1D;
+          s1curr = new Scatter1D(path);
+          aocurr = s1curr;
+        } else if (ctxstr == "HISTO1D" || ctxstr == "HISTOGRAM") {
+          context = SCATTER2D;
+          s2curr = new Scatter2D(path);
+          aocurr = s2curr;
+        } else if (ctxstr == "HISTO2D" || ctxstr == "HISTOGRAM2D") {
+          context = SCATTER3D;
+          s3curr = new Scatter3D(path);
+          aocurr = s3curr;
+        }
+        // cout << aocurr->path() << " " << nline << " " << context << endl;
+
+      } else {
+        /// @todo Flatten conditional blocks with more else-ifs?
+
+        // Throw error if a BEGIN line is found
+        if (s.find("BEGIN ") != string::npos) throw ReadError("Unexpected BEGIN line in FLAT format parsing before ending current BEGIN..END block");
+
+        // Clear/reset context and register AO if END line is found
+        /// @todo Throw error if mismatch between BEGIN (context) and END types
+        if (s.find("END ") != string::npos) {
+          aos.push_back(aocurr);
+          context = NONE;
+          aocurr = NULL; s1curr = NULL; s2curr = NULL; s3curr = NULL;
+          continue; ///< @todo Improve... would be good to avoid these continues
+        }
+
+        // Extract annotations for all types
+        const size_t ieq = s.find("=");
+        if (ieq != string::npos) {
+          const string akey = s.substr(0, ieq);
+          const string aval = s.substr(ieq+1);
+          aocurr->setAnnotation(akey, aval);
+          continue; ///< @todo Improve... would be good to avoid these continues
+        }
+
+        // Populate the data lines for points
+        istringstream iss(s);
+        switch (context) {
+
+        case SCATTER1D:
+          {
+            double x(0), exm(0), exp(0);
+            iss >> x >> exm >> exp;
+            s1curr->addPoint(Point1D(x, exm, exp));
           }
           break;
-        case -4:  // we left COUNTER
-          /// @todo Complete when context-sensitive parsing available, to avoid clash with symm H0D
-          // if (contextchange) {
-          //   YODA::AnalysisObject* ao = NULL;
-          //   ao = new YODA::Counter(_counter);
-          //   pair<string, string> pss; // to make boost's BOOST_FOREACH happy
-          //   BOOST_FOREACH (pss, _annotations) ao->setAnnotation(pss.first, pss.second);
-          //   aos.push_back(ao);
-          //   cleanup();
-          //   contextchange = false;
-          // }
+
+        case SCATTER2D:
+          {
+            double xlow(0), xhigh(0), y(0), eym(0), eyp(0);
+            iss >> xlow >> xhigh >> y >> eym >> eyp;
+            const double x = (xlow + xhigh)/2.0;
+            const double ex = (xhigh - xlow)/2.0;
+            s2curr->addPoint(Point2D(x, y, ex, ex, eym, eyp));
+          }
           break;
+
+        case SCATTER3D:
+          {
+            double xlow(0), xhigh(0), ylow(0), yhigh(0), z(0), ezm(0), ezp(0);
+            iss >> xlow >> xhigh >> ylow >> yhigh >> z >> ezm >> ezp;
+            const double x = (xlow + xhigh)/2.0;
+            const double ex = (xhigh - xlow)/2.0;
+            const double y = (ylow + yhigh)/2.0;
+            const double ey = (yhigh - ylow)/2.0;
+            s3curr->addPoint(Point3D(x, y, z, ex, ex, ey, ey, ezm, ezp));
+          }
+          break;
+
+        default:
+          throw ReadError("Unknown context in FLAT format parsing: how did this happen?");
+        }
+
       }
     }
+
   }
 
 

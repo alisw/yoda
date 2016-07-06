@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2015 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
 //
 #include "YODA/WriterAIDA.h"
 #include "YODA/Utils/StringUtils.h"
@@ -85,7 +85,7 @@ namespace YODA {
     os << "    <dimension dim=\"0\" title=\"\" />\n";
     os << "    <dimension dim=\"1\" title=\"\" />\n";
     os << "    <annotation>\n";
-    BOOST_FOREACH (const string& a, s.annotations()) {
+    for (const string& a : s.annotations()) {
       if (a.empty()) continue;
       os << "      <item key=\"" << Utils::encodeForXML(a)
          << "\" value=\"" << Utils::encodeForXML(s.annotation(a)) << "\" />\n";
@@ -94,7 +94,7 @@ namespace YODA {
       os << "      <item key=\"Type\" value=\"Scatter2D\" />\n";
     }
     os << "    </annotation>\n";
-    BOOST_FOREACH (const Point2D& pt, s.points()) {
+    for (const Point2D& pt : s.points()) {
       os << "    <dataPoint>\n";
       os << "      <measurement value=\"" << pt.x()
 	 << "\" errorPlus=\"" << pt.xErrPlus()

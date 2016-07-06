@@ -14,7 +14,7 @@ cdef class Scatter3D(AnalysisObject):
     TODO: more documentation!
     """
 
-    cdef inline c.Scatter3D* _Scatter3D(self) except NULL:
+    cdef inline c.Scatter3D* s3ptr(self) except NULL:
         return <c.Scatter3D*> self.ptr()
 
     def __init__(self, *args, **kwargs):
@@ -30,7 +30,7 @@ cdef class Scatter3D(AnalysisObject):
     def clone(self):
         """() -> Scatter3D.
         Clone this Scatter3D."""
-        return cutil.new_owned_cls(Scatter3D, self._Scatter3D().newclone())
+        return cutil.new_owned_cls(Scatter3D, self.s3ptr().newclone())
 
     def __repr__(self):
         return "<%s '%s' %d points>" % (self.__class__.__name__, self.path, len(self.points))
@@ -40,7 +40,7 @@ cdef class Scatter3D(AnalysisObject):
     def numPoints(self):
         """() -> int
         Number of points in this scatter."""
-        return self._Scatter3D().numPoints()
+        return self.s3ptr().numPoints()
 
     def __len__(self):
         return self.numPoints
@@ -53,12 +53,11 @@ cdef class Scatter3D(AnalysisObject):
 
     def point(self, size_t i):
         """Access the i'th point."""
-        return cutil.new_borrowed_cls(Point3D, &self._Scatter3D().point(i), self)
+        return cutil.new_borrowed_cls(Point3D, &self.s3ptr().point(i), self)
 
-    # TODO: remove?
-    # def __getitem__(self, py_ix):
-    #     cdef size_t i = cutil.pythonic_index(py_ix, self._Scatter3D().numPoints())
-    #     return cutil.new_borrowed_cls(Point3D, &self._Scatter3D().point(i), self)
+    def __getitem__(self, py_ix):
+        cdef size_t i = cutil.pythonic_index(py_ix, self.s3ptr().numPoints())
+        return cutil.new_borrowed_cls(Point3D, &self.s3ptr().point(i), self)
 
 
     def addPoint(self, *args, **kwargs):
@@ -76,7 +75,7 @@ cdef class Scatter3D(AnalysisObject):
         self.__addPoint_point(Point3D(x, y, z, xerrs, yerrs, zerrs))
 
     def __addPoint_point(self, Point3D p):
-        self._Scatter3D().addPoint(p._Point3D()[0])
+        self.s3ptr().addPoint(p.p3ptr()[0])
 
     def addPoints(self, iterable):
         """Add several new points."""
@@ -92,38 +91,38 @@ cdef class Scatter3D(AnalysisObject):
         except TypeError:
             # Could be an iterable...
             for other in others:
-                self._Scatter3D().combineWith(deref(other._Scatter3D()))
+                self.s3ptr().combineWith(deref(other.s3ptr()))
         else:
-            self._Scatter3D().combineWith(deref(other._Scatter3D()))
+            self.s3ptr().combineWith(deref(other.s3ptr()))
 
 
     def mkScatter(self):
         """None -> Scatter3D.
         Make a new Scatter3D. Exists to allow mkScatter calls on any AnalysisObject,
         even if it already is a scatter."""
-        cdef c.Scatter3D s3 = c.mkScatter_Scatter3D(deref(self._Scatter3D()))
+        cdef c.Scatter3D s3 = c.mkScatter_Scatter3D(deref(self.s3ptr()))
         return cutil.new_owned_cls(Scatter3D, s3.newclone())
 
 
     def scaleX(self, a):
         """(float) -> None
         Scale the x values and errors of the points in this scatter by factor a."""
-        self._Scatter3D().scaleX(a)
+        self.s3ptr().scaleX(a)
 
     def scaleY(self, a):
         """(float) -> None
         Scale the y values and errors of the points in this scatter by factor a."""
-        self._Scatter3D().scaleY(a)
+        self.s3ptr().scaleY(a)
 
     def scaleZ(self, a):
         """(float) -> None
         Scale the z values and errors of the points in this scatter by factor a."""
-        self._Scatter3D().scaleZ(a)
+        self.s3ptr().scaleZ(a)
 
     def scaleXYZ(self, ax=1, ay=1, az=1):
         """(float=1, float=1, float=1) -> None
         Scale the values and errors of the points in this scatter by factors ax, ay, az."""
-        self._Scatter3D().scaleXYZ(ax, ay, az)
+        self.s3ptr().scaleXYZ(ax, ay, az)
 
     # TODO: remove
     def scale(self, ax=1, ay=1, az=1):
@@ -142,7 +141,7 @@ cdef class Scatter3D(AnalysisObject):
         except:
             raise RuntimeError("Callback is not of type (double) -> double")
         fptr = (<c.dbl_dbl_fptr*><size_t>ctypes.addressof(callback))[0]
-        c.Scatter3D_transformX(deref(self._Scatter3D()), fptr)
+        c.Scatter3D_transformX(deref(self.s3ptr()), fptr)
 
     def transformY(self, f):
         """(fn) -> None
@@ -153,7 +152,7 @@ cdef class Scatter3D(AnalysisObject):
         except:
             raise RuntimeError("Callback is not of type (double) -> double")
         fptr = (<c.dbl_dbl_fptr*><size_t>ctypes.addressof(callback))[0]
-        c.Scatter3D_transformY(deref(self._Scatter3D()), fptr)
+        c.Scatter3D_transformY(deref(self.s3ptr()), fptr)
 
     def transformZ(self, f):
         """(fn) -> None
@@ -164,13 +163,13 @@ cdef class Scatter3D(AnalysisObject):
         except:
             raise RuntimeError("Callback is not of type (double) -> double")
         fptr = (<c.dbl_dbl_fptr*><size_t>ctypes.addressof(callback))[0]
-        c.Scatter3D_transformZ(deref(self._Scatter3D()), fptr)
+        c.Scatter3D_transformZ(deref(self.s3ptr()), fptr)
 
 
     # # TODO: remove?
     # def __add__(Scatter3D self, Scatter3D other):
-    #     return cutil.new_owned_cls(Scatter3D, c.Scatter3D_add_Scatter3D(self._Scatter3D(), other._Scatter3D()))
+    #     return cutil.new_owned_cls(Scatter3D, c.Scatter3D_add_Scatter3D(self.s3ptr(), other.s3ptr()))
 
     # # TODO: remove?
     # def __sub__(Scatter3D self, Scatter3D other):
-    #     return cutil.new_owned_cls(Scatter3D, c.Scatter3D_sub_Scatter3D(self._Scatter3D(), other._Scatter3D()))
+    #     return cutil.new_owned_cls(Scatter3D, c.Scatter3D_sub_Scatter3D(self.s3ptr(), other.s3ptr()))

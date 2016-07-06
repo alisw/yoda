@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2015 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_ROOTCnv_h
 #define YODA_ROOTCnv_h
@@ -68,30 +68,139 @@ namespace YODA {
   /////////////////////
 
 
-  /// Convert a ROOT 1D histogram (including TProfile) to a YODA Scatter2D
+  /// Convert a ROOT 1D histogram (excluding TProfile) to a YODA Scatter2D
   ///
-  /// @todo Add a bool flag for whether or not to divide y vals/errs by bin width.
-  inline Scatter2D toScatter2D(const TH1& th1) {
+  /// The optional bool arg specifies whether or not to divide y vals/errs by bin width.
+  inline Scatter2D toScatter2D(const TH1& th1, bool scalebywidth=true) {
     Scatter2D rtn;
-    for (int i = 1; i <= th1.GetNbinsX(); ++i) {
-      const double x = th1.GetBinCenter(i);
-      const double exminus = x - th1.GetBinLowEdge(i);
-      const double explus = th1.GetBinLowEdge(i+1) - x;
-      const double width = exminus + explus;
-      rtn.addPoint(x, th1.GetBinContent(i)/width,
+    for (int ix = 1; ix <= th1.GetNbinsX(); ++ix) {
+      const TAxis& axx = *th1.GetXaxis();
+      const double x = axx.GetBinCenter(ix);
+      const double exminus = x - axx.GetBinLowEdge(ix);
+      const double explus = axx.GetBinUpEdge(ix) - x;
+      const double xwidth = axx.GetBinWidth(ix);
+      //
+      const double val = th1.GetBinContent(ix) / (scalebywidth ? xwidth : 1);
+      const double evalminus = th1.GetBinErrorLow(ix) / (scalebywidth ? xwidth : 1);
+      const double evalplus = th1.GetBinErrorUp(ix) / (scalebywidth ? xwidth : 1);
+      rtn.addPoint(x, val,
                    exminus, explus,
-                   th1.GetBinErrorLow(i)/width, th1.GetBinErrorUp(i)/width);
+                   evalminus, evalplus);
     }
+    rtn.setPath(th1.GetName());
+    rtn.setTitle(th1.GetTitle());
     rtn.addAnnotation("XLabel", th1.GetXaxis()->GetTitle());
     rtn.addAnnotation("YLabel", th1.GetYaxis()->GetTitle());
     return rtn;
   }
 
 
-  /// Convert a ROOT 1D histogram (including TProfile) to a YODA Scatter2D
-  inline Scatter2D toScatter2D(const TH1* th1) {
-    return toScatter2D(*th1);
+  /// Convert a ROOT 1D histogram (excluding TProfile) to a YODA Scatter2D
+  inline Scatter2D toScatter2D(const TH1* th1, bool scalebywidth=true) {
+    if (th1 == NULL) throw UserError("Null TH1 pointer passed as argument");
+    return toScatter2D(*th1, scalebywidth);
   }
+
+
+  /// Convert a ROOT 1D histogram (excluding TProfile) to a new'd YODA Scatter2D
+  inline Scatter2D* toNewScatter2D(const TH1& th1, bool scalebywidth=true) {
+    return toScatter2D(th1, scalebywidth).newclone();
+  }
+  /// Convert a ROOT 1D histogram (excluding TProfile) to a new'd YODA Scatter2D
+  inline Scatter2D* toNewScatter2D(const TH1* th1, bool scalebywidth=true) {
+    return toScatter2D(th1, scalebywidth).newclone();
+  }
+
+
+  ////////////////
+
+
+  /// Convert a ROOT TProfile to a YODA Scatter2D
+  inline Scatter2D toScatter2D(const TProfile& tp1) {
+    return toScatter2D((TH1&)tp1, false);
+  }
+
+  /// Convert a ROOT TProfile to a YODA Scatter2D
+  inline Scatter2D toScatter2D(const TProfile* tp1) {
+    if (tp1 == NULL) throw UserError("Null TProfile pointer passed as argument");
+    return toScatter2D(*tp1); //< TProfile inherits from TH1, so this just uses the function above
+  }
+
+
+  /// Convert a ROOT TProfile to a new'd YODA Scatter2D
+  inline Scatter2D* toNewScatter2D(const TProfile& tp1) {
+    return toScatter2D(tp1).newclone();
+  }
+  /// Convert a ROOT TProfile to a new'd YODA Scatter2D
+  inline Scatter2D* toNewScatter2D(const TProfile* tp1) {
+    return toScatter2D(tp1).newclone();
+  }
+
+
+  /////////////////////
+
+
+  /// Convert a ROOT 2D histogram to a YODA Scatter3D
+  ///
+  /// The optional bool arg specifies whether or not to divide y vals/errs by bin area.
+  inline Scatter3D toScatter3D(const TH2& th2, bool scalebyarea=true) {
+    Scatter3D rtn;
+    for (int ix = 1; ix <= th2.GetNbinsX(); ++ix) {
+      for (int iy = 1; iy <= th2.GetNbinsY(); ++iy) {
+        const TAxis& axx = *th2.GetXaxis();
+        const double x = axx.GetBinCenter(ix);
+        const double exminus = x - axx.GetBinLowEdge(ix);
+        const double explus = axx.GetBinUpEdge(ix) - x;
+        const double xwidth = axx.GetBinWidth(ix);
+        //
+        const TAxis& axy = *th2.GetYaxis();
+        const double y = axy.GetBinCenter(iy);
+        const double eyminus = y - axy.GetBinLowEdge(iy);
+        const double eyplus = axy.GetBinUpEdge(iy) - y;
+        const double ywidth = axy.GetBinWidth(iy);
+        //
+        const int ixy = th2.GetBin(ix, iy);
+        const double area = xwidth*ywidth;
+        const double val = th2.GetBinContent(ixy) / (scalebyarea ? area : 1);
+        const double evalminus = th2.GetBinErrorLow(ixy) / (scalebyarea ? area : 1);
+        const double evalplus = th2.GetBinErrorUp(ixy) / (scalebyarea ? area : 1);
+        rtn.addPoint(x, y, val,
+                     exminus, explus,
+                     eyminus, eyplus,
+                     evalminus, evalplus);
+      }
+    }
+    rtn.setPath(th2.GetName());
+    rtn.setTitle(th2.GetTitle());
+    rtn.addAnnotation("XLabel", th2.GetXaxis()->GetTitle());
+    rtn.addAnnotation("YLabel", th2.GetYaxis()->GetTitle());
+    rtn.addAnnotation("ZLabel", th2.GetZaxis()->GetTitle());
+    return rtn;
+  }
+
+
+  /// Convert a ROOT 2D histogram to a YODA Scatter3D
+  inline Scatter3D toScatter3D(const TH2* th2, bool scalebyarea=true) {
+    if (th2 == NULL) throw UserError("Null TH2 pointer passed as argument");
+    return toScatter3D(*th2, scalebyarea);
+  }
+
+
+  /// Convert a ROOT 2D histogram to a new'd YODA Scatter3D
+  inline Scatter3D* toNewScatter3D(const TH2& th2, bool scalebyarea=true) {
+    return toScatter3D(th2).newclone();
+  }
+  /// Convert a ROOT 2D histogram to a new'd YODA Scatter3D
+  inline Scatter3D* toNewScatter3D(const TH2* th2, bool scalebyarea=true) {
+    return toScatter3D(th2).newclone();
+  }
+
+
+  ////////////////////
+
+
+  /// @todo Add toScatter2D(TGraph&/*) and toScatter3D(TGraph2D&/*)
+
 
   //@}
 
@@ -139,6 +248,11 @@ namespace YODA {
     return rtn;
   }
 
+  /// @brief Convert a YODA Histo1D to a ROOT 1D histogram as new'd pointer
+  inline TH1D* toNewTH1D(const Histo1D& h, const std::string& rootname) {
+    return (TH1D*) toTH1D(h).Clone(rootname.c_str());
+  }
+
 
 
   /// @brief Convert a YODA Histo2D to a ROOT 2D histogram
@@ -174,7 +288,8 @@ namespace YODA {
       for (int iy = 1; iy <= rtn.GetNbinsY(); ++iy) {
         const int i = rtn.GetBin(ix, iy);
         try {
-          const HistoBin2D& b = h.binAt(rtn.GetBinCenter(ix), rtn.GetBinCenter(iy)); // throws if in a gap
+          //const HistoBin2D& b = h.binAt(rtn.GetBinCenter(ix), rtn.GetBinCenter(iy)); // throws if in a gap
+          const HistoBin2D& b = h.binAt(rtn.GetXaxis()->GetBinCenter(ix), rtn.GetYaxis()->GetBinCenter(iy)); // throws if in a gap
           rtn.SetBinContent(i, b.sumW());
           sumw2s[i] = b.sumW2();
         } catch (const Exception& e) {  }
@@ -193,12 +308,20 @@ namespace YODA {
     return rtn;
   }
 
+  /// @brief Convert a YODA Histo2D to a ROOT 2D histogram as new'd pointer
+  inline TH2D* toNewTH2D(const Histo2D& h, const std::string& rootname) {
+    return (TH2D*) toTH2D(h).Clone(rootname.c_str());
+  }
+
 
 
   /// @brief Convert a YODA Scatter2D to a ROOT TH1D
 
 
+
   /// @brief Convert a YODA Profile1D to a ROOT TProfile
+  ///
+  /// @warning Reported not to work, and maybe not to be possible at all...
   ///
   /// @todo Check/improve/extend. How to set all the y-weights in ROOT profiles?
   inline TProfile toTProfile(const Profile1D& p) {
@@ -245,6 +368,7 @@ namespace YODA {
   }
 
 
+
   /// @brief Convert a YODA Profile1D to a ROOT TH1D
   inline TH1D toTH1D(const Profile1D& p) {
     // Work out bin edges first
@@ -276,10 +400,14 @@ namespace YODA {
     return rtn;
   }
 
+  /// @brief Convert a YODA Profile1D to a ROOT TProfile as new'd pointer
+  inline TProfile* toNewTProfile(const Profile1D& p, const std::string& rootname) {
+    return (TProfile*) toTProfile(p).Clone(rootname.c_str());
+  }
+
+
 
   /// @todo Convert a YODA Profile2D to a ROOT TProfile2D
-
-
 
 
 
@@ -309,22 +437,39 @@ namespace YODA {
     return rtn;
   }
 
+  /// @brief Convert a YODA Scatter2D to a ROOT TGraphAsymmErrors as new'd pointer
+  inline TGraphAsymmErrors* toNewTGraph(const Scatter2D& s, const std::string& rootname) {
+    return (TGraphAsymmErrors*) toTGraph(s).Clone(rootname.c_str());
+  }
+
+
 
   /// @brief Convert a YODA Histo1D to a ROOT TGraphAsymmErrors
-  ///
   inline TGraphAsymmErrors toTGraph(const Histo1D& h) {
     return toTGraph(mkScatter(h));
   }
 
+  /// @brief Convert a YODA Histo1D to a ROOT TGraphAsymmErrors as new'd pointer
+  inline TGraphAsymmErrors* toNewTGraph(const Histo1D& h, const std::string& rootname) {
+    return (TGraphAsymmErrors*) toTGraph(h).Clone(rootname.c_str());
+  }
+
+
 
   /// @brief Convert a YODA Profile1D to a ROOT TGraphAsymmErrors
-  ///
   inline TGraphAsymmErrors toTGraph(const Profile1D& p) {
     return toTGraph(mkScatter(p));
   }
 
+  /// @brief Convert a YODA Profile1D to a ROOT TGraphAsymmErrors as new'd pointer
+  inline TGraphAsymmErrors* toNewTGraph(const Profile1D& p, const std::string& rootname) {
+    return (TGraphAsymmErrors*) toTGraph(p).Clone(rootname.c_str());
+  }
 
-  /// @todo Convert YODA Histo2D and Profile2D to TGraph colour maps
+
+
+  /// @todo Convert YODA Scatter3D, Histo2D and Profile2D to TGraph2D
+
 
 
   //@}

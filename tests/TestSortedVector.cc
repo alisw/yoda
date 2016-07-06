@@ -14,13 +14,12 @@ int main() {
   sv.insert(2);
   sv.insert(4);
 
-  // for (utils::sortedvector<int>::const_iterator it = sv.begin(); it != sv.end(); ++it) {
-  //   cout << *it << endl;
-  // }
+  for (Utils::sortedvector<int>::const_iterator it = sv.begin(); it != sv.end(); ++it) {
+    cout << *it << endl;
+  }
 
-  cout << "sv[3]: " << sv[3] << " == 4: "
-       << boolalpha << (sv[3] == 4)
-       << endl;
-
-  return (sv[3] == 4) ? EXIT_SUCCESS : EXIT_FAILURE;
+  for (int i = 0; i < 5; ++i) {
+    if (sv[i] != i+1) return EXIT_FAILURE;
+  }
+  return EXIT_SUCCESS;
 }

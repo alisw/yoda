@@ -51,21 +51,4 @@
 #endif
 
 
-// Boost interfaces
-//#include "boost/smart_ptr.hpp"
-#include "boost/lexical_cast.hpp"
-#include "boost/assign.hpp"
-#include <boost/algorithm/string.hpp>
-#include "boost/foreach.hpp"
-
-// // Cosmetic wrapper for BOOST_FOREACH macro (until we can use C++11 range-based for loops)
-// #ifndef foreach
-// namespace boost {
-//   // Suggested work-around for https://svn.boost.org/trac/boost/ticket/6131
-//   namespace BOOST_FOREACH = foreach;
-// }
-// #define foreach BOOST_FOREACH
-// #endif
-
-
 #endif

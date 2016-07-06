@@ -3,7 +3,10 @@
 """\
 %prog <infile> <outfile>
 
-Convert between YODA-supported data formats (.yoda, .aida, .dat)
+Convert between natively YODA-supported data formats (.yoda, .aida, .dat)
+
+TODO:
+ * Support reading/writing from ROOT... or wait for native ROOT I/O via Reader/Writer classes?
 """
 
 import yoda, os, sys, optparse, re

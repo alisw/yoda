@@ -1,13 +1,6 @@
 #! /usr/bin/env bash
 ## @configure_input@
 
-## These variables need to exist
-## Note no use of $DESTDIR... we ignore it so that destdir can be used
-## for temp installs later copied to /
-prefix=@prefix@
-exec_prefix=@exec_prefix@
-datarootdir=@datarootdir@
-
 tmp=$(echo $* | egrep -- '--\<help\>|-\<h\>')
 if test $# -eq 0 || test -n "$tmp"; then
     echo "yoda-config: configuration tool for the YODA data analysis library"
@@ -24,12 +17,30 @@ if test $# -eq 0 || test -n "$tmp"; then
     echo "  --libdir      : show the path to the directory containing the YODA libraries"
     echo "  --pythonpath  : show the path(s) to the directory containing YODA's Python package"
     echo
-    echo "  --cppflags    : returns a '-I' string for insertion into CPPFLAGS"
-    echo "  --libs        : returns a '-L/-l' string for insertion into LIBS or LIBADD"
+    echo "  --guess-prefix: try to use the runtime prefix, rather than that set at install-time"
+    echo
+    echo "  --cflags|--cppflags : returns a '-I' string for insertion into CPPFLAGS or CXXFLAGS"
+    echo "  --ldflags|--libs    : returns a '-L/-l' string for insertion into LIBS or LIBADD"
     echo
     echo "  --version     : returns the YODA release version number"
     exit 0
 fi
+
+
+## These variables need to exist
+## Note no use of $DESTDIR... we ignore it so that destdir can be used
+## for temp installs later copied to /
+tmp=$( echo "$*" | egrep -- '--\<guess-prefix\>')
+if [[ -n "$tmp" ]]; then
+    bindir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    prefix=$(dirname $bindir)
+    exec_prefix=$prefix
+else
+    prefix=@prefix@
+    exec_prefix=@exec_prefix@
+fi
+datarootdir=@datarootdir@
+
 
 OUT=""
 
@@ -47,10 +58,10 @@ tmp=$( echo "$*" | egrep -- '--\<pythonpath\>')
 test -n "$tmp" && OUT="$OUT @YODA_PYTHONPATH@"
 
 ## "Pre-rolled" build info
-tmp=$( echo "$*" | egrep -- '--\<cppflags|cxxflags\>')
+tmp=$( echo "$*" | egrep -- '--\<cflags\>|--\<cppflags\>|--\<cxxflags\>')
 test -n "$tmp" && OUT="$OUT -I@includedir@ @BOOST_CPPFLAGS@"
 
-tmp=$( echo "$*" | egrep -- '--\<ldflags|libs\>')
+tmp=$( echo "$*" | egrep -- '--\<ldflags\>|--\<libs\>|--\<ldadd\>')
 test -n "$tmp" && OUT="$OUT -L@libdir@ -lYODA"
 
 ## Version

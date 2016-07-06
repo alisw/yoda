@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2015 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
 //
 #include "YODA/Profile1D.h"
 #include "YODA/Histo1D.h"
@@ -49,7 +49,7 @@ namespace YODA {
   unsigned long Profile1D::numEntries(bool includeoverflows) const {
     if (includeoverflows) return totalDbn().numEntries();
     unsigned long n = 0;
-    BOOST_FOREACH (const Bin& b, bins()) n += b.numEntries();
+    for (const Bin& b : bins()) n += b.numEntries();
     return n;
   }
 
@@ -57,7 +57,7 @@ namespace YODA {
   double Profile1D::effNumEntries(bool includeoverflows) const {
     if (includeoverflows) return totalDbn().effNumEntries();
     double n = 0;
-    BOOST_FOREACH (const Bin& b, bins()) n += b.effNumEntries();
+    for (const Bin& b : bins()) n += b.effNumEntries();
     return n;
   }
 
@@ -65,7 +65,7 @@ namespace YODA {
   double Profile1D::sumW(bool includeoverflows) const {
     if (includeoverflows) return _axis.totalDbn().sumW();
     double sumw = 0;
-    BOOST_FOREACH (const Bin& b, bins()) sumw += b.sumW();
+    for (const Bin& b : bins()) sumw += b.sumW();
     return sumw;
   }
 
@@ -73,7 +73,7 @@ namespace YODA {
   double Profile1D::sumW2(bool includeoverflows) const {
     if (includeoverflows) return _axis.totalDbn().sumW2();
     double sumw2 = 0;
-    BOOST_FOREACH (const Bin& b, bins()) sumw2 += b.sumW2();
+    for (const Bin& b : bins()) sumw2 += b.sumW2();
     return sumw2;
   }
 
@@ -83,7 +83,7 @@ namespace YODA {
   double Profile1D::xMean(bool includeoverflows) const {
     if (includeoverflows) return _axis.totalDbn().xMean();
     Dbn2D dbn;
-    BOOST_FOREACH (const ProfileBin1D& b, bins()) dbn += b.dbn();
+    for (const ProfileBin1D& b : bins()) dbn += b.dbn();
     return dbn.xMean();
   }
 
@@ -91,7 +91,7 @@ namespace YODA {
   double Profile1D::xVariance(bool includeoverflows) const {
     if (includeoverflows) return _axis.totalDbn().xVariance();
     Dbn2D dbn;
-    BOOST_FOREACH (const ProfileBin1D& b, bins()) dbn += b.dbn();
+    for (const ProfileBin1D& b : bins()) dbn += b.dbn();
     return dbn.xVariance();
   }
 
@@ -99,7 +99,7 @@ namespace YODA {
   double Profile1D::xStdErr(bool includeoverflows) const {
     if (includeoverflows) return _axis.totalDbn().xStdErr();
     Dbn2D dbn;
-    BOOST_FOREACH (const ProfileBin1D& b, bins()) dbn += b.dbn();
+    for (const ProfileBin1D& b : bins()) dbn += b.dbn();
     return dbn.xStdErr();
   }
 
@@ -107,7 +107,7 @@ namespace YODA {
   double Profile1D::xRMS(bool includeoverflows) const {
     if (includeoverflows) return _axis.totalDbn().xRMS();
     Dbn2D dbn;
-    BOOST_FOREACH (const ProfileBin1D& b, bins()) dbn += b.dbn();
+    for (const ProfileBin1D& b : bins()) dbn += b.dbn();
     return dbn.xRMS();
   }
 
@@ -128,7 +128,7 @@ namespace YODA {
     : AnalysisObject("Profile1D", (path.size() == 0) ? s.path() : path, s, s.title())
   {
     std::vector<ProfileBin1D> bins;
-    BOOST_FOREACH (const Scatter2D::Point& p, s.points()) {
+    for (const Scatter2D::Point& p : s.points()) {
       bins.push_back(ProfileBin1D(p.xMin(), p.xMax()));
     }
     _axis = Profile1DAxis(bins);
@@ -140,7 +140,7 @@ namespace YODA {
     : AnalysisObject("Profile1D", (path.size() == 0) ? h.path() : path, h, h.title())
   {
     Bins bins;
-    BOOST_FOREACH (const Histo1D::Bin& b, h.bins()) {
+    for (const Histo1D::Bin& b : h.bins()) {
       bins.push_back(ProfileBin1D(b.xMin(), b.xMax()));
     }
     _axis = Profile1DAxis(bins);
@@ -170,19 +170,25 @@ namespace YODA {
       const double explus  = b1.xMax() - x;
 
       // Assemble the y value and error
-      double y = 0;
-      double ey = 0;
-      if (b2.mean() == 0 || (b1.mean() == 0 && b1.stdErr() != 0)) { ///< @todo Ok?
-        /// @todo Provide optional alt behaviours to fill with NaN or remove the invalid point or throw
-        /// @todo Don't throw here: set a flag and throw after all bins have been handled.
-        // throw LowStatsError("Requested division of empty bin");
-      } else {
-        y = b1.mean() / b2.mean();
-        /// @todo Is this the exact error treatment for all (uncorrelated) cases? Behaviour around 0? +1 and -1 fills?
-        const double relerr_1 = b1.stdErr() != 0 ? b1.stdErr()/b1.mean() : 0;
-        const double relerr_2 = b2.stdErr() != 0 ? b1.stdErr()/b1.mean() : 0;
-        ey = y * sqrt(sqr(relerr_1) + sqr(relerr_2));
+      double y = std::numeric_limits<double>::quiet_NaN();
+      double ey = std::numeric_limits<double>::quiet_NaN();
+      try {
+        if (b2.mean() == 0 || (b1.mean() == 0 && b1.stdErr() != 0)) { ///< @todo Ok?
+          // y = std::numeric_limits<double>::quiet_NaN();
+          // ey = std::numeric_limits<double>::quiet_NaN();
+          // throw LowStatsError("Requested division of empty bin");
+        } else {
+          y = b1.mean() / b2.mean();
+          /// @todo Is this the exact error treatment for all (uncorrelated) cases? Behaviour around 0? +1 and -1 fills?
+          const double relerr_1 = b1.stdErr() != 0 ? b1.stdErr()/b1.mean() : 0;
+          const double relerr_2 = b2.stdErr() != 0 ? b2.stdErr()/b2.mean() : 0;
+          ey = y * sqrt(sqr(relerr_1) + sqr(relerr_2));
+        }
+      } catch (const LowStatsError& e) {
+        // y = std::numeric_limits<double>::quiet_NaN();
+        // ey = std::numeric_limits<double>::quiet_NaN();
       }
+
       /// Deal with +/- errors separately, inverted for the denominator contributions:
       /// @todo check correctness with different signed numerator and denominator.
       //const double eyplus = y * sqrt( sqr(p1.yErrPlus()/p1.y()) + sqr(p2.yErrMinus()/p2.y()) );

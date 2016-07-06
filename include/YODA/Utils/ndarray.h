@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2015 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_ARRAY_H
 #define YODA_ARRAY_H
@@ -9,7 +9,7 @@
 #include <vector>
 #include <algorithm>
 #include <sstream>
-#include "boost/array.hpp"
+#include <array>
 
 namespace YODA {
   namespace Utils {
@@ -39,8 +39,8 @@ namespace YODA {
       }
 
 
-      /// Conversion from Boost array
-      ndarray(const boost::array<T,N> arr) {
+      /// Conversion from C++11 array
+      ndarray(const std::array<T,N> arr) {
         _val = arr;
       }
 
@@ -82,7 +82,7 @@ namespace YODA {
 
     private:
 
-      boost::array<T,N> _val;
+      std::array<T,N> _val;
 
     };
 

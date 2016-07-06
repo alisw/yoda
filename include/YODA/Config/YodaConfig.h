@@ -10,13 +10,22 @@
 #define YODA_NAME "YODA"
 
 /* Define to the full name and version of this package. */
-#define YODA_STRING "YODA 1.4.0"
+#define YODA_STRING "YODA 1.6.1"
 
 /* Define to the one symbol short name of this package. */
 #define YODA_TARNAME "YODA"
 
 /* Define to the version of this package. */
-#define YODA_VERSION "1.4.0"
+#define YODA_VERSION "1.6.1"
+
+
+#include <string>
+namespace YODA {
+  /// Namespaced version string function
+  inline std::string version() {
+    return YODA_VERSION;
+  }
+}
 
 
 #endif

@@ -1,18 +1,10 @@
-cdef class Point1D(util.Base):
+cdef class Point1D(Point):
     """
     A 1D point with errors, used by the Scatter1D class.
     """
 
     cdef c.Point1D* p1ptr(self) except NULL:
         return <c.Point1D*> self.ptr()
-    # TODO: remove
-    cdef c.Point1D* _Point1D(self) except NULL:
-        return <c.Point1D*> self.ptr()
-
-    def __dealloc__(self):
-        cdef c.Point1D *p = self.p1ptr()
-        if self._deallocate:
-            del p
 
 
     def __init__(self, x=0, xerrs=0):
@@ -39,7 +31,7 @@ cdef class Point1D(util.Base):
         def __get__(self):
             return util.read_error_pair(self.p1ptr().xErrs())
         def __set__(self, val):
-            self.p1ptr().setXErr(util.read_symmetric(val))
+            self.p1ptr().setXErrs(util.read_symmetric(val))
 
 
     @property

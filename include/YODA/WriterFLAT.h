@@ -1,18 +1,13 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2015 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_WRITERFLAT_H
 #define YODA_WRITERFLAT_H
 
 #include "YODA/AnalysisObject.h"
 #include "YODA/Writer.h"
-
-#include <vector>
-#include <string>
-#include <ostream>
-
 
 namespace YODA {
 

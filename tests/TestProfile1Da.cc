@@ -20,7 +20,7 @@ int main() {
   for (int i = 0; i < 4; ++i) {
     if (i > 0) h.rebin(2);
     MSG("Profile (rebinning #" << i << ", num bins = " << h.numBins() << ")");
-    BOOST_FOREACH (const ProfileBin1D& b, h.bins()) {
+    for (const ProfileBin1D& b : h.bins()) {
       MSG(b.xMin() << "-" << b.xMax() << ": "
           << RED(b.mean()) << ", " << BLUE(b.stdDev()) << ", " << RED(b.stdErr()));
     }

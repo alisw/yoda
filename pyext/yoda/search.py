@@ -2,6 +2,53 @@
 
 import re
 
+
+## A tool for filtering AO collections by path patterns
+def match_aos(aos, patts, unpatts=None, search=False):
+    """
+    Filter a list of analysis objects to those which match given path-matching patterns.
+
+    @a patts is a regex or iterable of regexes for positive matching, i.e. retention;
+    @a unpatts is the equivalent for negative matching, i.e. rejection even if a patt matches.
+
+    @a search will use Python regex search mode rather than match mode, i.e. match if any
+    part of the path fits the regex, rather than requiring a match from the start of the path.
+    """
+
+    rtn = []
+
+    ## Internally we just use the list of AOs, not dict keys
+    if type(aos) is dict:
+        aos = aos.values()
+
+    ## Normalise the pattern arg inputs
+    if patts and type(patts) is str:
+        patts = [patts]
+    re_patts = [re.compile(p) for p in patts] if patts else None
+    if unpatts and type(unpatts) is str:
+        unpatts = [unpatts]
+    re_unpatts = [re.compile(p) for p in unpatts] if unpatts else None
+
+    ## Apply pattern matching to each AO
+    for ao in aos:
+        match = False
+        if re_patts:
+            for rp in re_patts:
+                if (not search and rp.match(ao.path)) or (search and rp.search(ao.path)):
+                    match = True
+                    break
+        if match and re_unpatts:
+            for rp in re_unpatts:
+                if (not search and rp.match(ao.path)) or (search and rp.search(ao.path)):
+                    match = False
+                    break
+        if match:
+            rtn.append(ao)
+
+    return rtn
+
+
+
 class PointMatcher(object):
     """\
     System for selecting subsets of bins based on a search range
@@ -55,7 +102,7 @@ class PointMatcher(object):
 
         TODO: Use open ranges to include underflow and overflow
 
-        TODO: Allow negative indices in Python style, and use index=!
+        TODO: Allow negative indices in Python style, and use index=-1
         to mean the N+1 index needed to include the last bin without
         picking up the overflow, too.
 

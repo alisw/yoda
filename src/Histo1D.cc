@@ -1,14 +1,13 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2015 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
 //
 #include "YODA/Histo1D.h"
 #include "YODA/Profile1D.h"
 #include "YODA/Scatter2D.h"
+#include "YODA/Utils/StringUtils.h"
 
-#include <cmath>
-#include <iostream>
 using namespace std;
 
 namespace YODA {
@@ -49,7 +48,7 @@ namespace YODA {
   unsigned long Histo1D::numEntries(bool includeoverflows) const {
     if (includeoverflows) return totalDbn().numEntries();
     unsigned long n = 0;
-    BOOST_FOREACH (const Bin& b, bins()) n += b.numEntries();
+    for (const Bin& b : bins()) n += b.numEntries();
     return n;
   }
 
@@ -57,7 +56,7 @@ namespace YODA {
   double Histo1D::effNumEntries(bool includeoverflows) const {
     if (includeoverflows) return totalDbn().effNumEntries();
     double n = 0;
-    BOOST_FOREACH (const Bin& b, bins()) n += b.effNumEntries();
+    for (const Bin& b : bins()) n += b.effNumEntries();
     return n;
   }
 
@@ -65,7 +64,7 @@ namespace YODA {
   double Histo1D::sumW(bool includeoverflows) const {
     if (includeoverflows) return _axis.totalDbn().sumW();
     double sumw = 0;
-    BOOST_FOREACH (const Bin& b, bins()) sumw += b.sumW();
+    for (const Bin& b : bins()) sumw += b.sumW();
     return sumw;
   }
 
@@ -73,7 +72,7 @@ namespace YODA {
   double Histo1D::sumW2(bool includeoverflows) const {
     if (includeoverflows) return _axis.totalDbn().sumW2();
     double sumw2 = 0;
-    BOOST_FOREACH (const Bin& b, bins()) sumw2 += b.sumW2();
+    for (const Bin& b : bins()) sumw2 += b.sumW2();
     return sumw2;
   }
 
@@ -83,7 +82,7 @@ namespace YODA {
   double Histo1D::xMean(bool includeoverflows) const {
     if (includeoverflows) return _axis.totalDbn().xMean();
     Dbn1D dbn;
-    BOOST_FOREACH (const HistoBin1D& b, bins()) dbn += b.dbn();
+    for (const HistoBin1D& b : bins()) dbn += b.dbn();
     return dbn.xMean();
   }
 
@@ -91,7 +90,7 @@ namespace YODA {
   double Histo1D::xVariance(bool includeoverflows) const {
     if (includeoverflows) return _axis.totalDbn().xVariance();
     Dbn1D dbn;
-    BOOST_FOREACH (const HistoBin1D& b, bins()) dbn += b.dbn();
+    for (const HistoBin1D& b : bins()) dbn += b.dbn();
     return dbn.xVariance();
   }
 
@@ -99,7 +98,7 @@ namespace YODA {
   double Histo1D::xStdErr(bool includeoverflows) const {
     if (includeoverflows) return _axis.totalDbn().xStdErr();
     Dbn1D dbn;
-    BOOST_FOREACH (const HistoBin1D& b, bins()) dbn += b.dbn();
+    for (const HistoBin1D& b : bins()) dbn += b.dbn();
     return dbn.xStdErr();
   }
 
@@ -107,7 +106,7 @@ namespace YODA {
   double Histo1D::xRMS(bool includeoverflows) const {
     if (includeoverflows) return _axis.totalDbn().xRMS();
     Dbn1D dbn;
-    BOOST_FOREACH (const HistoBin1D& b, bins()) dbn += b.dbn();
+    for (const HistoBin1D& b : bins()) dbn += b.dbn();
     return dbn.xRMS();
   }
 
@@ -128,7 +127,7 @@ namespace YODA {
     : AnalysisObject("Histo1D", (path.size() == 0) ? s.path() : path, s, s.title())
   {
     std::vector<HistoBin1D> bins;
-    BOOST_FOREACH (const Scatter2D::Point& p, s.points()) {
+    for (const Scatter2D::Point& p : s.points()) {
       bins.push_back(HistoBin1D(p.xMin(), p.xMax()));
     }
     _axis = Histo1DAxis(bins);
@@ -140,7 +139,7 @@ namespace YODA {
     : AnalysisObject("Histo1D", (path.size() == 0) ? p.path() : path, p, p.title())
   {
     std::vector<HistoBin1D> bins;
-    BOOST_FOREACH (const ProfileBin1D& b, p.bins()) {
+    for (const ProfileBin1D& b : p.bins()) {
       bins.push_back(HistoBin1D(b.xMin(), b.xMax()));
     }
     _axis = Histo1DAxis(bins);
@@ -169,11 +168,11 @@ namespace YODA {
       const double explus  = b1.xMax() - x;
 
       // Assemble the y value and error
-      double y = 0;
-      double ey = 0;
+      /// @todo Provide optional alt behaviours to fill with NaN or remove the invalid point or throw
+      double y, ey;
       if (b2.height() == 0 || (b1.height() == 0 && b1.heightErr() != 0)) { ///< @todo Ok?
-        /// @todo Provide optional alt behaviours to fill with NaN or remove the invalid point or throw
-        /// @todo Don't throw here: set a flag and throw after all bins have been handled.
+        y = std::numeric_limits<double>::quiet_NaN();
+        ey = std::numeric_limits<double>::quiet_NaN();
         // throw LowStatsError("Requested division of empty bin");
       } else {
         y = b1.height() / b2.height();
@@ -182,6 +181,7 @@ namespace YODA {
         const double relerr_2 = b2.heightErr() != 0 ? b2.relErr() : 0;
         ey = y * sqrt(sqr(relerr_1) + sqr(relerr_2));
       }
+
       /// Deal with +/- errors separately, inverted for the denominator contributions:
       /// @todo check correctness with different signed numerator and denominator.
       //const double eyplus = y * sqrt( sqr(p1.yErrPlus()/p1.y()) + sqr(p2.yErrMinus()/p2.y()) );
@@ -204,21 +204,22 @@ namespace YODA {
 
       /// BEGIN DIMENSIONALITY-INDEPENDENT BIT TO SHARE WITH H2
 
-      // Check that the numerator is consistent with being a subset of the denominator (NOT effNumEntries here!)
-      if (b_acc.numEntries() > b_tot.numEntries() || b_acc.sumW() > b_tot.sumW())
-        throw UserError("Attempt to calculate an efficiency when the numerator is not a subset of the denominator");
+      // Check that the numerator is consistent with being a subset of the denominator
+      /// @note Neither effNumEntries nor sumW are guaranteed to satisfy num <= den for general weights!
+      if (b_acc.numEntries() > b_tot.numEntries())
+        throw UserError("Attempt to calculate an efficiency when the numerator is not a subset of the denominator: "
+                        + Utils::toStr(b_acc.numEntries()) + " entries / " + Utils::toStr(b_tot.numEntries()) + " entries");
 
       // If no entries on the denominator, set eff = err = 0 and move to the next bin
-      /// @todo Provide optional alt behaviours to fill with NaN or remove the invalid point, or...
-      /// @todo Or throw a LowStatsError exception if h.effNumEntries() (or sumW()?) == 0?
-      double eff = 0, err = 0;
-      if (b_tot.sumW() != 0) {
-        // Calculate the values and errors
-        // const double eff = b_acc.effNumEntries() / b_tot.effNumEntries();
-        // const double ey = sqrt( b_acc.effNumEntries() * (1 - b_acc.effNumEntries()/b_tot.effNumEntries()) ) / b_tot.effNumEntries();
-        eff = b_acc.sumW() / b_tot.sumW(); //< Actually this is already calculated by the division...
-        err = sqrt(abs( ((1-2*eff)*b_acc.sumW2() + sqr(eff)*b_tot.sumW2()) / sqr(b_tot.sumW()) ));
-        // assert(point.y() == eff); //< @todo Correct? So we don't need to reset the eff on the next line?
+      double eff = std::numeric_limits<double>::quiet_NaN();
+      double err = std::numeric_limits<double>::quiet_NaN();
+      try {
+        if (b_tot.sumW() != 0) {
+          eff = b_acc.sumW() / b_tot.sumW(); //< Actually this is already calculated by the division...
+          err = sqrt(abs( ((1-2*eff)*b_acc.sumW2() + sqr(eff)*b_tot.sumW2()) / sqr(b_tot.sumW()) ));
+        }
+      } catch (const LowStatsError& e) {
+        //
       }
 
       /// END DIMENSIONALITY-INDEPENDENT BIT TO SHARE WITH H2
@@ -247,8 +248,6 @@ namespace YODA {
   Scatter2D toIntegralEfficiencyHisto(const Histo1D& h, bool includeunderflow, bool includeoverflow) {
     Scatter2D rtn = toIntegralHisto(h, includeunderflow);
     const double integral = h.integral() - (includeoverflow ? 0 : h.overflow().sumW());
-    /// @todo Should the total integral *error* be sqrt(sumW2)? Or more complex, cf. Simon etc.?
-    const double integral_err = sqrt(integral);
 
     // If the integral is empty, the (integrated) efficiency values may as well all be zero, so return here
     /// @todo Or throw a LowStatsError exception if h.effNumEntries() == 0?
@@ -256,10 +255,12 @@ namespace YODA {
     /// @todo Need to check that bins are all positive? Integral could be zero due to large +ve/-ve in different bins :O
     if (integral == 0) return rtn;
 
+    /// @todo Should the total integral *error* be sqrt(sumW2)? Or more complex, cf. Simon etc.?
+    const double integral_err = sqrt(integral);
+
     // Normalize and compute binomial errors
-    BOOST_FOREACH (Point2D& p, rtn.points()) {
+    for (Point2D& p : rtn.points()) {
       const double eff = p.y() / integral;
-      /// @todo Should the total integral error be sqrt(sumW2)? Or more complex, cf. Simon etc.?
       const double ey = sqrt(abs( ((1-2*eff)*sqr(p.y()/p.yErrAvg()) + sqr(eff)*sqr(integral_err)) / sqr(integral) ));
       p.setY(eff, ey);
     }

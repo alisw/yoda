@@ -41,15 +41,20 @@ def eq(a, b):
     if hasattr(a, "__iter__"):
         return all(eq(*pair) for pair in zip(a, b))
     ## Finally apply a tolerant numerical comparison on numeric types
-    # TODO: Be careful with values on either side of zero. Add abs tolerance "epsilon" term?
-    return (float(a) - float(b))/(float(a) + float(b)) < opts.TOL
+    # TODO: Be careful with values on either side of zero -- abs(float(a)) etc. on denom?
+    return abs(float(a) - float(b))/(float(a) + float(b)) < opts.TOL
 
-def s2str(s):
-    ptstr1 = "{x:.2g} + {ex[0]:.2g} - {ex[1]:.2g}"
-    ptstr2 = "{x:.2g} +- {ex[0]:.2g}"
-    xstr = (ptstr2 if eq(*s.xErrs) else ptstr1).format(x=s.x, ex=s.xErrs)
-    ystr = (ptstr2 if eq(*s.yErrs) else ptstr1).format(x=s.y, ex=s.yErrs)
-    return "({}, {})".format(xstr, ystr)
+def ptstr(pt):
+    vstr1 = "{x:.2g} + {ex[0]:.2g} - {ex[1]:.2g}"
+    vstr2 = "{x:.2g} +- {ex[0]:.2g}"
+    vstrs = []
+    if pt.dim >= 1:
+        vstrs.append( (vstr2 if eq(*pt.xErrs) else vstr1).format(x=pt.x, ex=pt.xErrs) )
+    if pt.dim >= 2:
+        vstrs.append( (vstr2 if eq(*pt.yErrs) else vstr1).format(x=pt.y, ex=pt.yErrs) )
+    if pt.dim >= 3:
+        vstrs.append( (vstr2 if eq(*pt.zErrs) else vstr1).format(x=pt.z, ex=pt.zErrs) )
+    return "(" + ", ".join(vstrs) + ")"
 
 ## Compare each object pair
 for path in sorted(set(aodict1.keys() + aodict2.keys())):
@@ -63,27 +68,45 @@ for path in sorted(set(aodict1.keys() + aodict2.keys())):
     if ao2 is None:
         print "Data object '%s' not found in %s" % (path, filenames[1])
         continue
+
     ## Compare the file #1 vs. #2 object types
     if type(ao1) is not type(ao2):
         print "Data objects with path '%s' have different types (%s and %s) in %s and %s" % \
               (path, str(type(ao1)), str(type(ao2)), filenames[0], filenames[1])
         continue
-    ## Compare the numbers of points/bins
-    # TODO: Fix the mapping so the exception can be caught in Python
+
+    ## Convert to scatter representations
     try:
-        s1 = ao1.mkScatter() if type(ao1) is not yoda.Scatter2D else ao1
-        s2 = ao2.mkScatter() if type(ao2) is not yoda.Scatter2D else ao2
+        s1 = ao1.mkScatter()
+        s2 = ao2.mkScatter()
     except Exception, e:
         print "WARNING! Could not create a '%s' scatter for comparison (%s)" % (path, type(e).__name__)
+
+    ## Check for compatible dimensionalities (should already be ok, but just making sure)
+    if s1.dim != s2.dim:
+        print "Data objects with path '%s' have different scatter dimensions (%d and %d) in %s and %s" % \
+              (path, s1.dim, s2.dim, filenames[0], filenames[1])
+        continue
+
+    ## Compare the numbers of points/bins
     if s1.numPoints != s2.numPoints:
-        print "Warning: data objects with path '%s' have different numbers of points (%d and %d) in %s and %s" % \
+        print "Data objects with path '%s' have different numbers of points (%d and %d) in %s and %s" % \
               (path, s1.numPoints, s2.numPoints, filenames[0], filenames[1])
         continue
+
     ## Compare the numeric values of each point
-    premsg = "\nData points differ for data objects with path '%s' in %s and %s:\n" % (path, filenames[0], filenames[1])
+    premsg = "Data points differ for data objects with path '%s' in %s and %s:\n" % (path, filenames[0], filenames[1])
     msgs = []
     for i, (p1, p2) in enumerate(zip(s1.points, s2.points)):
-        if not eq(p1.x, p2.x) or not eq(p1.xErrs, p2.xErrs) or not eq(p1.y, p2.y) or not eq(p1.yErrs, p2.yErrs):
-            msgs.append("  Point #%d: %s vs. %s" % (i, s2str(p1), s2str(p2)))
+        # TODO: do this more nicely when point.val(int) and point.err(int) are mapped into Python
+        ok = True
+        if p1.dim >= 1 and not (eq(p1.x, p2.x) and eq(p1.xErrs, p2.xErrs)):
+            ok = False
+        elif p1.dim >= 2 and not (eq(p1.y, p2.y) and eq(p1.yErrs, p2.yErrs)):
+            ok = False
+        elif p1.dim >= 3 and not (eq(p1.z, p2.z) and eq(p1.zErrs, p2.zErrs)):
+            ok = False
+        if not ok:
+            msgs.append("  Point #%d: %s vs. %s" % (i, ptstr(p1), ptstr(p2)))
     if msgs:
         print premsg + "\n".join(msgs)

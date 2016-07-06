@@ -31,7 +31,7 @@ if opts.QUIET:
 
 
 import numpy as np
-import yoda
+import yoda, yoda.plotting
 
 mpl, plt = yoda.plotting.setup_mpl(opts.ENGINE)
 COLORS = [plt.cm.jet(i) for i in np.linspace(0.2, 0.8, len(args))]

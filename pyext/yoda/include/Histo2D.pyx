@@ -27,9 +27,6 @@ cdef class Histo2D(AnalysisObject):
 
     cdef inline c.Histo2D* h2ptr(self) except NULL:
         return <c.Histo2D*> self.ptr()
-    # TODO: remove
-    cdef inline c.Histo2D* _Histo2D(self) except NULL:
-        return <c.Histo2D*> self.ptr()
 
 
     def __init__(self, *args, **kwargs):
@@ -46,10 +43,15 @@ cdef class Histo2D(AnalysisObject):
         cutil.set_owned_ptr(self, new c.Histo2D(nxbins, xlow, xhigh,  nybins, ylow, yhigh,  string(path), string(title)))
 
 
-    # TODO: remove
+    def __len__(self):
+        "Number of bins"
+        return self.numBins
+
     def __getitem__(self, py_ix):
+        "Direct access to bins"
         cdef size_t i = cutil.pythonic_index(py_ix, self.h2ptr().numBins())
         return cutil.new_borrowed_cls(HistoBin2D, & self.h2ptr().bins().at(i), self)
+
 
     def __repr__(self):
         return "<%s '%s' %d bins, sumw=%.2g>" % (self.__class__.__name__, self.path, len(self.bins), self.sumW())
@@ -234,9 +236,6 @@ cdef class Histo2D(AnalysisObject):
         """() -> int
         Number of bins (not including overflows)."""
         return self.h2ptr().numBins()
-
-    def __len__(self):
-        return self.numBins
 
     @property
     def numBinsX(self):

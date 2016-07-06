@@ -3,6 +3,7 @@ import numpy as np
 import sys
 
 
+# TODO: need a better name... MiniHist, PlotData?
 class NumpyHist(object):
 
     def __init__(self, ao):
@@ -17,6 +18,7 @@ class NumpyHist(object):
         ## Convert to Scatter and set dimensionality & recarray column names
         s = ao.mkScatter()
         names = ['x', 'y', 'exminus', 'explus', 'eyminus', 'eyplus']
+        # TODO: also Scatter1D
         if type(s) is yoda.Scatter2D:
             self.dim = 2
         elif type(s) is yoda.Scatter3D:
@@ -175,7 +177,7 @@ def read_plot_keys(datfile):
 
 import matplotlib as mpl
 
-def setup_mpl(engine="PGF", font="TeX Gyre Pagella", fontsize=17, mfont=None, textfigs=True):
+def setup_mpl(engine="MPL", font="TeX Gyre Pagella", fontsize=17, mfont=None, textfigs=True):
     """One-liner matplotlib (mpl) setup.
 
     By default mpl will be configured with the TeX PGF rendering backend, and a
@@ -310,7 +312,7 @@ def setup_axes_1d(axmain, axratio, plotkeys):
 
 
 # TODO: rename to be more obviously an ~internal helper
-def plot_hist_on_axes_1d(axmain, axratio, h, href=None):
+def plot_hist_on_axes_1d(axmain, axratio, h, href=None, default_color="black", default_linestyle="-"):
     if "plt" not in dir():
         mpl, plt = setup_mpl()
 
@@ -319,7 +321,7 @@ def plot_hist_on_axes_1d(axmain, axratio, h, href=None):
     # TODO: Split into different plot styles: line/filled/range, step/diag/smooth, ...?
 
     ## Styles
-    default_color = h.annotations.get("Color", "black")
+    default_color = h.annotations.get("Color", default_color)
     marker = h.annotations.get("Marker", h.annotations.get("PolyMarker", None)) # <- make-plots translation
     marker = {"*":"o"}.get(marker, marker) # <- make-plots translation
     mcolor = h.annotations.get("LineColor", default_color)
@@ -327,7 +329,7 @@ def plot_hist_on_axes_1d(axmain, axratio, h, href=None):
     ecolor = h.annotations.get("ErrorBarsColor", default_color)
     line = h.annotations.get("Line", None)
     lcolor = h.annotations.get("LineColor", default_color)
-    lstyle = h.annotations.get("LineStyle", "-")
+    lstyle = h.annotations.get("LineStyle", default_linestyle)
     lstyle = {"solid":"-", "dashed":"--", "dotdashed":"-.", "dashdotted":"-.", "dotted":":"}.get(lstyle, lstyle) # <- make-plots translation
     lwidth = 1.4
     msize = 7
@@ -439,14 +441,22 @@ def plot_hists_1d(hs, outfile=None, ratio=None, plotkeys={}):
         # Redraw ratio = 1 marker line:
         axratio.axhline(1.0, color="gray")
 
+    COLORS = ["red", "blue", "magenta", "orange", "green"]
+    LSTYLES = ["-", "--", "-.", ":"]
+
     ## Dataset plotting
+    some_valid_label = False
     for ih, h in enumerate(hs):
         #print ih, h.path
-        plot_hist_on_axes_1d(axmain, axratio, h, href)
+        aa = plot_hist_on_axes_1d(axmain, axratio, h, href, COLORS[ih % len(COLORS)], LSTYLES[ih % len(LSTYLES)])
+        if aa and not aa[0].get_label().startswith("_"):
+            # print "@@@", aa[0].get_label()
+            some_valid_label = True
 
     ## Legend
     # TODO: allow excluding and specify order via LegendIndex
-    axmain.legend(loc=plotkeys.get("LegendPos", "best"), fontsize=plotkeys.get("LegendFontSize", "x-small"), frameon=False)
+    if some_valid_label: #< No point in writing a legend if there are no labels
+        pass #axmain.legend(loc=plotkeys.get("LegendPos", "best"), fontsize=plotkeys.get("LegendFontSize", "x-small"), frameon=False)
 
     ## Tweak layout now that everything is in place
     # TODO: merge tight_layout() into the Figure constructor, and maybe the ratio ticker when retrospectively drawing the zorder'ed err band
@@ -464,12 +474,14 @@ def plot_hists_1d(hs, outfile=None, ratio=None, plotkeys={}):
 
 
 # TODO: Add arg for MPL setup?
+# TODO: plotkeys -> kwargs via lower-casing
 def plot_hist_1d(h, outfile=None, plotkeys={}):
     "Plot the given histogram on a single figure without a ratio plot, returning the 2-tuple of (fig, main_axis)."
     f, ax, _ = plot_hists_1d([h,], outfile=outfile, ratio=False, plotkeys=plotkeys)
     return f, ax
 
 
+# TODO: plotkeys -> kwargs via lower-casing
 def plot(hs, outfile=None, plotkeys={}, ratio=None):
     """Plot the given histogram(s) on a single figure, maybe with a ratio plot,
     and return the 2-tuple of (fig, (main_axis,ratio_axis)). If an outfile is

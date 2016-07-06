@@ -5,6 +5,10 @@ from libcpp cimport bool
 from libcpp.string cimport string
 from cython.operator cimport dereference as deref
 
+cdef extern from "YODA/Config/YodaConfig.h" namespace "YODA":
+     string version()
+
+
 # Import the error handling C++ routine
 cdef extern from "errors.hh":
     # Have a look in errors.cpp for implementation specifics
@@ -26,7 +30,6 @@ cdef extern from "YODA/Utils/MathUtils.h" namespace "YODA":
     double mean(vector[int]& sample)
     double covariance(vector[int]& sample1, vector[int]& sample2)
     double correlation(vector[int]& sample1, vector[int]& sample2)
-
 # }}}
 
 
@@ -217,9 +220,38 @@ cdef extern from "YODA/Dbn3D.h" namespace "YODA":
 #}}} Dbn3D
 
 
+# Point {{{
+
+cdef extern from "YODA/Point.h" namespace "YODA":
+    cdef cppclass Point:
+
+        int dim() except +yodaerr
+
+        double val(size_t i) except +yodaerr
+        void setVal(size_t i, double val) except +yodaerr
+
+        pair[double,double] errs(size_t i) except +yodaerr
+        double errMinus(size_t i) except +yodaerr
+        void setErrMinus(size_t i, double eminus) except +yodaerr
+        double errPlus(size_t i) except +yodaerr
+        void setErrPlus(size_t i, double eplus) except +yodaerr
+        double errAvg(size_t i) except +yodaerr
+
+        void setErr(size_t i, double e) except +yodaerr
+        # void setErrs(size_t i, double e) except +yodaerr
+        # void setErrs(size_t i, double eminus, double eplus) except +yodaerr
+        void setErrs(size_t i, pair[double,double]& e) except +yodaerr
+
+        # void set(size_t i, double val, double e) except +yodaerr
+        # void set(size_t i, double val, double eminus, double eplus) except +yodaerr
+        void set(size_t i, double val, pair[double,double]& e) except +yodaerr
+
+#}}} Point
+
+
 # Point1D {{{
 cdef extern from "YODA/Point1D.h" namespace "YODA":
-    cdef cppclass Point1D:
+    cdef cppclass Point1D(Point):
         Point1D () except +yodaerr
         Point1D (Point1D p) except +yodaerr
         Point1D (double x, double exminus, double explus) except +yodaerr
@@ -228,7 +260,7 @@ cdef extern from "YODA/Point1D.h" namespace "YODA":
         void setX(double x) except +yodaerr
 
         pair[double,double] xErrs() except +yodaerr
-        void setXErr(pair[double, double]) except +yodaerr
+        void setXErrs(pair[double, double]&) except +yodaerr
         double xErrAvg() except +yodaerr
 
         double xMin() except +yodaerr
@@ -247,7 +279,7 @@ cdef extern from "YODA/Point1D.h" namespace "YODA":
 
 # Point2D {{{
 cdef extern from "YODA/Point2D.h" namespace "YODA":
-    cdef cppclass Point2D:
+    cdef cppclass Point2D(Point):
         Point2D () except +yodaerr
         Point2D (Point2D p) except +yodaerr
         Point2D (double x, double y,
@@ -259,12 +291,12 @@ cdef extern from "YODA/Point2D.h" namespace "YODA":
         void setX(double x) except +yodaerr
         void setY(double y) except +yodaerr
         pair[double,double] xy() except +yodaerr
-        void setXY(pair[double,double] xy) except +yodaerr
+        void setXY(pair[double,double]&) except +yodaerr
 
         pair[double,double] xErrs() except +yodaerr
         pair[double,double] yErrs() except +yodaerr
-        void setXErr(pair[double, double]) except +yodaerr
-        void setYErr(pair[double, double]) except +yodaerr
+        void setXErrs(pair[double, double]&) except +yodaerr
+        void setYErrs(pair[double, double]&) except +yodaerr
         double xErrAvg() except +yodaerr
         double yErrAvg() except +yodaerr
 
@@ -289,7 +321,7 @@ cdef extern from "YODA/Point2D.h" namespace "YODA":
 
 # Point3D {{{
 cdef extern from "YODA/Point3D.h" namespace "YODA":
-    cdef cppclass Point3D:
+    cdef cppclass Point3D(Point):
         Point3D () except +yodaerr
         Point3D (Point3D& p) except +yodaerr
         Point3D (double x, double y, double z,
@@ -307,9 +339,9 @@ cdef extern from "YODA/Point3D.h" namespace "YODA":
         pair[double,double] xErrs() except +yodaerr
         pair[double,double] yErrs() except +yodaerr
         pair[double,double] zErrs() except +yodaerr
-        void setXErr(pair[double, double]) except +yodaerr
-        void setYErr(pair[double, double]) except +yodaerr
-        void setZErr(pair[double, double]) except +yodaerr
+        void setXErrs(pair[double, double]&) except +yodaerr
+        void setYErrs(pair[double, double]&) except +yodaerr
+        void setZErrs(pair[double, double]&) except +yodaerr
         double xErrAvg()
         double yErrAvg()
         double zErrAvg()
@@ -342,6 +374,7 @@ cdef extern from "YODA/Point3D.h" namespace "YODA":
 # Bin {{{
 cdef extern from "YODA/Bin.h" namespace "YODA":
     cdef cppclass Bin:
+        int dim() except +yodaerr
         unsigned long numEntries() except +yodaerr
         double effNumEntries() except +yodaerr
         double sumW() except +yodaerr
@@ -589,6 +622,9 @@ cdef extern from "YODA/AnalysisObject.h" namespace "YODA":
         ## String used in automatic type determination
         string type() except +yodaerr
 
+        ## Data object fill- or plot-space dimension
+        int dim() except +yodaerr
+
         ## Annotations
         vector[string] annotations() except +yodaerr
         bool hasAnnotation(string key) except +yodaerr
@@ -646,15 +682,25 @@ cdef extern from "YODA/Counter.h" namespace "YODA":
 
         void scaleW(double) except +yodaerr
 
-        # TODO: += and -=
+        # operator += (Counter)
+        # operator -= (Counter)
 
-#}}} Counter
+    Scatter1D Counter_div_Counter "divide" (const Counter&, const Counter&) except +yodaerr
+    Scatter1D Counter_eff_Counter "efficiency" (const Counter&, const Counter&) except +yodaerr
 
 cdef extern from "merge.hh":
+    void Counter_iadd_Counter "cython_iadd" (Counter*, Counter*)
+    void Counter_isub_Counter "cython_isub" (Counter*, Counter*)
+    # void Counter_imul_dbl "cython_imul_dbl" (Counter*, double)
+    # void Counter_idiv_dbl "cython_idiv_dbl" (Counter*, double)
     Counter* Counter_add_Counter "cython_add" (Counter*, Counter*)
     Counter* Counter_sub_Counter "cython_sub" (Counter*, Counter*)
+    #Counter* Counter_div_Counter "cython_div" (Counter*, Counter*)
 
-# TODO: add counter division and efficiency calculations and mkScatter -> Scatter1D
+cdef extern from "YODA/Scatter1D.h" namespace "YODA":
+    Scatter1D mkScatter_Counter "YODA::mkScatter" (const Counter&) except +yodaerr
+
+#}}} Counter
 
 
 # Scatter1D {{{
@@ -866,7 +912,8 @@ cdef extern from "YODA/Histo1D.h" namespace "YODA":
         void normalize(double normto, bool includeoverflows) except +yodaerr
 
         void mergeBins(size_t, size_t) except +yodaerr
-        void rebin(int n) except +yodaerr
+        void rebinBy(unsigned int n, size_t begin, size_t end) except +yodaerr
+        void rebinTo(vector[double] edges) except +yodaerr
 
         void addBin(double, double) except +yodaerr
         void addBins(vector[double] edges) except +yodaerr
@@ -874,6 +921,7 @@ cdef extern from "YODA/Histo1D.h" namespace "YODA":
 
         double xMin() except +yodaerr
         double xMax() except +yodaerr
+        vector[double] xEdges() except +yodaerr
 
         size_t numBins() except +yodaerr
 
@@ -965,7 +1013,7 @@ cdef extern from "YODA/Histo2D.h" namespace "YODA":
         void scaleXY(double, double)
 
         # void mergeBins(size_t, size_t) except +yodaerr
-        # void rebin(int n) except +yodaerr
+        # void rebin(unsigned int n) except +yodaerr
 
         size_t numBins() except +yodaerr
         size_t numBinsX() except +yodaerr
@@ -1071,7 +1119,8 @@ cdef extern from "YODA/Profile1D.h" namespace "YODA":
         void scaleY(double s) except +yodaerr
 
         void mergeBins(size_t, size_t) except +yodaerr
-        void rebin(int n) except +yodaerr
+        void rebinBy(unsigned int n, size_t begin, size_t end) except +yodaerr
+        void rebinTo(vector[double] edges) except +yodaerr
 
         void addBin(double, double) except +yodaerr
         void addBins(vector[double] edges) except +yodaerr
@@ -1079,6 +1128,8 @@ cdef extern from "YODA/Profile1D.h" namespace "YODA":
 
         double xMin() except +yodaerr
         double xMax() except +yodaerr
+
+        vector[double] xEdges() except +yodaerr
 
         size_t numBins() except +yodaerr
 
@@ -1160,7 +1211,7 @@ cdef extern from "YODA/Profile2D.h" namespace "YODA":
         void scaleXY(double, double)
 
         # void mergeBins(size_t, size_t) except +yodaerr
-        # void rebin(int n) except +yodaerr
+        # void rebin(unsigned int n) except +yodaerr
 
         size_t numBins() except +yodaerr
         size_t numBinsX() except +yodaerr
@@ -1287,6 +1338,7 @@ cdef extern from "YODA/Axis1D.h" namespace "YODA":
         vector[BIN1D]& bins()
         double xMin() except +yodaerr
         double xMax() except +yodaerr
+        vector[double] xEdges() except +yodaerr
         long getBinIndex(double)
         void reset()
         DBN& totalDbn()

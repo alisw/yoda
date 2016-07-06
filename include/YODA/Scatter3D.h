@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2015 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_SCATTER3D_H
 #define YODA_SCATTER3D_H
@@ -137,6 +137,10 @@ namespace YODA {
     //@}
 
 
+    /// Dimension of this data object
+    size_t dim() const { return 3; }
+
+
     /// @name Modifiers
     //@{
 
@@ -147,22 +151,22 @@ namespace YODA {
 
     /// Scaling of x axis
     void scaleX(double scalex) {
-      BOOST_FOREACH (Point3D& p, _points) p.scaleX(scalex);
+      for (Point3D& p : _points) p.scaleX(scalex);
     }
 
     /// Scaling of y axis
     void scaleY(double scaley) {
-      BOOST_FOREACH (Point3D& p, _points) p.scaleY(scaley);
+      for (Point3D& p : _points) p.scaleY(scaley);
     }
 
     /// Scaling of z axis
     void scaleZ(double scalez) {
-      BOOST_FOREACH (Point3D& p, _points) p.scaleZ(scalez);
+      for (Point3D& p : _points) p.scaleZ(scalez);
     }
 
     /// Scaling of all three axes
     void scaleXYZ(double scalex, double scaley, double scalez) {
-      BOOST_FOREACH (Point3D& p, _points) p.scaleXYZ(scalex, scaley, scalez);
+      for (Point3D& p : _points) p.scaleXYZ(scalex, scaley, scalez);
     }
 
     /// Scaling of all three axes
@@ -246,7 +250,7 @@ namespace YODA {
 
     /// Insert a collection of new points
     void addPoints(const Points& pts) {
-      BOOST_FOREACH (const Point3D& pt, pts) addPoint(pt);
+      for (const Point3D& pt : pts) addPoint(pt);
     }
 
     //@}
@@ -262,8 +266,7 @@ namespace YODA {
     /// @todo Better name?
     /// @todo Convert to accept a Range or generic
     void combineWith(const std::vector<Scatter3D>& others) {
-      BOOST_FOREACH (const Scatter3D& s, others) combineWith(s);
-      //return *this;
+      for (const Scatter3D& s : others) combineWith(s);
     }
 
 
@@ -334,42 +337,6 @@ namespace YODA {
 
 
   /////////////////////////////////
-
-
-  // /// @name Combining scatters: global operators, assuming aligned points
-  // /// @todo This "2D histo-like behaviour" breaks the x/y/z symmetry... is there another way?
-  // //@{
-
-  // /// Add two scatters
-  // Scatter3D add(const Scatter3D& first, const Scatter3D& second);
-
-
-  // /// Add two scatters
-  // inline Scatter3D operator + (const Scatter3D& first, const Scatter3D& second) {
-  //   return add(first, second);
-  // }
-
-
-  // /// Subtract two scatters
-  // Scatter3D subtract(const Scatter3D& first, const Scatter3D& second);
-
-
-  // /// Subtract two scatters
-  // inline Scatter3D operator - (const Scatter3D& first, const Scatter3D& second) {
-  //   return subtract(first, second);
-  // }
-
-
-  // /// Divide two scatters
-  // Scatter3D divide(const Scatter3D& numer, const Scatter3D& denom);
-
-
-  // /// Divide two scatters
-  // inline Scatter3D operator / (const Scatter3D& numer, const Scatter3D& denom) {
-  //   return divide(numer, denom);
-  // }
-
-  // //@}
 
 
   /// @name Transforming operations on Scatter3D

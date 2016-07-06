@@ -11,7 +11,7 @@ srcdir = os.path.abspath("@top_srcdir@/src")
 libdir = os.path.abspath("@top_builddir@/src/.libs")
 static_files = ["yoda/errors.cpp"]
 
-BASE_COMPILE_ARGS = "-I@prefix@/include -I../include @BOOST_CPPFLAGS@ @PYEXT_CXXFLAGS@".split()
+BASE_COMPILE_ARGS = "@PYEXT_CXXFLAGS@ -I@prefix@/include -I../include".split()
 BASE_LINK_ARGS = ["-L@prefix@/lib"]
 
 # Dependencies used to trigger rebuild

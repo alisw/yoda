@@ -94,7 +94,7 @@ namespace YODA {
     void reset() {
       _dbn.reset();
       _outflows.assign(8, Outflow());
-      BOOST_FOREACH(Bin& bin, _bins) bin.reset();
+      for (Bin& bin : _bins) bin.reset();
       _locked = false;
     }
 
@@ -157,9 +157,21 @@ namespace YODA {
     /// their respective factors.
     void scaleXY(double sx, double sy) {
       _dbn.scaleXY(sx, sy);
-      BOOST_FOREACH (Outflow& outflow, _outflows)
-        BOOST_FOREACH (DBN& dbn, outflow) dbn.scaleXY(sx, sy);
-      BOOST_FOREACH (Bin& bin, _bins) bin.scaleXY(sx, sy);
+      /// @todo Reinstate when C++11 allowed in API
+      // for (Outflow& outflow : _outflows)
+      //   for (DBN& dbn : outflow)
+      //     dbn.scaleXY(sx, sy);
+      for (size_t io = 0; io < _outflows.size(); ++io) {
+        Outflow& outflow = _outflows[io];
+        for (size_t id = 0; id < outflow.size(); ++id) {
+          DBN& dbn = outflow[id];
+          dbn.scaleXY(sx, sy);
+        }
+      }
+      /// @todo Reinstate when C++11 allowed in API
+      // for (Bin& bin : _bins)
+      //   bin.scaleXY(sx, sy);
+      for (size_t ib = 0; ib < _bins.size(); ++ib) _bins[ib].scaleXY(sx, sy);
       _updateAxis(_bins);
     }
 
@@ -168,9 +180,21 @@ namespace YODA {
     /// scalefactor.
     void scaleW(double scalefactor) {
       _dbn.scaleW(scalefactor);
-      BOOST_FOREACH (Outflow& outflow, _outflows)
-        BOOST_FOREACH (DBN& dbn, outflow) dbn.scaleW(scalefactor);
-      BOOST_FOREACH (Bin &bin, _bins) bin.scaleW(scalefactor);
+      /// @todo Reinstate when C++11 allowed in API
+      // for (Outflow& outflow : _outflows)
+      //   for (DBN& dbn : outflow)
+      //     dbn.scaleW(scalefactor);
+      for (size_t io = 0; io < _outflows.size(); ++io) {
+        Outflow& outflow = _outflows[io];
+        for (size_t id = 0; id < outflow.size(); ++id) {
+          DBN& dbn = outflow[id];
+          dbn.scaleW(scalefactor);
+        }
+      }
+      /// @todo Reinstate when C++11 allowed in API
+      // for (Bin& bin : _bins)
+      //   bin.scaleW(scalefactor);
+      for (size_t ib = 0; ib < _bins.size(); ++ib) _bins[ib].scaleW(scalefactor);
       _updateAxis(_bins);
     }
 
@@ -292,17 +316,25 @@ namespace YODA {
       _updateAxis(newBins);
     }
 
+    /// Add a pre-made bin
+    void addBin(const Bin& bin) {
+      _checkUnlocked();
+      Bins newBins = _bins;
+      newBins.push_back(bin);
+      _updateAxis(newBins);
+    }
+
     /// Add a vector of pre-made bins
     void addBins(const Bins& bins) {
       if (bins.size() == 0) return;
       _checkUnlocked();
-
       Bins newBins = _bins;
-      BOOST_FOREACH(const Bin& b, bins) newBins.push_back(b);
-
+      /// @todo Reinstate when C++11 allowed in API
+      // for (const Bin& b : bins)
+      //   newBins.push_back(b);
+      for (size_t ib = 0; ib < bins.size(); ++ib) newBins.push_back(bins[ib]);
       _updateAxis(newBins);
     }
-
 
     /// Add a contiguous set of bins to an axis, via their list of edges
     void addBins(const std::vector<double>& xedges, const std::vector<double>& yedges) {
@@ -363,10 +395,13 @@ namespace YODA {
     DBN& totalDbn() {
       return _dbn;
     }
-
     /// Return the total distribution (const)
     const DBN& totalDbn() const {
       return _dbn;
+    }
+    /// Set the total distribution: CAREFUL!
+    void setTotalDbn(const DBN& dbn) {
+      _dbn = dbn;
     }
 
 
@@ -462,7 +497,7 @@ namespace YODA {
 
       // Create the edges
       std::vector<double> xedges, yedges, xwidths, ywidths;
-      BOOST_FOREACH (const Bin& bin, bins) {
+      for (const Bin& bin : bins) {
         xedges.push_back(bin.xMin());
         xedges.push_back(bin.xMax());
         xwidths.push_back(bin.xWidth());

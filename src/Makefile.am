@@ -2,7 +2,6 @@ SUBDIRS = tinyxml .
 
 lib_LTLIBRARIES = libYODA.la
 
-## Compile ReaderYODA and ReaderFLAT first: they take longest so this speeds up -jN compilation!
 libYODA_la_SOURCES = \
     Reader.cc \
     ReaderYODA.cc \
@@ -10,8 +9,8 @@ libYODA_la_SOURCES = \
     ReaderAIDA.cc \
     Writer.cc \
     WriterYODA.cc \
-    WriterAIDA.cc \
     WriterFLAT.cc \
+    WriterAIDA.cc \
     Dbn0D.cc \
 	Dbn1D.cc \
     Counter.cc \

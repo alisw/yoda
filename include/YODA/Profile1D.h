@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2015 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Profile1D_h
 #define YODA_Profile1D_h
@@ -113,17 +113,8 @@ namespace YODA {
     //@}
 
 
-    /// @name Persistency hooks
-    //@{
-
-    /// Get name of the analysis object type, for persisting
-    std::string type() const { return "Profile1D"; }
-
-    /// Set the state of the profile object, for unpersisting
-    /// @todo Need to set annotations (do that on AO), all-histo Dbns, and dbns for every bin. Delegate!
-    // void _setstate() = 0;
-
-    //@}
+    /// Fill dimension of this data object
+    size_t dim() const { return 1; }
 
 
     /// @name Modifiers
@@ -167,9 +158,23 @@ namespace YODA {
 
 
     /// Merge every group of n bins, starting from the LHS
-    void rebin(int n) {
-      _axis.rebin(n);
+    void rebinBy(unsigned int n, size_t begin=0, size_t end=UINT_MAX) {
+      _axis.rebinBy(n, begin, end);
     }
+    /// Overloaded alias for rebinBy
+    void rebin(unsigned int n, size_t begin=0, size_t end=UINT_MAX) {
+      rebinBy(n, begin, end);
+    }
+
+    /// Rebin to the given list of bin edges
+    void rebinTo(const std::vector<double>& newedges) {
+      _axis.rebinTo(newedges);
+    }
+    /// Overloaded alias for rebinTo
+    void rebin(const std::vector<double>& newedges) {
+      rebinTo(newedges);
+    }
+
 
     /// Bin addition operator
     void addBin(double xlow, double xhigh) {
@@ -186,6 +191,16 @@ namespace YODA {
     //   _axis.addBins(edges);
     // }
 
+    /// Add a new bin, perhaps already populated: CAREFUL!
+    void addBin(const ProfileBin1D& b) { _axis.addBin(b); }
+
+    /// @brief Bins addition operator
+    ///
+    /// Add multiple bins without resetting
+    void addBins(const Bins& bins) {
+      _axis.addBins(bins);
+    }
+
     //@}
 
 
@@ -200,6 +215,12 @@ namespace YODA {
 
     /// High edge of this histo's axis
     double xMax() const { return _axis.xMax(); }
+
+    /// All bin edges on this histo's axis
+    ///
+    /// @note This only returns the finite edges, i.e. -inf and +inf are removed
+    /// @todo Make the +-inf stripping controllable by a default-valued bool arg
+    const std::vector<double> xEdges() const { return _axis.xEdges(); }
 
 
     /// Access the bin vector
@@ -220,20 +241,29 @@ namespace YODA {
     /// Access a bin by x-coordinate (const version)
     const ProfileBin1D& binAt(double x) const { return _axis.binAt(x); }
 
+
     /// Access summary distribution, including gaps and overflows (non-const version)
     Dbn2D& totalDbn() { return _axis.totalDbn(); }
     /// Access summary distribution, including gaps and overflows (const version)
     const Dbn2D& totalDbn() const { return _axis.totalDbn(); }
+    /// Set summary distribution, mainly for persistency: CAREFUL!
+    void setTotalDbn(const Dbn2D& dbn) { _axis.setTotalDbn(dbn); }
+
 
     /// Access underflow (non-const version)
     Dbn2D& underflow() { return _axis.underflow(); }
     /// Access underflow (const version)
     const Dbn2D& underflow() const { return _axis.underflow(); }
+    /// Set underflow distribution, mainly for persistency: CAREFUL!
+    void setUnderflow(const Dbn2D& dbn) { _axis.setUnderflow(dbn); }
+
 
     /// Access overflow (non-const version)
     Dbn2D& overflow() { return _axis.overflow(); }
     /// Access overflow (const version)
     const Dbn2D& overflow() const { return _axis.overflow(); }
+    /// Set overflow distribution, mainly for persistency: CAREFUL!
+    void setOverflow(const Dbn2D& dbn) { _axis.setOverflow(dbn); }
 
     //@}
 

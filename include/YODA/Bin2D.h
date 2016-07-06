@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2015 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Bin2D_h
 #define YODA_Bin2D_h
@@ -88,6 +88,12 @@ namespace YODA {
     }
 
     //@}
+
+
+
+    /// Dimension of the fill space
+    size_t dim() { return 2; }
+
 
 
     /// @name Modifiers

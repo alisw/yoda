@@ -28,9 +28,6 @@ cdef class Histo1D(AnalysisObject):
 
     cdef inline c.Histo1D* h1ptr(self) except NULL:
         return <c.Histo1D*> self.ptr()
-    # TODO: remove
-    cdef inline c.Histo1D* _Histo1D(self) except NULL:
-        return <c.Histo1D*> self.ptr()
 
 
     def __init__(self, *args, **kwargs):
@@ -58,14 +55,14 @@ cdef class Histo1D(AnalysisObject):
 
 
     def __len__(self):
-        "DEPRECATED!"
+        "Number of bins"
         return self.numBins
 
     def __getitem__(self, i):
-        "DEPRECATED! But bins() = list(self) depends on it, so removing is not trivial"
-        # return self.bins[i]
+        "Direct access to bins"
         cdef size_t ii = cutil.pythonic_index(i, self.h1ptr().numBins())
         return cutil.new_borrowed_cls(HistoBin1D, & self.h1ptr().bin(ii), self)
+
 
     def __repr__(self):
         xmean = None
@@ -203,6 +200,11 @@ cdef class Histo1D(AnalysisObject):
         """High x edge of the histo."""
         return self.h1ptr().xMax()
 
+    @property
+    def xEdges(self):
+        """All x edges of the histo."""
+        return self.h1ptr().xEdges()
+
 
     @property
     def numBins(self):
@@ -269,10 +271,25 @@ cdef class Histo1D(AnalysisObject):
         Merge bins from indices ia through ib."""
         self.h1ptr().mergeBins(ia, ib)
 
-    def rebin(self, n):
+    def rebinBy(self, n, begin=0, end=None):
         """(n) -> None.
-        Merge every group of n bins together."""
-        self.h1ptr().rebin(n)
+        Merge every group of n bins together (between begin and end, if specified)."""
+        if end is None:
+            end = self.numBins
+        self.h1ptr().rebinBy(int(n), begin, end)
+
+    def rebinTo(self, edges):
+        """([edges]) -> None.
+        Merge bins to produce the given new edges... which must be a subset of the current ones."""
+        self.h1ptr().rebinTo(edges)
+
+    def rebin(self, arg, **kwargs):
+        """(n) -> None or ([edges]) -> None
+        Merge bins, like rebinBy if an int argument is given; like rebinTo if an iterable is given."""
+        if hasattr(arg, "__iter__"):
+            self.rebinTo(arg, **kwargs)
+        else:
+            self.rebinBy(arg, **kwargs)
 
 
     def mkScatter(self, usefocus=False):
@@ -337,11 +354,11 @@ cdef class Histo1D(AnalysisObject):
 
     ## Unbound special methods
 
-    # TODO: only to bootstrap sum(), but doesn't work properly? Seems to treat *self* as the int...
-    def __radd__(Histo1D self, zero):
-        #assert zero == 0
-        print "FOO"
-        return self.clone()
+    # # TODO: only to bootstrap sum(), but doesn't work properly? Seems to treat *self* as the int...
+    # def __radd__(Histo1D self, zero):
+    #     #assert zero == 0
+    #     print "FOO"
+    #     return self.clone()
 
     def __add__(Histo1D self, Histo1D other):
         # print "BAR"

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2015 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Histo1D_h
 #define YODA_Histo1D_h
@@ -116,6 +116,10 @@ namespace YODA {
     //@}
 
 
+    /// Fill dimension of this data object
+    size_t dim() const { return 1; }
+
+
     /// @name Modifiers
     //@{
 
@@ -160,8 +164,21 @@ namespace YODA {
 
 
     /// Merge every group of n bins, starting from the LHS
-    void rebin(int n) {
-      _axis.rebin(n);
+    void rebinBy(unsigned int n, size_t begin=0, size_t end=UINT_MAX) {
+      _axis.rebinBy(n, begin, end);
+    }
+    /// Overloaded alias for rebinBy
+    void rebin(unsigned int n, size_t begin=0, size_t end=UINT_MAX) {
+      rebinBy(n, begin, end);
+    }
+
+    /// Rebin to the given list of bin edges
+    void rebinTo(const std::vector<double>& newedges) {
+      _axis.rebinTo(newedges);
+    }
+    /// Overloaded alias for rebinTo
+    void rebin(const std::vector<double>& newedges) {
+      rebinTo(newedges);
     }
 
     //@}
@@ -180,6 +197,12 @@ namespace YODA {
 
     /// High edge of this histo's axis
     double xMax() const { return _axis.xMax(); }
+
+    /// All bin edges on this histo's axis
+    ///
+    /// @note This only returns the finite edges, i.e. -inf and +inf are removed
+    /// @todo Make the +-inf stripping controllable by a default-valued bool arg
+    const std::vector<double> xEdges() const { return _axis.xEdges(); }
 
 
     /// Access the bin vector
@@ -208,30 +231,46 @@ namespace YODA {
     Dbn1D& totalDbn() { return _axis.totalDbn(); }
     /// Access summary distribution, including gaps and overflows (const version)
     const Dbn1D& totalDbn() const { return _axis.totalDbn(); }
+    /// Set summary distribution, mainly for persistency: CAREFUL!
+    void setTotalDbn(const Dbn1D& dbn) { _axis.setTotalDbn(dbn); }
 
 
     /// Access underflow (non-const version)
     Dbn1D& underflow() { return _axis.underflow(); }
     /// Access underflow (const version)
     const Dbn1D& underflow() const { return _axis.underflow(); }
+    /// Set underflow distribution, mainly for persistency: CAREFUL!
+    void setUnderflow(const Dbn1D& dbn) { _axis.setUnderflow(dbn); }
 
 
     /// Access overflow (non-const version)
     Dbn1D& overflow() { return _axis.overflow(); }
     /// Access overflow (const version)
     const Dbn1D& overflow() const { return _axis.overflow(); }
+    /// Set overflow distribution, mainly for persistency: CAREFUL!
+    void setOverflow(const Dbn1D& dbn) { _axis.setOverflow(dbn); }
 
 
     /// Add a new bin specifying its lower and upper bound
     void addBin(double from, double to) { _axis.addBin(from, to); }
 
-    /// Add a new bin specifying a vector of edges
+    /// Add new bins by specifying a vector of edges
     void addBins(std::vector<double> edges) { _axis.addBins(edges); }
 
     // /// Add new bins specifying a beginning and end of each of them
     // void addBins(std::vector<std::pair<double,double> > edges) {
     //   _axis.addBins(edges);
     // }
+
+    /// Add a new bin, perhaps already populated: CAREFUL!
+    void addBin(const HistoBin1D& b) { _axis.addBin(b); }
+
+    /// @brief Bins addition operator
+    ///
+    /// Add multiple bins without resetting
+    void addBins(const Bins& bins) {
+      _axis.addBins(bins);
+    }
 
     /// Remove a bin
     void eraseBin(size_t index) { _axis.eraseBin(index); }
@@ -452,6 +491,8 @@ namespace YODA {
   ///
   /// The includeunderflow param chooses whether the underflow bin is included
   /// in the integral numbers as an offset.
+  ///
+  /// @todo Rename/alias as mkIntegral
   Scatter2D toIntegralHisto(const Histo1D& h, bool includeunderflow=true);
 
 
@@ -466,6 +507,8 @@ namespace YODA {
   /// The includeunderflow param behaves as for toIntegral, and applies to both
   /// the initial integration and the integral used for the scaling. The
   /// includeoverflow param applies only to obtaining the scaling factor.
+  ///
+  /// @todo Rename/alias as mkIntegralEff
   Scatter2D toIntegralEfficiencyHisto(const Histo1D& h, bool includeunderflow=true, bool includeoverflow=true);
 
   //@}

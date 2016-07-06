@@ -1,12 +1,12 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2015 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
 //
 #include "YODA/Histo2D.h"
 #include "YODA/Profile2D.h"
 #include "YODA/Scatter3D.h"
-#include <cmath>
+#include "YODA/Utils/StringUtils.h"
 
 using namespace std;
 
@@ -53,7 +53,7 @@ namespace YODA {
   unsigned long Histo2D::numEntries(bool includeoverflows) const {
     if (includeoverflows) return totalDbn().numEntries();
     unsigned long n = 0;
-    BOOST_FOREACH (const Bin& b, bins()) n += b.numEntries();
+    for (const Bin& b : bins()) n += b.numEntries();
     return n;
   }
 
@@ -61,7 +61,7 @@ namespace YODA {
   double Histo2D::effNumEntries(bool includeoverflows) const {
     if (includeoverflows) return totalDbn().effNumEntries();
     double n = 0;
-    BOOST_FOREACH (const Bin& b, bins()) n += b.effNumEntries();
+    for (const Bin& b : bins()) n += b.effNumEntries();
     return n;
   }
 
@@ -69,7 +69,7 @@ namespace YODA {
   double Histo2D::sumW(bool includeoverflows) const {
     if (includeoverflows) return _axis.totalDbn().sumW();
     double sumw = 0;
-    BOOST_FOREACH (const Bin& b, bins()) sumw += b.sumW();
+    for (const Bin& b : bins()) sumw += b.sumW();
     return sumw;
   }
 
@@ -77,18 +77,18 @@ namespace YODA {
   double Histo2D::sumW2(bool includeoverflows) const {
     if (includeoverflows) return _axis.totalDbn().sumW2();
     double sumw2 = 0;
-    BOOST_FOREACH (const Bin& b, bins()) sumw2 += b.sumW2();
+    for (const Bin& b : bins()) sumw2 += b.sumW2();
     return sumw2;
   }
 
-  // ^^^^^^^^^^^^^^
+
   ////////////////
 
 
   double Histo2D::xMean(bool includeoverflows) const {
     if (includeoverflows) return _axis.totalDbn().xMean();
     Dbn2D dbn;
-    BOOST_FOREACH (const HistoBin2D& b, bins()) dbn += b.dbn();
+    for (const HistoBin2D& b : bins()) dbn += b.dbn();
     return dbn.xMean();
   }
 
@@ -96,7 +96,7 @@ namespace YODA {
   double Histo2D::yMean(bool includeoverflows) const {
     if (includeoverflows) return _axis.totalDbn().yMean();
     Dbn2D dbn;
-    BOOST_FOREACH (const HistoBin2D& b, bins()) dbn += b.dbn();
+    for (const HistoBin2D& b : bins()) dbn += b.dbn();
     return dbn.yMean();
   }
 
@@ -104,7 +104,7 @@ namespace YODA {
   double Histo2D::xVariance(bool includeoverflows) const {
     if (includeoverflows) return _axis.totalDbn().xVariance();
     Dbn2D dbn;
-    BOOST_FOREACH (const HistoBin2D& b, bins()) dbn += b.dbn();
+    for (const HistoBin2D& b : bins()) dbn += b.dbn();
     return dbn.xVariance();
   }
 
@@ -112,7 +112,7 @@ namespace YODA {
   double Histo2D::yVariance(bool includeoverflows) const {
     if (includeoverflows) return _axis.totalDbn().yVariance();
     Dbn2D dbn;
-    BOOST_FOREACH (const HistoBin2D& b, bins()) dbn += b.dbn();
+    for (const HistoBin2D& b : bins()) dbn += b.dbn();
     return dbn.yVariance();
   }
 
@@ -120,7 +120,7 @@ namespace YODA {
   double Histo2D::xStdErr(bool includeoverflows) const {
     if (includeoverflows) return _axis.totalDbn().xStdErr();
     Dbn2D dbn;
-    BOOST_FOREACH (const HistoBin2D& b, bins()) dbn += b.dbn();
+    for (const HistoBin2D& b : bins()) dbn += b.dbn();
     return dbn.xStdErr();
   }
 
@@ -128,7 +128,7 @@ namespace YODA {
   double Histo2D::yStdErr(bool includeoverflows) const {
     if (includeoverflows) return _axis.totalDbn().yStdErr();
     Dbn2D dbn;
-    BOOST_FOREACH (const HistoBin2D& b, bins()) dbn += b.dbn();
+    for (const HistoBin2D& b : bins()) dbn += b.dbn();
     return dbn.yStdErr();
   }
 
@@ -136,7 +136,7 @@ namespace YODA {
   double Histo2D::xRMS(bool includeoverflows) const {
     if (includeoverflows) return _axis.totalDbn().xRMS();
     Dbn2D dbn;
-    BOOST_FOREACH (const HistoBin2D& b, bins()) dbn += b.dbn();
+    for (const HistoBin2D& b : bins()) dbn += b.dbn();
     return dbn.xRMS();
   }
 
@@ -144,7 +144,7 @@ namespace YODA {
   double Histo2D::yRMS(bool includeoverflows) const {
     if (includeoverflows) return _axis.totalDbn().yRMS();
     Dbn2D dbn;
-    BOOST_FOREACH (const HistoBin2D& b, bins()) dbn += b.dbn();
+    for (const HistoBin2D& b : bins()) dbn += b.dbn();
     return dbn.yRMS();
   }
 
@@ -164,7 +164,7 @@ namespace YODA {
     : AnalysisObject("Histo2D", (path.size() == 0) ? s.path() : path, s, s.title())
   {
     std::vector<HistoBin2D> bins;
-    BOOST_FOREACH (const Scatter3D::Point& p, s.points()) {
+    for (const Scatter3D::Point& p : s.points()) {
       bins.push_back(HistoBin2D(p.xMin(), p.xMax(), p.yMin(), p.yMax()));
     }
     _axis = Histo2DAxis(bins);
@@ -176,7 +176,7 @@ namespace YODA {
     : AnalysisObject("Histo2D", (path.size() == 0) ? p.path() : path, p, p.title())
   {
     std::vector<HistoBin2D> bins;
-    BOOST_FOREACH (const ProfileBin2D& b, p.bins()) {
+    for (const ProfileBin2D& b : p.bins()) {
       bins.push_back(HistoBin2D(b.xMin(), b.xMax(), b.yMin(), b.yMax()));
     }
     _axis = Histo2DAxis(bins);
@@ -339,11 +339,11 @@ namespace YODA {
       const double eyplus  = b1.yMax() - y;
 
       // Assemble the z value and error
-      double z = 0;
-      double ez = 0;
+      double z = std::numeric_limits<double>::quiet_NaN();
+      double ez = std::numeric_limits<double>::quiet_NaN();
       if (b2.height() == 0 || (b1.height() == 0 && b1.heightErr() != 0)) { ///< @todo Ok?
-        /// @todo Provide optional alt behaviours to fill with NaN or remove the invalid point or throw
-        /// @todo Don't throw here: set a flag and throw after all bins have been handled.
+        // z = std::numeric_limits<double>::quiet_NaN();
+        // ez = std::numeric_limits<double>::quiet_NaN();
         // throw LowStatsError("Requested division of empty bin");
       } else {
         z = b1.height() / b2.height();
@@ -373,21 +373,22 @@ namespace YODA {
 
       /// BEGIN DIMENSIONALITY-INDEPENDENT BIT TO SHARE WITH H1
 
-      // Check that the numerator is consistent with being a subset of the denominator (NOT effNumEntries here!)
-      if (b_acc.numEntries() > b_tot.numEntries() || b_acc.sumW() > b_tot.sumW())
-        throw UserError("Attempt to calculate an efficiency when the numerator is not a subset of the denominator");
+      // Check that the numerator is consistent with being a subset of the denominator
+      /// @note Neither effNumEntries nor sumW are guaranteed to satisfy num <= den for general weights!
+      if (b_acc.numEntries() > b_tot.numEntries())
+        throw UserError("Attempt to calculate an efficiency when the numerator is not a subset of the denominator: "
+                        + Utils::toStr(b_acc.numEntries()) + " entries / " + Utils::toStr(b_tot.numEntries()) + " entries");
 
       // If no entries on the denominator, set eff = err = 0 and move to the next bin
-      /// @todo Provide optional alt behaviours to fill with NaN or remove the invalid point, or...
-      /// @todo Or throw a LowStatsError exception if h.effNumEntries() (or sumW()?) == 0?
-      double eff = 0, err = 0;
-      if (b_tot.sumW() != 0) {
-        // Calculate the values and errors
-        // const double eff = b_acc.effNumEntries() / b_tot.effNumEntries();
-        // const double ey = sqrt( b_acc.effNumEntries() * (1 - b_acc.effNumEntries()/b_tot.effNumEntries()) ) / b_tot.effNumEntries();
-        eff = b_acc.sumW() / b_tot.sumW(); //< Actually this is already calculated by the division...
-        err = sqrt(abs( ((1-2*eff)*b_acc.sumW2() + sqr(eff)*b_tot.sumW2()) / sqr(b_tot.sumW()) ));
-        // assert(point.y() == eff); //< @todo Correct? So we don't need to reset the eff on the next line?
+      double eff = std::numeric_limits<double>::quiet_NaN();
+      double err = std::numeric_limits<double>::quiet_NaN();
+      try {
+        if (b_tot.sumW() != 0) {
+          eff = b_acc.sumW() / b_tot.sumW(); //< Actually this is already calculated by the division...
+          err = sqrt(abs( ((1-2*eff)*b_acc.sumW2() + sqr(eff)*b_tot.sumW2()) / sqr(b_tot.sumW()) ));
+        }
+      } catch (const LowStatsError& e) {
+        //
       }
 
       /// END DIMENSIONALITY-INDEPENDENT BIT TO SHARE WITH H1

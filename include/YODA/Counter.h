@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2015 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Counter_h
 #define YODA_Counter_h
@@ -77,7 +77,9 @@ namespace YODA {
     //@}
 
 
-  public:
+    /// Fill dimension of this data object
+    size_t dim() const { return 0; }
+
 
     /// @name Modifiers
     //@{
@@ -109,7 +111,7 @@ namespace YODA {
     //@{
 
     /// Get the number of fills
-    double numEntries() const { return _dbn.numEntries(); }
+    unsigned long numEntries() const { return _dbn.numEntries(); }
 
     /// Get the effective number of fills
     double effNumEntries() const { return _dbn.effNumEntries(); }
@@ -139,7 +141,27 @@ namespace YODA {
     //@}
 
 
-  public:
+    /// @name Internal state access and modification (mainly for persistency use)
+    //@{
+
+    /// Get the internal distribution object
+    const Dbn0D& dbn() const {
+      return _dbn;
+    }
+
+    /// Set the internal distribution object: CAREFUL!
+    void setDbn(const Dbn0D& dbn) {
+      _dbn = dbn;
+    }
+
+    // /// Set the whole object state
+    // void setState(const Dbn0D& dbn, const AnalysisObject::Annotations& anns=AnalysisObject::Annotations()) {
+    //   setDbn(dbn);
+    //   setAnnotations(anns);
+    // }
+
+    //@}
+
 
     /// @name Adding and subtracting counters
     //@{
@@ -208,7 +230,6 @@ namespace YODA {
     return tmp;
   }
 
-
   /// Add two counters
   inline Counter operator + (const Counter& first, const Counter& second) {
     return add(first, second);
@@ -222,7 +243,6 @@ namespace YODA {
     return tmp;
   }
 
-
   /// Subtract two counters
   inline Counter operator - (const Counter& first, const Counter& second) {
     return subtract(first, second);
@@ -233,15 +253,11 @@ namespace YODA {
   /// @todo Or just return a Point1D?
   Scatter1D divide(const Counter& numer, const Counter& denom);
 
-
   /// Divide two counters, with an uncorrelated error treatment
   /// @todo Or just return a Point1D?
   inline Scatter1D operator / (const Counter& numer, const Counter& denom) {
     return divide(numer, denom);
   }
-
-
-  /// @todo Add mkScatter
 
   /// @todo Add divide functions/operators on pointers
 

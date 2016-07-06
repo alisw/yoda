@@ -13,7 +13,7 @@ int main() {
     if (bs.index(x) != iref) rtn = 1
 
   const vector<double> linedges = linspace(10, 1, 101);
-  cout << "Lin edges: "; BOOST_FOREACH(double x, linedges) cout << x << " "; cout << endl;
+  cout << "Lin edges: "; for (double x : linedges) cout << x << " "; cout << endl;
   YODA::Utils::BinSearcher bs1(linedges);
   TESTBS(bs1, 0, 0);
   TESTBS(bs1, 1-1e-5, 0);
@@ -27,7 +27,7 @@ int main() {
   TESTBS(bs1, 102, 11);
 
   const vector<double> logedges = logspace(10, 1, 101);
-  cout << "Log edges: "; BOOST_FOREACH(double x, logedges) cout << x << " "; cout << endl;
+  cout << "Log edges: "; for (double x : logedges) cout << x << " "; cout << endl;
   YODA::Utils::BinSearcher bs2(logedges);
   TESTBS(bs2, 0, 0);
   TESTBS(bs2, 1, 1);
@@ -37,7 +37,7 @@ int main() {
   TESTBS(bs2, 102, 11);
 
   const vector<double> linedges2 = linspace(10, -1, 101);
-  cout << "Lin edges starting below 0: "; BOOST_FOREACH(double x, logedges) cout << x << " "; cout << endl;
+  cout << "Lin edges starting below 0: "; for (double x : logedges) cout << x << " "; cout << endl;
   YODA::Utils::BinSearcher bs3(linedges2);
   TESTBS(bs3, -1-1e-5, 0);
   TESTBS(bs3, -1, 1);

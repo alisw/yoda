@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2015 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Profile2D_h
 #define YODA_Profile2D_h
@@ -117,13 +117,8 @@ namespace YODA {
     //@}
 
 
-    /// @name Persistency hooks
-    //@{
-
-    /// Get name of the analysis object type for persisting
-    std::string type() const { return "Profile2D"; }
-
-    //@}
+    /// Fill dimension of this data object
+    size_t dim() const { return 2; }
 
 
     /// @name Modifiers
@@ -177,16 +172,22 @@ namespace YODA {
 
     // /// @brief Bin addition operator
     // ///
-    // /// Add a bin to an axis described by its x and y ranges.
+    // /// Add a bin to the axis, described by its x and y ranges.
     void addBin(Axis::EdgePair1D xrange, Axis::EdgePair1D yrange) {
        _axis.addBin(xrange, yrange);
-     }
+    }
 
+    // /// @brief Bin addition operator
+    // ///
+    // /// Add a bin to the axis, possibly pre-populated
+    void addBin(const Bin& bin) {
+       _axis.addBin(bin);
+    }
 
     /// @brief Bins addition operator
     ///
     /// Add multiple bins from edge cuts without resetting
-    void addBins(const Axis::Edges &xcuts, const Axis::Edges &ycuts) {
+    void addBins(const Axis::Edges& xcuts, const Axis::Edges& ycuts) {
       _axis.addBins(xcuts, ycuts);
     }
 
@@ -194,7 +195,7 @@ namespace YODA {
     /// @brief Bins addition operator
     ///
     /// Add multiple bins without resetting
-    void addBins(const Bins &bins) {
+    void addBins(const Bins& bins) {
       _axis.addBins(bins);
     }
 
@@ -267,6 +268,9 @@ namespace YODA {
 
     /// Access summary distribution, including gaps and overflows (const version)
     const Dbn3D& totalDbn() const { return _axis.totalDbn(); }
+
+    /// Set summary distribution, including gaps and overflows
+    void setTotalDbn(const Dbn3D& dbn) { _axis.setTotalDbn(dbn); }
 
 
     // /// @brief Access an outflow (non-const)

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2015 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
 //
 #include "YODA/Counter.h"
 
@@ -21,6 +21,7 @@ namespace YODA {
 
 
   // Divide two counters
+  /// @todo Add skipnullpts extra optional arg
   Scatter1D divide(const Counter& numer, const Counter& denom) {
     Scatter1D rtn;
     if (denom.val() != 0) {
@@ -28,13 +29,14 @@ namespace YODA {
       const double err = val * add_quad(numer.relErr(), denom.relErr());
       rtn.addPoint(val, err);
     } else {
-      rtn.addPoint(0, 0);
+      rtn.addPoint(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN());
     }
     return rtn;
   }
 
 
   // Calculate a histogrammed efficiency ratio of two histograms
+  /// @todo Add skipnullpts extra optional arg
   Scatter1D efficiency(const Counter& accepted, const Counter& total) {
     Scatter1D tmp = divide(accepted, total);
     assert(tmp.numPoints() == 1);
@@ -48,14 +50,11 @@ namespace YODA {
     // If no entries on the denominator, set eff = err = 0 and move to the next bin
     /// @todo Provide optional alt behaviours to fill with NaN or remove the invalid point, or...
     /// @todo Or throw a LowStatsError exception if h.effNumEntries() (or sumW()?) == 0?
-    double eff = 0, err = 0;
+    double eff = std::numeric_limits<double>::quiet_NaN();
+    double err = std::numeric_limits<double>::quiet_NaN();
     if (total.sumW() != 0) {
-      // Calculate the values and errors
-      // const double eff = b_acc.effNumEntries() / b_tot.effNumEntries();
-      // const double ey = sqrt( b_acc.effNumEntries() * (1 - b_acc.effNumEntries()/b_tot.effNumEntries()) ) / b_tot.effNumEntries();
       eff = accepted.sumW() / total.sumW(); //< Actually this is already calculated by the division...
       err = sqrt(abs( ((1-2*eff)*accepted.sumW2() + sqr(eff)*total.sumW2()) / sqr(total.sumW()) ));
-      // assert(point.y() == eff); //< @todo Correct? So we don't need to reset the eff on the next line?
     }
 
     /// END DIMENSIONALITY-INDEPENDENT BIT TO SHARE WITH H1

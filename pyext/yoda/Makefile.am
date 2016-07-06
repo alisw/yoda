@@ -1,10 +1,10 @@
-EXTRA_DIST = \
+STATIC_SRC = \
     __init__.py \
     axis.pyx \
     errors.cpp errors.hh \
     pyroot_helpers.hh merge.hh \
     rootcompat.pxd rootcompat.pyx \
-    search.py plotting.py \
+    search.py plotting.py root.py \
     script_helpers.py
 
 CYTHON_SRC = \
@@ -39,23 +39,26 @@ CYTHON_SRC = \
     include/ProfileBin2D.pyx \
     include/Scatter1D.pyx \
     include/Scatter2D.pyx \
-    include/Scatter3D.pyx \
-    include/Bin1D.pxi \
-    include/Bin2D.pxi \
-    include/Axis1D.pxi \
-    include/Axis2D.pxi \
-	include/generated/Bin1D_Dbn1D.pyx \
-	include/generated/Bin1D_Dbn2D.pyx \
-	include/generated/Bin2D_Dbn2D.pyx \
-	include/generated/Bin2D_Dbn3D.pyx
+    include/Scatter3D.pyx
 
-EXTRA_DIST += \
+STATIC_SRC += \
     $(CYTHON_SRC) \
     mktemplates \
     core.cpp core.h util.cpp \
     rootcompat.cpp \
     .made_pyx_templates
 
+BUILT_SRC = \
+    include/Bin1D.pxi \
+    include/Bin2D.pxi \
+    include/Axis1D.pxi \
+    include/Axis2D.pxi \
+    include/generated/Bin1D_Dbn1D.pyx \
+    include/generated/Bin1D_Dbn2D.pyx \
+    include/generated/Bin2D_Dbn2D.pyx \
+    include/generated/Bin2D_Dbn3D.pyx
+
+EXTRA_DIST = $(STATIC_SRC) $(BUILT_SRC)
 
 if WITH_CYTHON
 
@@ -92,7 +95,7 @@ endif
 
 all-local: fix-out-of-source
 
-FIXSOURCES = $(EXTRA_DIST)
+FIXSOURCES = $(STATIC_SRC)
 
 fix-out-of-source: $(FIXSOURCES)
 	rm -f $@

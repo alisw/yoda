@@ -1,7 +1,8 @@
 pkginclude_HEADERS = \
     Exceptions.h  \
     AnalysisObject.h \
-    Weights.h Bin.h \
+    Weights.h \
+    Bin.h \
     Dbn0D.h Dbn1D.h Dbn2D.h Dbn3D.h \
     Axis1D.h Bin1D.h \
     Axis2D.h Bin2D.h \
@@ -10,6 +11,7 @@ pkginclude_HEADERS = \
     Histo2D.h HistoBin2D.h  \
     Profile1D.h ProfileBin1D.h \
     Profile2D.h ProfileBin2D.h \
+    Point.h \
     Scatter1D.h Point1D.h \
     Scatter2D.h Point2D.h \
     Scatter3D.h Point3D.h \
@@ -25,10 +27,12 @@ nobase_pkginclude_HEADERS = \
 	Utils/Formatting.h \
 	Utils/Predicates.h \
 	Utils/BinSearcher.h \
+	Utils/Traits.h \
 	Utils/sortedvector.h \
 	Utils/cachedvector.h \
 	Utils/indexedset.h \
 	Utils/ndarray.h \
 	Utils/fastlog.h \
+	Utils/getline.h \
 	Config/YodaConfig.h \
 	Config/BuildConfig.h

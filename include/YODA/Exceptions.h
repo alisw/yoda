@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2015 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Exception_h
 #define YODA_Exception_h
@@ -86,6 +86,13 @@ namespace YODA {
   class ReadError : public Exception {
   public:
     ReadError(const std::string& what) : Exception(what) {}
+  };
+
+
+  /// Error for file writing errors
+  class WriteError : public Exception {
+  public:
+    WriteError(const std::string& what) : Exception(what) {}
   };
 
 

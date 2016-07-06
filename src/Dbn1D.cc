@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2015 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
 //
 #include "YODA/Dbn1D.h"
 
@@ -29,7 +29,6 @@ namespace YODA {
     const double num = sumWX2()*sumW() - sqr(sumWX());
     const double den = sqr(sumW()) - sumW2();
     if (den==0.) {
-      std::cerr << "testing is this the problem ??? " << num << " " << den << "\n";
       throw WeightError("Undefined weighted variance");
     }
     /// @todo Isn't this sensitive to the overall scale of the weights?

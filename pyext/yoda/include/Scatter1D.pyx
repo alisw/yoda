@@ -14,11 +14,7 @@ cdef class Scatter1D(AnalysisObject):
     TODO: more documentation!
     """
 
-    cdef inline c.Scatter1D* _s1ptr(self) except NULL:
-        return <c.Scatter1D*> self.ptr()
-
-    # TODO: remove
-    cdef inline c.Scatter1D* _Scatter1D(self) except NULL:
+    cdef inline c.Scatter1D* s1ptr(self) except NULL:
         return <c.Scatter1D*> self.ptr()
 
 
@@ -32,11 +28,10 @@ cdef class Scatter1D(AnalysisObject):
         self.__init_2(path, title)
         self.addPoints(points)
 
-
     def clone(self):
         """() -> Scatter1D.
         Clone this Scatter1D."""
-        return cutil.new_owned_cls(Scatter1D, self._Scatter1D().newclone())
+        return cutil.new_owned_cls(Scatter1D, self.s1ptr().newclone())
 
     def __repr__(self):
         return "<%s '%s' %d points>" % (self.__class__.__name__, self.path, len(self.points))
@@ -46,7 +41,7 @@ cdef class Scatter1D(AnalysisObject):
     def numPoints(self):
         """() -> int
         Number of points in this scatter."""
-        return self._Scatter1D().numPoints()
+        return self.s1ptr().numPoints()
 
     def __len__(self):
         return self.numPoints
@@ -59,12 +54,11 @@ cdef class Scatter1D(AnalysisObject):
 
     def point(self, size_t i):
         """Access the i'th point."""
-        return cutil.new_borrowed_cls(Point1D, &self._Scatter1D().point(i), self)
+        return cutil.new_borrowed_cls(Point1D, &self.s1ptr().point(i), self)
 
-    # TODO: remove?
-    # def __getitem__(self, py_ix):
-    #     cdef size_t i = cutil.pythonic_index(py_ix, self._Scatter1D().numPoints())
-    #     return cutil.new_borrowed_cls(Point1D, &self._Scatter1D().point(i), self)
+    def __getitem__(self, py_ix):
+        cdef size_t i = cutil.pythonic_index(py_ix, self.s1ptr().numPoints())
+        return cutil.new_borrowed_cls(Point1D, &self.s1ptr().point(i), self)
 
 
     def addPoint(self, *args, **kwargs):
@@ -82,7 +76,7 @@ cdef class Scatter1D(AnalysisObject):
         self.__addPoint_point(Point1D(x, xerrs))
 
     def __addPoint_point(self, Point1D p):
-        self._Scatter1D().addPoint(p._Point1D()[0])
+        self.s1ptr().addPoint(p.p1ptr()[0])
 
     def addPoints(self, iterable):
         """Add several new points."""
@@ -98,23 +92,23 @@ cdef class Scatter1D(AnalysisObject):
     #     except TypeError:
     #         # Could be an iterable...
     #         for other in others:
-    #             self._Scatter1D().combineWith(deref(other._Scatter1D()))
+    #             self.s1ptr().combineWith(deref(other.s1ptr()))
     #     else:
-    #         self._Scatter1D().combineWith(deref(other._Scatter1D()))
+    #         self.s1ptr().combineWith(deref(other.s1ptr()))
 
 
     def mkScatter(self):
         """None -> Scatter1D.
         Make a new Scatter1D. Exists to allow mkScatter calls on any AnalysisObject,
         even if it already is a scatter."""
-        cdef c.Scatter1D s2 = c.mkScatter_Scatter1D(deref(self._Scatter1D()))
+        cdef c.Scatter1D s2 = c.mkScatter_Scatter1D(deref(self.s1ptr()))
         return cutil.new_owned_cls(Scatter1D, s2.newclone())
 
 
     def scaleX(self, a):
         """(float) -> None
         Scale the x values and errors of the points in this scatter by factor a."""
-        self._Scatter1D().scaleX(a)
+        self.s1ptr().scaleX(a)
 
 
     def transformX(self, f):
@@ -126,13 +120,13 @@ cdef class Scatter1D(AnalysisObject):
         except:
             raise RuntimeError("Callback is not of type (double) -> double")
         fptr = (<c.dbl_dbl_fptr*><size_t>ctypes.addressof(callback))[0]
-        c.Scatter1D_transformX(deref(self._Scatter1D()), fptr)
+        c.Scatter1D_transformX(deref(self.s1ptr()), fptr)
 
 
     # # TODO: remove?
     # def __add__(Scatter1D self, Scatter1D other):
-    #     return cutil.new_owned_cls(Scatter1D, c.Scatter1D_add_Scatter1D(self._Scatter1D(), other._Scatter1D()))
+    #     return cutil.new_owned_cls(Scatter1D, c.Scatter1D_add_Scatter1D(self.s1ptr(), other.s1ptr()))
 
     # # TODO: remove?
     # def __sub__(Scatter1D self, Scatter1D other):
-    #     return cutil.new_owned_cls(Scatter1D, c.Scatter1D_sub_Scatter1D(self._Scatter1D(), other._Scatter1D()))
+    #     return cutil.new_owned_cls(Scatter1D, c.Scatter1D_sub_Scatter1D(self.s1ptr(), other.s1ptr()))

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2015 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_SCATTERND_H
 #define YODA_SCATTERND_H
@@ -126,9 +126,7 @@ namespace YODA {
 
     /// Scaling
     void scale(const NdVal& scales) {
-      BOOST_FOREACH (Point<N>& p, _points) {
-        p.scale(scales);
-      }
+      for (Point<N>& p : _points) p.scale(scales);
     }
 
     //@}
@@ -191,9 +189,7 @@ namespace YODA {
 
     /// Insert a collection of new points
     Scatter<N>& addPoints(Points pts) {
-      BOOST_FOREACH (const Point<N>& pt, pts) {
-        addPoint(pt);
-      }
+      for (const Point<N>& pt : pts) addPoint(pt);
       return *this;
     }
 
@@ -211,9 +207,7 @@ namespace YODA {
 
     /// @todo Better name?
     Scatter<N>& combineWith(const std::vector< Scatter<N> >& others) {
-      BOOST_FOREACH (const Scatter<N>& s, others) {
-        combineWith(s);
-      }
+      for (const Scatter<N>& s : others) combineWith(s);
       return *this;
     }
 
