@@ -1,7 +1,7 @@
 ## Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([YODA],[1.6.1],[yoda@projects.hepforge.org],[YODA])
+AC_INIT([YODA],[1.6.3],[yoda@projects.hepforge.org],[YODA])
 
 ## Check and block installation into the src/build dir
 if test "$prefix" = "$PWD"; then
@@ -60,8 +60,8 @@ fi
 
 
 ## Optional ROOT compatibility
-AC_ARG_ENABLE([root], [AC_HELP_STRING(--enable-root,
-  [build Python extension with ROOT interfacing @<:@default=no@:>@])], [enable_root=yes], [])
+AC_ARG_ENABLE([root], [AC_HELP_STRING(--disable-root,
+  [try to build YODA interface to PyROOT (needs root-config) @<:@default=yes@:>@])], [enable_root=no], [])
 if test "x$enable_root" = "xyes"; then
   AC_PATH_PROG(ROOTCONFIG, [root-config])
   if test "x$ROOTCONFIG" = "x"; then

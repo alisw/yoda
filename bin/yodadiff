@@ -9,8 +9,10 @@ Compare analysis objects between two YODA-readable data files.
 import yoda, sys, optparse
 
 parser = optparse.OptionParser(usage=__doc__)
-parser.add_option('-o', '--output', default='-', dest='OUTPUT_FILE')
-parser.add_option('-t', '--tol', type=float, default=1e-5, dest='TOL', )
+parser.add_option("-o", "--output", default="-", dest="OUTPUT_FILE",
+                  help="write output to the given file (default: stdout)")
+parser.add_option("-t", "--tol", type=float, default=1e-5, dest="TOL",
+                  help="relative tolerance of numerical difference permitted before complaining (default: %default)")
 opts, filenames = parser.parse_args()
 
 if len(filenames) != 2:

@@ -83,18 +83,18 @@ cdef class Scatter1D(AnalysisObject):
         for row in iterable:
             self.addPoint(*row)
 
-    # def combineWith(self, others):
-    #     """Try to add points from other Scatter1Ds into this one."""
-    #     cdef Scatter1D other
-    #     try:
-    #         # Can we type it as a Scatter1D?
-    #         other = others
-    #     except TypeError:
-    #         # Could be an iterable...
-    #         for other in others:
-    #             self.s1ptr().combineWith(deref(other.s1ptr()))
-    #     else:
-    #         self.s1ptr().combineWith(deref(other.s1ptr()))
+    def combineWith(self, others):
+        """Try to add points from other Scatter1Ds into this one."""
+        cdef Scatter1D other
+        try:
+            # Can we type it as a Scatter1D?
+            other = others
+        except TypeError:
+            # Could be an iterable...
+            for other in others:
+                self.s1ptr().combineWith(deref(other.s1ptr()))
+        else:
+            self.s1ptr().combineWith(deref(other.s1ptr()))
 
 
     def mkScatter(self):

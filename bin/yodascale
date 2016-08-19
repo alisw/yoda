@@ -60,20 +60,20 @@ import optparse
 op = optparse.OptionParser(usage=__doc__)
 # TODO: how to look up ref histos?
 op.add_option("-r", "--ref", dest="REFS", action="append", default=[],
-              help="File or folder with reference histos")
+              help="file or folder with reference histos")
 op.add_option("--ref-prefix", dest="REF_PREFIX", metavar="NAME", default="REF",
-              help="Treat /NAME/foo as a reference plot for /foo, and don't rescale /NAME histos")
+              help="treat /NAME/foo as a reference plot for /foo, and don't rescale /NAME histos")
 op.add_option("-c", "--spec", dest="SPECS", metavar="SPECSTR", action="append", default=[],
-              help="Provide a single scaling specification on the command line. Multiple -c options " +
+              help="provide a single scaling specification on the command line. Multiple -c options " +
               "may be given. Specs will be _appended_ to any read from a file with -f/--specfile")
 op.add_option("-f", "--specfile", dest="SPECFILE", metavar="FILE", default=None,
-              help="Specify a file with histogram path patterns (and bin ranges) that are to be normalised")
+              help="specify a file with histogram path patterns (and bin ranges) that are to be normalised")
 op.add_option("-i", "--in-place", dest="IN_PLACE", default=False, action="store_true",
-              help="Overwrite input file(s) rather than making <input>-scaled.yoda")
+              help="overwrite input file(s) rather than making <input>-scaled.yoda")
 op.add_option("-q", "--quiet", dest="VERBOSITY", action="store_const", const=0, default=1,
-              help="Reduce printouts to errors-only")
+              help="reduce printouts to errors-only")
 op.add_option("-v", "--debug", dest="VERBOSITY", action="store_const", const=2, default=1,
-              help="Increase printouts to include debug info")
+              help="increase printouts to include debug info")
 opts, args = op.parse_args()
 
 

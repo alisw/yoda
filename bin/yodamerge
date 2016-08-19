@@ -102,19 +102,30 @@ See the source of this script (e.g. use 'less `which %prog`) for more discussion
 import yoda, optparse, sys, math
 
 parser = optparse.OptionParser(usage=__doc__)
-parser.add_option('-o', '--output', default='-', dest='OUTPUT_FILE')
-parser.add_option('--s1dmode', default="assume_mean", dest='S1D_MODE',
-                  help="choose strategy for combining Scatter1D objects: one of 'first', 'combine', 'assume_mean'")
-parser.add_option('--s2dmode', default="assume_mean", dest='S2D_MODE',
-                  help="choose strategy for combining Scatter2D objects: one of 'first', 'combine', 'assume_mean'")
-parser.add_option('--s3dmode', default="assume_mean", dest='S3D_MODE',
-                  help="choose strategy for combining Scatter3D objects: one of 'first', 'combine', 'assume_mean'")
-parser.add_option('--no-veto-empty', action="store_false", default=True, dest='VETO_EMPTY',
+parser.add_option("-o", "--output", default="-", dest="OUTPUT_FILE", metavar="PATH",
+                  help="write output to specified path")
+parser.add_option("--s1d-mode", "--s1dmode", default="assume_mean", dest="S1D_MODE", metavar="MODE",
+                  help="choose strategy for combining Scatter1D objects: one of 'first', 'combine', 'assume_mean', 'add'")
+parser.add_option("--s2d-mode", "--s2dmode", default="assume_mean", dest="S2D_MODE", metavar="MODE",
+                  help="choose strategy for combining Scatter2D objects: one of 'first', 'combine', 'assume_mean', 'add'")
+parser.add_option("--s3d-mode", "--s3dmode", default="assume_mean", dest="S3D_MODE", metavar="MODE",
+                  help="choose strategy for combining Scatter3D objects: one of 'first', 'combine', 'assume_mean', 'add'")
+parser.add_option("--type-mismatch-mode", default="scatter", dest="TYPE_MISMATCH_MODE", metavar="MODE",
+                  help="choose strategy for combining objects whose types mismatch: one of 'first', 'scatter'")
+parser.add_option("--add", "--stack", action="store_true", default=False, dest="STACK",
+                  help="force simple stacking (also forces all scatter modes to 'add')")
+parser.add_option("--no-veto-empty", action="store_false", default=True, dest="VETO_EMPTY",
                   help="disable the removal of empty (sumW=0) data objects _before_ applying merge heuristics. You probably want the default!")
-parser.add_option('--add', action="store_true", default=False, dest='STACK', help="force simple stacking")
-parser.add_option('--assume-normalized', action="store_true", default=False, dest='ASSUME_NORMALIZED',
+parser.add_option("--assume-normalized", action="store_true", default=False, dest="ASSUME_NORMALIZED",
                   help="DEPRECATED, AND DOES NOTHING. This option _used_ to bypass the detection heuristic for unnormalized histograms")
 opts, fileargs = parser.parse_args()
+
+
+## Include scatters in "add" mode
+if opts.STACK:
+    opts.S1D_MODE = "add"
+    opts.S2D_MODE = "add"
+    opts.S3D_MODE = "add"
 
 
 ## Put the incoming objects into a dict from each path to a list of histos and scalings
@@ -141,9 +152,27 @@ for p, aos in analysisobjects_in.iteritems():
 
     ## Check that types match, and just output the first one if they don't
     if not all(type(ao) is aotype for ao in aos):
-        sys.stderr.write("WARNING: Several types of analysis object found at path %s: cannot be merged\n")
-        analysisobjects_out[p] = aos[0]
-        continue
+        msg = "WARNING: cannot merge mismatched analysis object types for path %s: " % p
+        scatter_fail = False
+        if opts.TYPE_MISMATCH_MODE == "scatter":
+            saos = []
+            for ao in aos:
+                sao = ao.mkScatter()
+                sao.setAnnotation("yodamerge_scale", ao.annotation("yodamerge_scale"))
+                saos.append(sao)
+            saotype = type(saos[0])
+            msg += "converting to %ss" % saotype.__name__
+            if all(type(sao) is saotype for sao in saos):
+                sys.stderr.write(msg + "\n")
+                aos = saos
+                aotype = saotype
+            else:
+                msg += "... failed, "
+                scatter_fail = True
+        if opts.TYPE_MISMATCH_MODE == "first" or scatter_fail:
+            sys.stderr.write(msg + "returning first object\n")
+            analysisobjects_out[p] = aos[0]
+            continue
 
 
     ## Remove empty fillable data objects, to avoid gotchas where e.g. histos are normalised and hence
@@ -199,30 +228,55 @@ for p, aos in analysisobjects_in.iteritems():
         ao_out.rmAnnotation("yodamerge_scale")
 
 
+        ## If there's only one object, there's no need to do any combining
+        if len(aos) == 1:
+            pass
+
         # TODO: compress code below by using numerical axis access to axis_index = ao_out.dim
 
-        if aotype is yoda.Scatter1D:
+        elif aotype is yoda.Scatter1D:
 
             ## Use asymptotic mean+stderr convergence statistics
-            if opts.S1D_MODE == "assume_mean":
+            if opts.S1D_MODE in ["assume_mean", "add"]:
 
                 msg = "WARNING: Scatter1D %s merge assumes asymptotic statistics and equal run sizes" % p
                 if any(float(ao.annotation("yodamerge_scale")) != 1.0 for ao in aos):
                     msg += " (+ user scaling)"
-                if len(aos) > 1:
-                    sys.stderr.write(msg + "\n")
+                sys.stderr.write(msg + "\n")
+
                 npoints = len(ao_out.points)
                 for i in xrange(npoints):
                     val_i = ep_i = em_i = scalesum = 0.0
-                    for ao in aos[1:]:
+                    for ao in aos:
                         scale = float(ao.annotation("yodamerge_scale"))
+                        # print aos[0].path, scale
                         scalesum += scale
                         val_i += scale * ao.points[i].x
                         ep_i += (scale * ao.points[i].xErrs[0])**2
                         em_i += (scale * ao.points[i].xErrs[1])**2
-                    val_i /= scalesum
-                    ep_i = math.sqrt(ep_i) / scalesum
-                    em_i = math.sqrt(em_i) / scalesum
+                    if opts.S1D_MODE == "assume_mean":
+                        val_i /= scalesum
+                        ep_i = math.sqrt(ep_i) / scalesum
+                        em_i = math.sqrt(em_i) / scalesum
+                    ao_out.points[i].x = val_i
+                    ao_out.points[i].xErrs = (ep_i, em_i)
+
+            elif opts.S1D_MODE == "add":
+
+                # msg = "WARNING: Scatter1D %s merge assumes asymptotic statistics and equal run sizes" % p
+                # if any(float(ao.annotation("yodamerge_scale")) != 1.0 for ao in aos):
+                #     msg += " (+ user scaling)"
+                # sys.stderr.write(msg + "\n")
+
+                npoints = len(ao_out.points)
+                for i in xrange(npoints):
+                    val_i = ep_i = em_i = 0.0
+                    for ao in aos:
+                        # TODO: skip scaling in stack mode?
+                        scale = float(ao.annotation("yodamerge_scale"))
+                        val_i += scale * ao.points[i].x
+                        ep_i += (scale * ao.points[i].xErrs[0])**2
+                        em_i += (scale * ao.points[i].xErrs[1])**2
                     ao_out.points[i].x = val_i
                     ao_out.points[i].xErrs = (ep_i, em_i)
 
@@ -243,25 +297,26 @@ for p, aos in analysisobjects_in.iteritems():
         elif aotype is yoda.Scatter2D:
 
             ## Use asymptotic mean+stderr convergence statistics
-            if opts.S2D_MODE == "assume_mean":
+            if opts.S2D_MODE in ["assume_mean", "add"]:
 
                 msg = "WARNING: Scatter2D %s merge assumes asymptotic statistics and equal run sizes" % p
                 if any(float(ao.annotation("yodamerge_scale")) != 1.0 for ao in aos):
                     msg += " (+ user scaling)"
-                if len(aos) > 1:
-                    sys.stderr.write(msg + "\n")
+                sys.stderr.write(msg + "\n")
+
                 npoints = len(ao_out.points)
                 for i in xrange(npoints):
                     val_i = ep_i = em_i = scalesum = 0.0
-                    for ao in aos[1:]:
+                    for ao in aos:
                         scale = float(ao.annotation("yodamerge_scale"))
                         scalesum += scale
                         val_i += scale * ao.points[i].y
                         ep_i += (scale * ao.points[i].yErrs[0])**2
                         em_i += (scale * ao.points[i].yErrs[1])**2
-                    val_i /= scalesum
-                    ep_i = math.sqrt(ep_i) / scalesum
-                    em_i = math.sqrt(em_i) / scalesum
+                    if opts.S2D_MODE == "assume_mean":
+                        val_i /= scalesum
+                        ep_i = math.sqrt(ep_i) / scalesum
+                        em_i = math.sqrt(em_i) / scalesum
                     ao_out.points[i].y = val_i
                     ao_out.points[i].yErrs = (ep_i, em_i)
 
@@ -282,25 +337,26 @@ for p, aos in analysisobjects_in.iteritems():
         elif aotype is yoda.Scatter3D:
 
             ## Use asymptotic mean+stderr convergence statistics
-            if opts.S3D_MODE == "assume_mean":
+            if opts.S3D_MODE in ["assume_mean", "add"]:
 
                 msg = "WARNING: Scatter3D %s merge assumes asymptotic statistics and equal run sizes" % p
                 if any(float(ao.annotation("yodamerge_scale")) != 1.0 for ao in aos):
                     msg += " (+ user scaling)"
-                if len(aos) > 1:
-                    sys.stderr.write(msg + "\n")
+                sys.stderr.write(msg + "\n")
+
                 npoints = len(ao_out.points)
                 for i in xrange(npoints):
                     val_i = ep_i = em_i = scalesum = 0.0
-                    for ao in aos[1:]:
+                    for ao in aos:
                         scale = float(ao.annotation("yodamerge_scale"))
                         scalesum += scale
                         val_i += scale * ao.points[i].z
                         ep_i += (scale * ao.points[i].zErrs[0])**2
                         em_i += (scale * ao.points[i].zErrs[1])**2
-                    val_i /= scalesum
-                    ep_i = math.sqrt(ep_i) / scalesum
-                    em_i = math.sqrt(em_i) / scalesum
+                    if opts.S3D_MODE == "assume_mean":
+                        val_i /= scalesum
+                        ep_i = math.sqrt(ep_i) / scalesum
+                        em_i = math.sqrt(em_i) / scalesum
                     ao_out.points[i].z = val_i
                     ao_out.points[i].zErrs = (ep_i, em_i)
 

@@ -90,8 +90,9 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @ENABLE_PYEXT_TRUE@am__append_1 = yodals yodadiff yodamerge yodascale \
-@ENABLE_PYEXT_TRUE@	yodahist yodacmp yodaplot yodacnv yoda2aida \
-@ENABLE_PYEXT_TRUE@	yoda2flat aida2yoda aida2flat flat2yoda
+@ENABLE_PYEXT_TRUE@	yodahist yodacmp yodaplot yodacnv yoda2yoda \
+@ENABLE_PYEXT_TRUE@	yoda2flat yoda2aida aida2yoda aida2flat \
+@ENABLE_PYEXT_TRUE@	flat2yoda
 @ENABLE_PYEXT_TRUE@@ENABLE_ROOT_TRUE@am__append_2 = yoda2root root2yoda
 subdir = bin
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -113,8 +114,9 @@ CONFIG_HEADER = $(top_builddir)/include/YODA/Config/DummyConfig.h \
 CONFIG_CLEAN_FILES = yoda-config
 CONFIG_CLEAN_VPATH_FILES =
 am__dist_bin_SCRIPTS_DIST = yoda-config yodals yodadiff yodamerge \
-	yodascale yodahist yodacmp yodaplot yodacnv yoda2aida \
-	yoda2flat aida2yoda aida2flat flat2yoda yoda2root root2yoda
+	yodascale yodahist yodacmp yodaplot yodacnv yoda2yoda \
+	yoda2flat yoda2aida aida2yoda aida2flat flat2yoda yoda2root \
+	root2yoda
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -301,6 +303,7 @@ program_transform_name = @program_transform_name@
 psdir = @psdir@
 pyexecdir = @pyexecdir@
 pythondir = @pythondir@
+runstatedir = @runstatedir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@

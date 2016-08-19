@@ -12,7 +12,11 @@ dist_bin_SCRIPTS += yodahist
 dist_bin_SCRIPTS += yodacmp yodaplot
 
 ## Data format conversion
-dist_bin_SCRIPTS += yodacnv yoda2aida yoda2flat aida2yoda aida2flat flat2yoda
+dist_bin_SCRIPTS += yodacnv yoda2yoda yoda2flat
+## Deprecated scripts
+dist_bin_SCRIPTS += yoda2aida aida2yoda
+## Uber-deprecated scripts
+dist_bin_SCRIPTS += aida2flat flat2yoda
 if ENABLE_ROOT
 dist_bin_SCRIPTS += yoda2root root2yoda
 endif

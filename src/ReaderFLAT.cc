@@ -53,7 +53,7 @@ namespace YODA {
       if (context == NONE) {
 
         // We require a BEGIN line to start a context
-        if (s.find("BEGIN ") == string::npos) throw ReadError("Unexpected line in YODA format parsing when BEGIN expected");
+        if (s.find("BEGIN ") == string::npos) throw ReadError("Unexpected line in FLAT format parsing when BEGIN expected");
 
         // Split into parts
         vector<string> parts;

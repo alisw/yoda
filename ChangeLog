@@ -1,3 +1,45 @@
+2016-08-09  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Version 1.6.3 release!
+
+2016-07-22  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add 'add' modes for scatter combination to yodamerge.
+
+	* Fix yodamerge scatter averaging to use the first AO.
+
+2016-07-21  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add --type-mismatch-mode flag and fallback logic to yodamerge.
+
+	* Fix yodamerge logic to handle cases where an AO only appears once.
+
+2016-07-19  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Deprecate flat2yoda script and add warning output to it and the AIDA conversion scripts.
+
+	* Add a convenience yoda2yoda script.
+
+2016-07-14  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Try to build PyROOT interface by default, if root-config is found.
+
+2016-07-11  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Remove accidentally remaining reference to Boost flags in yoda-config.
+
+2016-07-06  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Version 1.6.2 release!
+
+2016-07-05  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Pass the toNewScatter3D() scalebyarea flag to the called toScatter3D() functions.
+
+2016-06-06  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Re-enable the disabled-for-some-reason Scatter1D combineWith Python mappings.
+
 2016-04-28  Andy Buckley  <andy.buckley@cern.ch>
 
 	* Version 1.6.1 release!
@@ -9,6 +51,7 @@
 	* Fix a bug in use of the replacement for lexical_cast.
 
 2016-04-20  Andy Buckley  <andy.buckley@cern.ch>
+
 
 	* Version 1.6.0 release!
 

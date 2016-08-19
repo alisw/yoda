@@ -737,8 +737,8 @@ cdef extern from "YODA/Scatter1D.h" namespace "YODA":
 
         void addPoints(const sortedvector[Point1D]&) #except +yodaerr
 
-        #void combineWith(const Scatter1D&) #except +yodaerr
-        #void combineWith(const vector[Scatter1D]&) #except +yodaerr
+        void combineWith(const Scatter1D&) #except +yodaerr
+        void combineWith(const vector[Scatter1D]&) #except +yodaerr
 
         void scaleX(double) except +yodaerr
 

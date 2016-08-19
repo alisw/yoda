@@ -104,7 +104,7 @@ namespace YODA {
         const string fmt = (parts.size() >= 4) ? parts[3] : "1";
 
         // Set the new context and create a new AO to populate
-        /// @todo Store the block format version and use it to allow (occasional, careful) format evolution
+        /// @todo Use the block format version for (occasional, careful) format evolution
         if (ctxstr == "YODA_COUNTER") {
           context = COUNTER;
           cncurr = new Counter(path);

@@ -59,13 +59,13 @@ test -n "$tmp" && OUT="$OUT /home/andy/heplocal/lib/python2.7/site-packages"
 
 ## "Pre-rolled" build info
 tmp=$( echo "$*" | egrep -- '--\<cflags\>|--\<cppflags\>|--\<cxxflags\>')
-test -n "$tmp" && OUT="$OUT -I${prefix}/include @BOOST_CPPFLAGS@"
+test -n "$tmp" && OUT="$OUT -I${prefix}/include"
 
 tmp=$( echo "$*" | egrep -- '--\<ldflags\>|--\<libs\>|--\<ldadd\>')
 test -n "$tmp" && OUT="$OUT -L${exec_prefix}/lib -lYODA"
 
 ## Version
 tmp=$( echo "$*" | egrep -- '--\<version\>')
-test -n "$tmp" && echo 1.6.1 && exit 0
+test -n "$tmp" && echo 1.6.3 && exit 0
 
 echo $OUT

@@ -4,6 +4,9 @@
 %prog flatfile [yodafile]
 
 Convert a FLAT data file to the YODA data format.
+
+WARNING: flat2yoda is DEPRECATED.
+The flat/dat format is not intended as an interchange format.
 """
 
 import yoda, os, sys, optparse
@@ -11,9 +14,11 @@ from yoda.script_helpers import parse_x2y_args, filter_aos
 
 parser = optparse.OptionParser(usage=__doc__)
 parser.add_option("-m", "--match", dest="MATCH", metavar="PATT", default=None,
-                  help="Only write out histograms whose path matches this regex")
+                  help="only write out histograms whose path matches this regex")
 parser.add_option("-M", "--unmatch", dest="UNMATCH", metavar="PATT", default=None,
-                  help="Exclude histograms whose path matches this regex")
+                  help="exclude histograms whose path matches this regex")
+
+sys.stderr.write("WARNING: flat2yoda is DEPRECATED.\n  The flat/dat format is not intended as an interchange format.\n"
 
 opts, args = parser.parse_args()
 in_out = parse_x2y_args(args, ".dat", ".yoda")

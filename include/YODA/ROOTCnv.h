@@ -188,11 +188,11 @@ namespace YODA {
 
   /// Convert a ROOT 2D histogram to a new'd YODA Scatter3D
   inline Scatter3D* toNewScatter3D(const TH2& th2, bool scalebyarea=true) {
-    return toScatter3D(th2).newclone();
+    return toScatter3D(th2, scalebyarea).newclone();
   }
   /// Convert a ROOT 2D histogram to a new'd YODA Scatter3D
   inline Scatter3D* toNewScatter3D(const TH2* th2, bool scalebyarea=true) {
-    return toScatter3D(th2).newclone();
+    return toScatter3D(th2, scalebyarea).newclone();
   }
 
 
