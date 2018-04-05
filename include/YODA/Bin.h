@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Bin_h
 #define YODA_Bin_h
@@ -39,8 +39,8 @@ namespace YODA {
     /// @name Fill statistics
     //@{
 
-    /// The number of entries
-    virtual unsigned long numEntries() const = 0;
+    /// The number of entries (fractional fills are possible)
+    virtual double numEntries() const = 0;
 
     /// The effective number of entries
     virtual double effNumEntries() const = 0;

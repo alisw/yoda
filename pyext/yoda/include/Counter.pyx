@@ -16,8 +16,11 @@ cdef class Counter(AnalysisObject):
         return <c.Counter*> self.ptr()
 
 
-    def __init__(self, char *path="", char *title=""):
-        cutil.set_owned_ptr(self, new c.Counter(string(path), string(title)))
+    def __init__(self, path="", title=""):
+        path  = path.encode('utf-8')
+        title = title.encode('utf-8')
+        cutil.set_owned_ptr(self, new c.Counter(<string>path, 
+                                                <string>title))
 
 
     def __repr__(self):
@@ -36,17 +39,17 @@ cdef class Counter(AnalysisObject):
         return cutil.new_owned_cls(Counter, self.cptr().newclone())
 
 
-    def fill(self, weight=1.0):
+    def fill(self, weight=1.0, fraction=1.0):
         """([w]) -> None.
         Fill with given optional weight."""
-        self.cptr().fill(weight)
+        self.cptr().fill(weight, fraction)
 
 
     #@property
     def numEntries(self):
-        """None -> int
+        """None -> float
         Number of times this counter was filled."""
-        return int(self.cptr().numEntries())
+        return self.cptr().numEntries()
 
     #@property
     def effNumEntries(self):
@@ -130,4 +133,7 @@ cdef class Counter(AnalysisObject):
         return h
 
     def __div__(Counter self, Counter other):
+        return self.divideBy(other)
+
+    def __truediv__(Counter self, Counter other):
         return self.divideBy(other)

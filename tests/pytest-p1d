@@ -18,20 +18,20 @@ for i in range(NUM_SAMPLES):
     p1.fill(val, random.gauss(5, 3));
     p2.fill(val, random.gauss(5, 3));
     p3.fill(val, random.gauss(5, 3));
-print p1
-print p2
-print p3
+print(p1)
+print(p2)
+print(p3)
 
 
 yoda.write([p1,p2,p3], "p1d.yoda")
 aos = yoda.read("p1d.yoda")
-for _, ao in aos.iteritems():
-    print ao
+for _, ao in aos.items():
+    print(ao)
 
 yoda.writeFLAT([p1,p2,p3], "p1d.dat")
 aos = yoda.read("p1d.dat")
-for _, ao in aos.iteritems():
-    print ao
+for _, ao in aos.items():
+    print(ao)
 
 s = yoda.mkScatter(p1)
 s = p1.mkScatter()

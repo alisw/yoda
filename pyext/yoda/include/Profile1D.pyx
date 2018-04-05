@@ -1,3 +1,4 @@
+cimport util
 cdef class Profile1D(AnalysisObject):
     """
     1D profile histogram, used to measure mean values of a y variable, binned in x.
@@ -33,27 +34,33 @@ cdef class Profile1D(AnalysisObject):
     def __init__(self, *args, **kwargs):
         util.try_loop([self.__init2, self.__init3, self.__init5], *args, **kwargs)
 
-    def __init2(self, char *path="", char *title=""):
+    def __init2(self, path="", title=""):
+        path  = path.encode('utf-8')
+        title = title.encode('utf-8')
         cutil.set_owned_ptr(
-            self, new c.Profile1D(string(path), string(title)))
+            self, new c.Profile1D(<string>path, <string>title))
 
     # TODO: Is Cython clever enough that we can make 3a and 3b versions and let it do the type inference?
-    def __init3(self, bins_or_edges, char *path="", char *title=""):
+    def __init3(self, bins_or_edges, path="", title=""):
         # TODO: Do this type-checking better
         cdef vector[double] edges
         try:
+            path  = path.encode('utf-8')
+            title = title.encode('utf-8')
             ## If float conversions work for all elements, it's a list of edges:
             edges = list(float(x) for x in bins_or_edges)
-            cutil.set_owned_ptr(self, new c.Profile1D(edges, string(path), string(title)))
+            cutil.set_owned_ptr(self, new c.Profile1D(edges, <string>path, <string>title))
         except:
             ## Assume it's a list of HistoBin1D
             bins = bins_or_edges
             self.__init2(path, title)
             self.addBins(bins)
 
-    def __init5(self, size_t nbins, double lower, double upper, char *path="", char *title=""):
+    def __init5(self, size_t nbins, double lower, double upper, path="", title=""):
+        path  = path.encode('utf-8')
+        title = title.encode('utf-8')
         cutil.set_owned_ptr(
-            self, new c.Profile1D(nbins, lower, upper, string(path), string(title)))
+            self, new c.Profile1D(nbins, lower, upper, <string>path, <string>title))
 
 
     def __len__(self):
@@ -83,15 +90,15 @@ cdef class Profile1D(AnalysisObject):
         return cutil.new_owned_cls(Profile1D, self.p1ptr().newclone())
 
 
-    def fill(self, x, y, weight=1.0):
+    def fill(self, x, y, weight=1.0, fraction=1.0):
         """(x,y,[w]) -> None.
         Fill with given x & y values and optional weight."""
-        self.p1ptr().fill(x, y, weight)
+        self.p1ptr().fill(x, y, weight, fraction)
 
-    def fillBin(self, size_t ix, double y, weight=1.0):
+    def fillBin(self, size_t ix, double y, double weight=1.0, double fraction=1.0):
         """(ix,y,[w]) -> None.
         Fill bin ix with y value and optional weight."""
-        self.p1ptr().fillBin(ix, y, weight)
+        self.p1ptr().fillBin(ix, y, weight, fraction)
 
 
     @property
@@ -117,7 +124,7 @@ cdef class Profile1D(AnalysisObject):
 
 
     def numEntries(self, includeoverflows=True):
-        """([bool]) -> int
+        """([bool]) -> float
         Number of times this histogram was filled, optionally excluding the overflows."""
         return self.p1ptr().numEntries(includeoverflows)
 
@@ -283,3 +290,76 @@ cdef class Profile1D(AnalysisObject):
 
     def __div__(Profile1D self, Profile1D other):
         return self.divideBy(other)
+
+    def __truediv__(Profile1D self, Profile1D other):
+        return self.divideBy(other)
+
+
+    ## Functions for array-based plotting, chi2 calculations, etc.
+
+    # def sumWs(self):
+    #     """All sumWs of the histo."""
+    #     return [b.sumW for b in self.bins]
+
+    # TODO: xyVals,Errs properties should be in a common Drawable2D (?) type (hmm, need a consistent nD convention...)
+    # TODO: x bin properties should be in a common Binned1D type
+
+    def xMins(self):
+        """All x low edges of the histo."""
+        return [b.xMin for b in self.bins]
+
+    def xMaxs(self):
+        """All x high edges of the histo."""
+        return [b.xMax for b in self.bins]
+
+    def xMids(self):
+        """All x bin midpoints of the histo."""
+        return [b.xMid for b in self.bins]
+
+    def xFoci(self):
+        """All x bin foci of the histo."""
+        return [b.xFocus for b in self.bins]
+
+    def xVals(self, foci=False):
+        return self.xFoci() if foci else self.xMids()
+
+    def xErrs(self, foci=False):
+        if foci:
+            return [(b.xFocus-b.xMin, b.xMax-b.xFocus) for b in self.bins]
+        else:
+            return [(b.xMid-b.xMin, b.xMax-b.xMid) for b in self.bins]
+
+
+    def yMeans(self):
+        """All y heights y means."""
+        return [b.yMean for b in self.bins]
+
+    def yVals(self):
+        return self.yMeans()
+
+
+    def yStdErrs(self):
+        """All standard errors on the y means."""
+        return [b.yStdErr for b in self.bins]
+
+    def yStdDevs(self):
+        """All standard deviations of the y distributions."""
+        return [b.yStdDev for b in self.bins]
+
+    def yErrs(self, sd=False):
+        return self.yStdDevs() if sd else self.yStdErrs()
+
+
+    def yMins(self, sd=False):
+        ys = self.yVals()
+        es = self.yErrs(sd)
+        return [y-e for (y,e) in zip(ys,es)]
+
+    def yMaxs(self, sd=False):
+        ys = self.yVals()
+        es = self.yErrs(sd)
+        return [y+e for (y,e) in zip(ys,es)]
+
+
+## Convenience alias
+P1D = Profile1D

@@ -1,21 +1,41 @@
 #! /usr/bin/env python
 
 """\
-Usage: %prog 1.dat [2.dat ...]
+Usage: %prog data1 [data2 ...]
 
-Make a plot from each of the given plot data files.
+Make a plot from each of the given plot data files (can be .yoda or make-plots .dat).
+
+TODO:
+ - Should be able to do default plotting of all plots loaded from a .yoda file
+ - Overlay option (print all plots from a file, overlaid)
+ - Command-line legend specification cf. Rivet cmphistos and mkhtml
+ - Add a "--outdir" option and
+ - Add a "collate" option to gather output into a single PDF?
+ - Handle regex'd PLOT sections
+ - Allow CLI specification of default plotkeys
 """
 
 ################
 ## Command line args:
 
+from __future__ import print_function
+
 import os, optparse
 op = optparse.OptionParser(usage=__doc__)
 op.add_option("-f", "--format", dest="FORMAT", default="PDF",
               help="output format string consisting of desired output formats separated by commas [default=%default]")
-op.add_option("-E", "--engine", dest="ENGINE", default="PGF", help="choose rendering engine: 'PGF' = LaTeX PGF plotting, "
+op.add_option("--mode", dest="MODE", default="CMP",
+              help="mode of plot combination: CMP=compare same histograms across files -> one file per histo path; "
+              + "FILE=overlay all histograms per file arg -> one file per arg  [default=%default]")
+op.add_option("-m", "--match", dest="MATCH", metavar="PATT", default=None,
+              help="only use histograms whose path matches this regex")
+op.add_option("-M", "--unmatch", dest="UNMATCH", metavar="PATT", default=None,
+              help="exclude histograms whose path matches this regex")
+op.add_option("-E", "--engine", dest="ENGINE", default="PGF",
+              help="choose rendering engine: 'PGF' = LaTeX PGF plotting, "
               + "'TEX' = TeX text renderer, 'MPL' = matplotlib MathText (fast but very limited)")
-op.add_option("-n", "--nproc", dest="NPROC", default=None, type=int, help="number of plotting processes to run in parallel")
+# op.add_option("-n", "--nproc", dest="NPROC", default=None, type=int,
+#               help="number of plotting processes to run in parallel")
 op.add_option("--debug", dest="DEBUG", action="store_true", default=False,
               help="run in debug mode with more verbosity and no parallelism")
 op.add_option("--quiet", dest="QUIET", action="store_true", default=False,
@@ -30,55 +50,68 @@ if opts.QUIET:
     opts.VERBOSITY = 0
 
 
-import numpy as np
-import yoda, yoda.plotting
+import yoda
+mpl = yoda.mplinit(opts.ENGINE)
 
-mpl, plt = yoda.plotting.setup_mpl(opts.ENGINE)
-COLORS = [plt.cm.jet(i) for i in np.linspace(0.2, 0.8, len(args))]
+import matplotlib
+matplotlib.use('Agg')
+
+from matplotlib import cm
+COLORS = [cm.jet(i) for i in yoda.linspace(0.2, 0.8, len(args))]
 STYLES = ["-", "--", ":", "-."]
 
 
 def plot(plotargs):
-    idatfile, datfile = plotargs
-    numdatfiles = len(args)
+    i_n, name, hists, plotkeys = plotargs
 
     ## Plan for output in (potentially) several different formats
-    outfiles = []
-    basename = os.path.splitext(datfile)[0]
-    formats = opts.FORMAT.upper().split(",")
-    if "PDF" in formats:
-        outfiles.append(basename+".pdf")
-    if "PNG" in formats:
-        outfiles.append(basename+".png")
-    if "PGF" in formats:
-        outfiles.append(basename+".pgf")
+    formats = opts.FORMAT.lower().split(",")
+    outfiles = [name+"."+f for f in formats]
 
     ## Print status update to terminal
     if opts.VERBOSITY > 0:
         outstr = " ".join(outfiles)
-        print "Plotting file {f} -> {o} ({i}/{n})".format(f=datfile, o=outstr, i=idatfile+1, n=numdatfiles)
-
-    ## Read PLOT section annotations
-    # TODO: Handle regex'd PLOT sections
-    plotkeys = yoda.plotting.read_plot_keys(datfile).get('', {})
-
-    ## Load and sort data objects
-    aos = yoda.read(datfile)
-    hs = sorted([yoda.plotting.NumpyHist(ao) for ao in aos.values()], key=lambda h: h.path)
-    # TODO: allow plotting order specification via PlotIndex (-ve = no plot)
+        print("Plotting to {o} ({i:d}/{n:d})".format(o=outstr, i=i_n[0]+1, n=i_n[1]))
 
     ## Do plotting
-    fig, (ax1, ax2) = yoda.plot(hs, plotkeys=plotkeys)
+    # TODO: allow plotting order specification via PlotIndex (-ve = no plot)
+    fig, (ax1, ax2) = yoda.plot(hists, **plotkeys)
     for of in outfiles:
         fig.savefig(of)
+    import matplotlib.pyplot as plt
+    plt.close()
 
 
-## Do the rendering using a multiprocessing pool (cleaner than threads)
-if opts.DEBUG:
-    for i_a in enumerate(args):
-        plot(i_a)
-else:
-    import multiprocessing
-    nproc = opts.NPROC or multiprocessing.cpu_count()-1 or 1
-    pool = multiprocessing.Pool(processes=nproc)
-    pool.map(plot, zip(xrange(len(args)), args))
+## Assemble plotting arguments depending on mode
+plotargs = []
+if opts.MODE.upper() == "CMP":
+    hists, plotkeys = {}, {}
+    for datfile in args:
+        aos = yoda.read(datfile, patterns=opts.MATCH, unpatterns=opts.UNMATCH)
+        hists.update(aos)
+        plotkeys.update(yoda.plotting.read_plot_keys(datfile))
+    for i, (aopath, aos) in enumerate(sorted(hists.items())):
+        name = aopath.replace("/", "_")
+        if name.startswith("_"):
+            name = name[1:]
+        plotargs.append([(i, len(hists)), name, aos, plotkeys])
+elif opts.MODE.upper() == "FILE":
+    for i, datfile in enumerate(args):
+        import os
+        aos = yoda.read(datfile, asdict=False, patterns=opts.MATCH, unpatterns=opts.UNMATCH)
+        name = os.path.splitext(os.path.basename(datfile))[0]
+        plotkeys = yoda.plotting.read_plot_keys(datfile)
+        plotargs.append([(i, len(args)), name, aos, plotkeys])
+
+
+## Distribute the plotting jobs
+# TODO: fix the multiprocessing
+# if opts.DEBUG:
+for pa in plotargs:
+    plot(pa)
+# else:
+#     import multiprocessing
+#     nproc = opts.NPROC or multiprocessing.cpu_count()-1 or 1
+#     print(nproc)
+#     pool = multiprocessing.Pool(processes=nproc)
+#     pool.map(plot, plotargs)

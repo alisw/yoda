@@ -1,3 +1,4 @@
+cimport util
 # TODO: docstrings
 cdef class Axis2D_${BIN2D}_${DBN}(util.Base):
 

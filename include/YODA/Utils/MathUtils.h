@@ -1,14 +1,14 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_MathUtils_H
 #define YODA_MathUtils_H
 
 /// @todo Add SFINAE math type stuff (see Rivet) and add inrange() and inrange_closed_closed() etc. aliases cf. MCUtils
 
-#include <YODA/Config/BuildConfig.h>
+#include "YODA/Config/BuildConfig.h"
 
 #include <stdexcept>
 #include <string>
@@ -61,7 +61,7 @@ namespace YODA {
   /// Since there is no risk of floating point error, this function just exists
   /// in case @c isZero is accidentally used on an integer type, to avoid
   /// implicit type conversion. The @a tolerance parameter is ignored.
-  inline bool isZero(long val, double UNUSED(tolerance)=1E-8) {
+  inline bool isZero(long val, double=1E-8) {
     return val == 0;
   }
 
@@ -85,7 +85,7 @@ namespace YODA {
   /// used on an integer type, to avoid implicit type conversion. The @a
   /// tolerance parameter is ignored, even if it would have an
   /// absolute magnitude greater than 1.
-  inline bool fuzzyEquals(long a, long b, double UNUSED(tolerance)=1E-5) {
+  inline bool fuzzyEquals(long a, long b, double=1E-5) {
     return a == b;
   }
 
@@ -104,7 +104,7 @@ namespace YODA {
   /// used on an integer type, to avoid implicit type conversion. The @a
   /// tolerance parameter is ignored, even if it would have an
   /// absolute magnitude greater than 1.
-  inline bool fuzzyGtrEquals(long a, long b, double UNUSED(tolerance)=1E-5) {
+  inline bool fuzzyGtrEquals(long a, long b, double=1E-5) {
     return a >= b;
   }
 
@@ -123,7 +123,7 @@ namespace YODA {
   /// used on an integer type, to avoid implicit type conversion. The @a
   /// tolerance parameter is ignored, even if it would have an
   /// absolute magnitude greater than 1.
-  inline bool fuzzyLessEquals(long a, long b, double UNUSED(tolerance)=1E-5) {
+  inline bool fuzzyLessEquals(long a, long b, double=1E-5) {
     return a <= b;
   }
 

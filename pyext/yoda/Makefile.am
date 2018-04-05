@@ -30,6 +30,7 @@ CYTHON_SRC = \
     include/HistoBin1D.pyx \
     include/HistoBin2D.pyx \
     include/IO.pyx \
+    include/Point.pyx \
     include/Point1D.pyx \
     include/Point2D.pyx \
     include/Point3D.pyx \
@@ -58,18 +59,31 @@ BUILT_SRC = \
     include/generated/Bin2D_Dbn2D.pyx \
     include/generated/Bin2D_Dbn3D.pyx
 
+MAINTAINERCLEANFILES = \
+  core.h core.cpp util.cpp rootcompat.cpp .made_pyx_templates
+
+
 EXTRA_DIST = $(STATIC_SRC) $(BUILT_SRC)
 
 if WITH_CYTHON
 
 core.cpp core.h: $(CYTHON_SRC) .made_pyx_templates
-	cython $(srcdir)/core.pyx --cplus -I $(srcdir) -I $(srcdir)/include -I $(builddir) -I $(builddir)/include -o $@
+	cython $(srcdir)/core.pyx --cplus \
+       -I $(srcdir) -I $(srcdir)/include \
+       -I $(builddir) -I $(builddir)/include \
+       -o $@
 
 util.cpp: util.pxd util.pyx .made_pyx_templates
-	cython $(srcdir)/util.pyx --cplus -I $(srcdir) -I $(srcdir)/include -I $(builddir) -I $(builddir)/include -o $@
+	cython $(srcdir)/util.pyx --cplus \
+       -I $(srcdir) -I $(srcdir)/include \
+       -I $(builddir) -I $(builddir)/include \
+       -o $@
 
 rootcompat.cpp: util.pxd rootcompat.pxd rootcompat.pyx .made_pyx_templates
-	cython $(srcdir)/rootcompat.pyx --cplus -I $(srcdir) -I $(srcdir)/include -I $(builddir) -I $(builddir)/include -o $@
+	cython $(srcdir)/rootcompat.pyx --cplus \
+       -I $(srcdir) -I $(srcdir)/include \
+       -I $(builddir) -I $(builddir)/include \
+       -o $@
 
 else
 
@@ -84,34 +98,9 @@ rootcompat.cpp: util.pxd rootcompat.pxd rootcompat.pyx
 
 endif
 
+BUILT_SOURCES = util.cpp core.cpp core.h rootcompat.cpp
 
 ## Make text-substitution .pyx files from templates -- should only run once
 .made_pyx_templates: include/Bin1D_DBN.pyx include/Bin2D_DBN.pyx include/Axis1D_BIN1D_DBN.pyx include/Axis2D_BIN2D_DBN.pyx
 	$(srcdir)/mktemplates $^
 	touch $@
-
-
-## fixes for out-of-source builds, especially "make distcheck"
-
-all-local: fix-out-of-source
-
-FIXSOURCES = $(STATIC_SRC)
-
-fix-out-of-source: $(FIXSOURCES)
-	rm -f $@
-	mkdir -p include
-	for i in $^; do \
-	  orig="$$i"; \
-	  build="$$(basename $$i)"; \
-	  if [[ "$${orig}" == *include* ]]; then build="include/$${build}"; fi; \
-	  if [ ! -e $${build} ]; then cp $${orig} $${build}; \
-	  echo $${build} >> $@; fi; \
-	done
-	touch $@
-
-clean-local: fix-out-of-source
-	if [ -e $< ]; then if [ -n "$$(cat $<)" ]; then rm -f $$(cat $<); fi; fi
-	rm -f $<
-
-distclean-local:
-	rm -f core.cpp core.h util.cpp rootcompat.cpp include/generated/* include/*.pxi .made_pyx_templates

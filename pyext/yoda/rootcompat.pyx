@@ -39,10 +39,10 @@ cdef _TH2toS3(croot.TH2D* th2, areascale):
 
 def to_yoda(root_obj, widthscale=True):
     cdef croot.TObject* ptr = py_to_root(root_obj)
-    if isinstance(root_obj, ROOT.TH1D):
-        return _TH1toS2(<croot.TH1D*>ptr, widthscale)
-    elif isinstance(root_obj, ROOT.TProfile):
+    if isinstance(root_obj, ROOT.TProfile):
         return _TP1toS2(<croot.TProfile*>ptr)
+    elif isinstance(root_obj, ROOT.TH1D):
+        return _TH1toS2(<croot.TH1D*>ptr, widthscale)
     # elif isinstance(root_obj, ROOT.TGraph):
     #     return _TG1toS2(<croot.TGraph*>ptr)
     elif isinstance(root_obj, ROOT.TH2D):

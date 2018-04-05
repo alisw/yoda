@@ -267,6 +267,28 @@ namespace YODA {
     }
 
 
+    /// Merge together the bin range with indices from @a from to @a to, inclusive.
+    /// Merge a series of bins, between the bins identified by indices @a from and @a to
+    void mergeBins(size_t from, size_t to) {
+      // Correctness checking
+      if (from >= numBins())
+        throw RangeError("Initial merge index is out of range");
+      if (to >= numBins())
+        throw RangeError("Final merge index is out of range");
+      if (from > to)
+        throw RangeError("Final bin must be greater than or equal to initial bin");
+      if (_gapInRange(from, to))
+        throw RangeError("Bin ranges containing gaps cannot be merged");
+      if (from == to)
+        return; // nothing to be done
+
+      Bin& b = bin(from);
+      for (size_t i = from + 1; i <= to; ++i)
+        b.merge(_bins[i]);
+      eraseBins(from+1, to);
+    }
+
+
     /// Rebin with the same rebinning factor @a n in x and y
     void rebin(unsigned int n) {
       rebinXY(n, n);

@@ -101,10 +101,10 @@ def main():
             ## Apply .plot patterns first
             for patt, keys in plotkeys.keys():
                 if re.match(patt, p):
-                    for k, v in keys.iteritems():
+                    for k, v in keys.items():
                         ao.setAnnotation(k, v)
             ## Then command line annotation overrides
-            for k, v in anns.iteritems():
+            for k, v in anns.items():
                 ao.setAnnotation(k, v)
             ## Obsfucate the path for uniqueness
             # TODO: Tidy fname slashes etc. for this purpose
@@ -117,12 +117,13 @@ def main():
             ao.setAnnotation("Origin", fname)
             ## Add to plotting dict
             aolists.setdefault(p, []).append(ao)
-    # for p, aos in sorted(aolists.iteritems()): print p, len(aos)
+    # for p, aos in sorted(aolists.items()): print p, len(aos)
 
     ## Apply path pattern match discarding from dict
     opts.PATHPATTERNS = [re.compile(r) for r in opts.PATHPATTERNS] if opts.PATHPATTERNS else []
     opts.PATHUNPATTERNS = [re.compile(r) for r in opts.PATHUNPATTERNS] if opts.PATHUNPATTERNS else []
-    for path in aolists.keys():
+    keylist = list(aolists.keys())
+    for path in keylist: # can't modify for-loop target in loop
         useThis = True
         if opts.PATHPATTERNS:
             useThis = False
@@ -137,7 +138,7 @@ def main():
                     break
         if not useThis:
             del aolists[path]
-    # for p, aos in sorted(aolists.iteritems()): print p, len(aos)
+    # for p, aos in sorted(aolists.items()): print p, len(aos)
 
 
     ## Loop over unique paths, plotting in order of command-line appearance
@@ -145,7 +146,7 @@ def main():
 
 
     ## Now loop over all MC histograms and plot them
-    for path, aos in aolists.iteritems():
+    for path, aos in aolists.items():
 
         ## Find and move the reference plot
         has_ref = False
@@ -162,10 +163,10 @@ def main():
         ##
         ## Apply PLOT annotations from command line
         # TODO: also handle .plot file annotations via plotanns?
-        for k, v in plotanns.iteritems():
+        for k, v in plotanns.items():
             plot[k] = v
         ##
-        # for key, val in plotparser.getHeaders(h).iteritems():
+        # for key, val in plotparser.getHeaders(h).items():
         #     plot[key] = val
         # if opts.LINEAR:
         #     plot["LogY"] = "0"
@@ -202,7 +203,7 @@ def main():
         #         if opts.MC_ERRS:
         #             mchistos[infile][h].setAnnotation("ErrorBars", "1")
         #         ## Plot defaults from .plot files
-        #         for key, val in plotparser.getHistogramOptions(h).iteritems():
+        #         for key, val in plotparser.getHistogramOptions(h).items():
         #             mchistos[infile][h].setAnnotation(key, val)
         #         ## Command line plot options
         #         setOptions(mchistos[infile][h], plotoptions[infile])
@@ -218,7 +219,7 @@ def main():
 
 
         ## Create the output. We can't use yoda.writeFLAT because PLOT and SPECIAL aren't AOs
-        from cStringIO import StringIO
+        from io import StringIO
         sio = StringIO()
         yoda.writeFLAT(aos, sio)
         output = str(plot) + sio.getvalue()
@@ -250,7 +251,7 @@ def parse_arg(arg):
 class Plot(dict):
     "A tiny Plot object to help writing out the head in the .dat file"
     def __repr__(self):
-        return "# BEGIN PLOT\n" + "\n".join("%s=%s" % (k,v) for k,v in self.iteritems()) + "\n# END PLOT\n\n"
+        return "# BEGIN PLOT\n" + "\n".join("%s=%s" % (k,v) for k,v in self.items()) + "\n# END PLOT\n\n"
 
 
 def setStyle(ao, index):
@@ -266,8 +267,8 @@ def setStyle(ao, index):
     # if opts.STYLE == "bw":
     #     LINECOLORS = [0.9, 0.5, 0.3]
 
-    c = index % len(LINECOLORS)
-    s = index / len(LINECOLORS)
+    c = index %  len(LINECOLORS)
+    s = index // len(LINECOLORS)
 
     if not ao.hasAnnotation("LineStyle"):
         ao.setAnnotation("LineStyle", "%s" % LINESTYLES[s])

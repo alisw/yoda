@@ -1,3 +1,163 @@
+2017-12-21  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Version 1.7.0 release
+
+2017-12-11  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add Nentries printout to yodals -v
+
+2017-09-18  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Patches for ROOT conversion from Robert Hatcher -- thanks!
+
+2017-09-16  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add YODA format version annotation, at version 2, and update
+	YODA reader to use version info and multiline YAML EOF marker.
+
+	* Write YODA annotations in YAML with a --- YAML break-line.
+
+2017-09-14  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Enable compressed writing from Python.
+
+2017-09-13  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Remove UNUSED macro in favour of anonymous args.
+
+	* Enable zipped writing... but only works from C++ so far.
+
+2017-09-11  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add HistoBin2D::area(), and provide a default normto=1.0
+	argument on the Python Histo2D.normalize() method.
+
+2017-09-04  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Change license explicitly to GPLv3, cf. MCnet3 agreement.
+
+	* Parse YODA format AO headers as YAML (restriction to single-line dict entries for now).
+
+2017-08-24  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Use a slightly enhanced fast numeric parser in ReaderYODA (taken
+	from LHAPDF, originally inspired by Gavin Salam).
+
+	* Add an UNSCALE spec option to yodascale, to undo ScaledBy effects.
+
+2017-08-19  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add optional zlib support via zstr -- massive thanks to Dmitry
+	Kalinkin for the lovely patch!
+
+2017-08-16  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Fix setVal(i, x) numbered-axis methods on Point2D and Point3D:
+	switch break statements were missing.
+
+	* Explicitly load all ROOT objects as a list rather than
+	generator. Patch from Dmitry Kalinkin.
+
+2017-07-24  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Improvements to yodaplot, including two operating modes: the
+	default CMP mode is suitable for plotting histos by path, from raw
+	.yoda files.
+
+	* Update yoda.plotting functions to treat plot-keys as args and AO
+	annotations via case-insensitive keys.
+
+	* Add annotationsDict to the Python AO interface.
+
+	* Add AO as an alias for AnalysisObject.
+
+2017-07-23  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add parallel/compatibility yoda1 package to aid eventual transition to YODA v2.
+
+2017-07-22  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add x,y,zMins and Maxs to all 1D data types and scatters (and
+	x,yMin/Max to the scatters) -- Python interface only.
+
+	* Rework some of the yoda.plotting tools, making it a bit more
+	compatible with user-scripted matplotlib.
+
+2017-07-18  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add convenience aliases H1D, H2D, P1D, P2D, and S1D, S2D, S3D
+	for the HistoXD, ProfileXD, and ScatterXD classes respectively.
+
+2017-07-08  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add xyVals/Errs and other 'bin array property' accessors to the
+	Python Histo1D and Profile1D types: important for connection to
+	matplotlib.
+
+2017-06-28  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Use Python natsort library to sort yodals output if available.
+
+2017-06-18  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Version 1.6.7 release.
+
+2017-05-12  Andy Buckley  <andy.buckley@cern.ch>
+
+	* pyext/yoda/rootcompat.pyx: Fix ordering of TH1 vs. TProfile
+	conversion -- TProfile *is* a TH1, so we have to test for the more
+	specific type-match first. Thanks to Dmitry Kalinkin for the
+	patch.
+
+2017-05-02  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add static Reader methods to match the Writer ones.
+
+2017-02-23  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Fix Histo2D and Profile2D total distribution reading from YODA format.
+
+2017-02-19  Holger Schulz <holger.schulz@durham.ac.uk>
+
+	* Convert TH1F to TH1D in root2flat. Much simpler than duplicating
+        the TH1D stuff in pyext.
+
+2016-12-13  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Version 1.6.6 release.
+
+2016-12-12  Holger Schulz <holger.schulz@durham.ac.uk>
+
+	* Bugfixes in Cython bins accessors for Histo2D.
+
+2016-11-17  Leif Lonnblad <leif.lonnblad@thep.lu.se>
+
+	* Fixed warning messages about the obsoleteness of AIDA so that the scripts actually still work.
+
+2016-09-28  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Version 1.6.5 release, for the benefit of ROOT fans.
+
+	* Fix handling of --enable/disable-root configure options.
+
+2016-09-26  David Grellscheid  <david.grellscheid@durham.ac.uk>
+
+	* Improvements to Cython version testing.
+
+2016-09-25  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Version 1.6.4 release.
+
+2016-09-20  David Grellscheid  <david.grellscheid@durham.ac.uk>
+
+	* Remove aliases for @property functions. They were scheduled for
+	removal anyway, and don't work with Cython >= 24.
+
+2016-09-06  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Update configure scripts to use newer (Py3-safe) Python testing
+	macros.
+
 2016-08-09  Andy Buckley  <andy.buckley@cern.ch>
 
 	* Version 1.6.3 release!

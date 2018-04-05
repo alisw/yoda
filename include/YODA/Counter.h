@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Counter_h
 #define YODA_Counter_h
@@ -13,6 +13,8 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <tuple>
+#include <memory>
 
 namespace YODA {
 
@@ -20,6 +22,10 @@ namespace YODA {
   /// A weighted counter.
   class Counter : public AnalysisObject {
   public:
+
+
+    typedef std::tuple<> FillType;
+    typedef std::shared_ptr<Counter> Ptr;
 
     /// @name Constructors
     //@{
@@ -85,10 +91,13 @@ namespace YODA {
     //@{
 
     /// Fill histo by value and weight
-    void fill(double weight=1.0) {
-      _dbn.fill(weight);
+    virtual void fill(double weight=1.0, double fraction=1.0) {
+      _dbn.fill(weight, fraction);
     }
 
+    virtual void fill(FillType, double weight=1.0, double fraction=1.0) {
+      fill(weight, fraction);
+    }
 
     /// @brief Reset the histogram.
     ///
@@ -111,7 +120,7 @@ namespace YODA {
     //@{
 
     /// Get the number of fills
-    unsigned long numEntries() const { return _dbn.numEntries(); }
+    double numEntries() const { return _dbn.numEntries(); }
 
     /// Get the effective number of fills
     double effNumEntries() const { return _dbn.effNumEntries(); }

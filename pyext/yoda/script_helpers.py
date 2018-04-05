@@ -32,12 +32,14 @@ def filter_aos(aos, match_re=None, unmatch_re=None):
     import re
     if match_re:
         re_match = re.compile(match_re)
-        for k in aos.keys():
+        keylist = list(aos.keys())
+        for k in keylist:
             if not re_match.search(k):
                 del aos[k]
     if unmatch_re:
         re_unmatch = re.compile(unmatch_re)
-        for k in aos.keys():
+        keylist = list(aos.keys())
+        for k in keylist:
             if re_unmatch.search(k):
                 del aos[k]
     return aos

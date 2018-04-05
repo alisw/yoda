@@ -64,7 +64,7 @@ function _yodals() {
         if test -n "$COMPREPLY"; then return 0; fi
     fi
 
-    _filedir yoda
+    _filedir "yoda|yoda.gz"
     return 0
 }
 
@@ -88,7 +88,7 @@ function _yodadiff() {
         if test -n "$COMPREPLY"; then return 0; fi
     fi
 
-    _filedir yoda
+    _filedir "yoda|yoda.gz"
     return 0
 }
 
@@ -112,7 +112,7 @@ function _yodamerge() {
         if test -n "$COMPREPLY"; then return 0; fi
     fi
 
-    _filedir yoda
+    _filedir "yoda|yoda.gz"
     return 0
 }
 
@@ -136,7 +136,7 @@ function _yodascale() {
         if test -n "$COMPREPLY"; then return 0; fi
     fi
 
-    _filedir yoda
+    _filedir "yoda|yoda.gz"
     return 0
 }
 
@@ -218,7 +218,7 @@ function _yodacmp() {
         if test -n "$COMPREPLY"; then return 0; fi
     fi
 
-    _filedir yoda
+    _filedir "yoda|yoda.gz"
     return 0
 }
 
@@ -244,7 +244,7 @@ function _yodaplot() {
     fi
     if test -n "$COMPREPLY"; then return 0; fi
 
-    _filedir yoda
+    _filedir "yoda|yoda.gz"
     return 0
 }
 
@@ -268,7 +268,7 @@ function _yodacnv() {
         if test -n "$COMPREPLY"; then return 0; fi
     fi
 
-    _filedir yoda
+    _filedir "yoda|yoda.gz"
     return 0
 }
 
@@ -292,7 +292,7 @@ function _yoda2aida() {
         if test -n "$COMPREPLY"; then return 0; fi
     fi
 
-    _filedir yoda
+    _filedir "yoda|yoda.gz"
     return 0
 }
 
@@ -316,7 +316,7 @@ function _yoda2flat() {
         if test -n "$COMPREPLY"; then return 0; fi
     fi
 
-    _filedir yoda
+    _filedir "yoda|yoda.gz"
     return 0
 }
 
@@ -340,7 +340,7 @@ function _yoda2root() {
         if test -n "$COMPREPLY"; then return 0; fi
     fi
 
-    _filedir yoda
+    _filedir "yoda|yoda.gz"
     return 0
 }
 

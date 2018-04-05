@@ -50,6 +50,8 @@ TODO:
  * Data column spec & using eval to do math manipulations
 """
 
+from __future__ import print_function
+
 import yoda
 import optparse, sys
 import math, numbers
@@ -170,7 +172,7 @@ while tmpargs:
     #     del tmpargs[:2]
     # else:
     #     error("unknown command '%s'\n" % cmd)
-# print cmds
+# print(cmds)
 
 
 ## Apply log binning measure(s) if needed
@@ -214,13 +216,14 @@ if "ann" in cmds:
             k, v = kv.split("=", 1)
             h.setAnnotation(k, v)
         except:
-            print "Couldn't set annotation from arg '%s'" % kv
+            print("Couldn't set annotation from arg '%s'" % kv)
 
 
 ## Read the input and fill the histo
 INPUT = cmds.get("in", "-")
 import fileinput
 for line in fileinput.input(INPUT):
+    if not line.strip(): continue
     vals = [float(x) for x in line.strip().split()]
     if MODE == "scat2":
         # TODO: Multiple errors and asymm errors

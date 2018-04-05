@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Writer_h
 #define YODA_Writer_h
@@ -35,21 +35,32 @@ namespace YODA {
     /// @name Writing a single analysis object.
     //@{
 
+    /// Write out object @a ao to file @a filename.
+    void write(const std::string& filename, const AnalysisObject& ao);
+
     /// Write out object @a ao to output stream @a stream.
-    void write(std::ostream& stream, const AnalysisObject& ao);
+    void write(std::ostream& stream, const AnalysisObject& ao) {
+      // std::vector<const AnalysisObject*> vec{&ao};
+      std::vector<const AnalysisObject*> vec;
+      vec.push_back(&ao);
+      std::cout << std::endl;
+      write(stream, vec);
+      std::cout << std::endl;
+    }
 
     /// Write out pointer-like object @a ao to output stream @a stream.
     template <typename T>
     typename std::enable_if<DerefableToAO<T>::value>::type //< -> void if valid
-    write(std::ostream& stream, const T& ao) { write(stream, *ao); }
-
-    /// Write out object @a ao to file @a filename.
-    void write(const std::string& filename, const AnalysisObject& ao);
+    write(std::ostream& stream, const T& ao) {
+      write(stream, *ao);
+    }
 
     /// Write out pointer-like object @a ao to file @a filename.
     template <typename T>
     typename std::enable_if<DerefableToAO<T>::value>::type //< -> void if valid
-    write(const std::string& filename, const T& ao) { write(filename, *ao); }
+    write(const std::string& filename, const T& ao) {
+      write(filename, *ao);
+    }
 
     //@}
 
@@ -57,8 +68,18 @@ namespace YODA {
     /// @name Writing multiple analysis objects by collection.
     //@{
 
+    /// Write out a vector of AO pointers (untemplated=exact type-match) to the given stream
+    ///
+    /// @note This is the canonical function for implementing AO writing: all
+    /// others call this. Hence the specific AOs type.
+    ///
+    /// @note Among other reasons, this is non-inline to hide zstr from the public API
+    void write(std::ostream& stream, const std::vector<const AnalysisObject*>& aos);
+
+
     /// Write out a collection of objects @a objs to output stream @a stream.
-    /// Note: the enable_if call checks whether RANGE is const_iterable, if yes the return
+    ///
+    /// @note The enable_if call checks whether RANGE is const_iterable, if yes the return
     ///       type is void. If not, this template will not be a candidate in the lookup
     template <typename RANGE>
     typename std::enable_if<CIterable<RANGE>::value>::type
@@ -85,18 +106,10 @@ namespace YODA {
     /// @todo Add SFINAE trait checking for AOITER = DerefableToAO
     template <typename AOITER>
     void write(std::ostream& stream, const AOITER& begin, const AOITER& end) {
-      writeHeader(stream);
-      for (AOITER ipao = begin; ipao != end; ++ipao) {
-	try {
-	  writeBody(stream, *ipao);
-	}
-	catch (const LowStatsError & ex) {
-	  std::cerr << "Not writing out Analysis Object " << (**ipao).title()
-	       << " as caught LowStatsError. The exception was\n "
-		    << ex.what() << "\n";
-	}
-      }
-      writeFooter(stream);
+      std::vector<const AnalysisObject*> vec;
+      // vec.reserve(std::distance(begin, end));
+      for (AOITER ipao = begin; ipao != end; ++ipao)  vec.push_back(&(**ipao));
+      write(stream, vec);
     }
 
 
@@ -105,17 +118,18 @@ namespace YODA {
     ///
     /// @todo Add SFINAE trait checking for AOITER = DerefableToAO
     template <typename AOITER>
-    void write(const std::string& filename,
-               const AOITER& begin,
-               const AOITER& end) {
-      std::ofstream outstream;
-      outstream.exceptions ( std::ifstream::failbit | std::ifstream::badbit );
-      try{
-        outstream.open(filename.c_str());
-        write(outstream, begin, end);
-        outstream.close();
-      } catch(std::ifstream::failure e) {
-        throw WriteError("writing to filename " + filename + " failed: " + e.what());
+    void write(const std::string& filename, const AOITER& begin, const AOITER& end) {
+      std::vector<const AnalysisObject*> vec;
+      // vec.reserve(std::distance(begin, end));
+      for (AOITER ipao = begin; ipao != end; ++ipao)  vec.push_back(&(**ipao));
+
+      std::ofstream stream;
+      stream.exceptions(std::ofstream::failbit | std::ofstream::badbit);
+      try {
+        stream.open(filename.c_str());
+        write(stream, vec);
+      } catch (std::ofstream::failure& e) {
+        throw WriteError("Writing to filename " + filename + " failed: " + e.what());
       }
     }
 
@@ -127,6 +141,11 @@ namespace YODA {
       _precision = precision;
     }
 
+    /// Use libz compression?
+    void useCompression(bool compress=true) {
+      _compress = compress;
+    }
+
 
   protected:
 
@@ -134,7 +153,7 @@ namespace YODA {
     //@{
 
     /// Write any opening boilerplate required by the format to @a stream
-    virtual void writeHeader(std::ostream& stream) = 0;
+    virtual void writeHead(std::ostream&) {}
 
     /// @brief Write the body elements corresponding to AnalysisObject @a ao to @a stream
     virtual void writeBody(std::ostream& stream, const AnalysisObject* ao);
@@ -149,7 +168,7 @@ namespace YODA {
     writeBody(std::ostream& stream, const T& ao) { writeBody(stream, *ao); }
 
     /// Write any closing boilerplate required by the format to @a stream
-    virtual void writeFooter(std::ostream& stream) = 0;
+    virtual void writeFoot(std::ostream& stream) { stream << std::flush; }
 
     //@}
 
@@ -171,6 +190,9 @@ namespace YODA {
 
     /// Output precision
     int _precision;
+
+    /// Compress the output?
+    bool _compress;
 
   };
 

@@ -33,7 +33,7 @@ def _autostr(var, precision=8):
     """Automatically format numerical types as the right sort of string."""
     if type(var) is float:
         return ("% ." + str(precision) + "e") % var
-    elif not hasattr(var, "__iter__"):
+    elif not isinstance(var, (list,tuple)):
         return str(var)
     else:
         return ",".join(_autostr(subval) for subval in var)
@@ -50,7 +50,7 @@ def try_loop(fs, *args, char *_msg='Invalid arguments', **kwargs):
         try:
             f(*args, **kwargs)
             return
-        except TypeError:
+        except (TypeError, AttributeError):
             pass
     raise TypeError(_msg)
 

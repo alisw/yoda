@@ -6,6 +6,8 @@
 List the contents of YODA-readable data files (sorted by path name).
 """
 
+from __future__ import print_function
+
 import yoda, sys, optparse
 from yoda.script_helpers import filter_aos
 
@@ -21,21 +23,30 @@ parser.add_option("-M", "--unmatch", dest="UNMATCH", metavar="PATT", default=Non
 opts, filenames = parser.parse_args()
 
 if not filenames:
-    print "ERROR! Please supply at least one data file for listing"
+    print("ERROR! Please supply at least one data file for listing")
     sys.exit(1)
+
+try:
+    import natsort
+    ysorted = natsort.natsorted
+except:
+    ysorted = sorted
 
 for i, f in enumerate(filenames):
     if opts.VERBOSITY >= 1:
-        if i > 0: print
-        print "Data objects in %s:" % f
+        if i > 0: print()
+        print("Data objects in %s:" % f)
     aodict = yoda.read(f)
     filter_aos(aodict, opts.MATCH, opts.UNMATCH)
-    for p, ao in sorted(aodict.iteritems()):
+    for p, ao in ysorted(aodict.items()):
         extrainfo = ""
-        if opts.VERBOSITY >= 2 and hasattr(ao, "sumW"):
-            extrainfo = " sumW={sumw:.3g}".format(sumw=ao.sumW())
+        if opts.VERBOSITY >= 2:
+            if hasattr(ao, "numEntries"):
+                extrainfo += " N={sumw:.3g}".format(sumw=ao.numEntries())
+            if hasattr(ao, "sumW"):
+                extrainfo += " sumW={sumw:.3g}".format(sumw=ao.sumW())
         try:
             nobjstr = "{n:4d}".format(n=len(ao))
         except:
             nobjstr = "   -"
-        print "{path:<50} {type:<10} {nobjs} bins/pts".format(path=p, type=ao.type, nobjs=nobjstr) + extrainfo
+        print("{path:<50} {type:<10} {nobjs} bins/pts".format(path=p, type=ao.type, nobjs=nobjstr) + extrainfo)

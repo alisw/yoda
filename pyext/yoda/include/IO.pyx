@@ -1,3 +1,5 @@
+# cython: c_string_type=unicode
+
 """Readers and writers
 
 The basic idea here is to provide Python IO semantics by using Python to do
@@ -13,16 +15,16 @@ import sys
 def _pattern_check(name, patterns, unpatterns):
     import re
     if patterns:
-        if not hasattr(patterns, "__iter__"):
+        if not isinstance(patterns, (list,tuple)):
             patterns = [patterns]
         ## Compile on the fly: works because compile(compiled_re) -> compiled_re
-        if not any(re.compile(patt).match(name) for patt in patterns):
+        if not any(re.compile(patt).search(name) for patt in patterns):
             return False
     if unpatterns:
-        if not hasattr(unpatterns, "__iter__"):
+        if not isinstance(unpatterns, (list,tuple)):
             unpatterns = [unpatterns]
         ## Compile on the fly: works because compile(compiled_re) -> compiled_re
-        if any(re.compile(patt).match(name) for patt in unpatterns):
+        if any(re.compile(patt).search(name) for patt in unpatterns):
             return False
     return True
 
@@ -31,10 +33,10 @@ cdef list _aobjects_to_list(vector[c.AnalysisObject*]* aobjects, patterns, unpat
     cdef list out = []
     cdef c.AnalysisObject* ao
     cdef size_t i
-    for i in xrange(aobjects.size()):
+    for i in range(aobjects.size()):
         ao = deref(aobjects)[i]
         ## NOTE: automatic type conversion by passing the type() as a key to globals()
-        newao = cutil.new_owned_cls(globals()[ao.type()], ao)
+        newao = cutil.new_owned_cls(globals()[ao.type().decode('utf-8')], ao)
         if _pattern_check(newao.path, patterns, unpatterns):
             out.append(newao)
     return out
@@ -44,17 +46,17 @@ cdef dict _aobjects_to_dict(vector[c.AnalysisObject*]* aobjects, patterns, unpat
     cdef dict out = {}
     cdef c.AnalysisObject* ao
     cdef size_t i
-    for i in xrange(aobjects.size()):
+    for i in range(aobjects.size()):
         ao = deref(aobjects)[i]
         ## NOTE: automatic type conversion by passing the type() as a key to globals()
-        newao = cutil.new_owned_cls( globals()[ao.type()], ao)
+        newao = cutil.new_owned_cls( globals()[ao.type().decode('utf-8')], ao)
         if _pattern_check(newao.path, patterns, unpatterns):
             out[newao.path] = newao
     return out
 
 ## Set a istringstream's string from a C/Python string
-cdef void _make_iss(c.istringstream &iss, char* s):
-    iss.str(string(s))
+cdef void _make_iss(c.istringstream &iss, string s):
+    iss.str(s)
 
 ## Read a file's contents as a returned string
 ## The file argument can either be a file object, filename, or special "-" reference to stdin
@@ -64,23 +66,21 @@ def _str_from_file(file_or_filename):
     elif file_or_filename == "-":
         s = sys.stdin.read()
     else:
-        f = open(file_or_filename)
-        s = f.read()
-        f.close()
+        with open(file_or_filename, "r") as f:
+            s = f.read()
     return s
 
 ## Write a string to a file
 ## The file argument can either be a file object, filename, or special "-" reference to stdout
 def _str_to_file(s, file_or_filename):
+    s = s.decode('utf-8')
     if hasattr(file_or_filename, 'write'):
         file_or_filename.write(s)
     elif file_or_filename == "-":
         sys.stdout.write(s)
     else:
-        f = open(file_or_filename, "w")
-        s = f.write(s)
-        f.close()
-
+        with open(file_or_filename, "w") as f:
+            f.write(s)
 
 
 ##
@@ -102,11 +102,10 @@ def read(filename, asdict=True, patterns=None, unpatterns=None):
     """
     cdef c.istringstream iss
     cdef vector[c.AnalysisObject*] aobjects
-    f = open(filename)
-    s = f.read()
-    f.close()
-    _make_iss(iss, s)
-    c.Reader_create(filename).read(iss, aobjects)
+    with open(filename, "r") as f:
+        s = f.read()
+    _make_iss(iss, s.encode('utf-8'))
+    c.Reader_create(filename.encode('utf-8')).read(iss, aobjects)
     return _aobjects_to_dict(&aobjects, patterns, unpatterns) if asdict else _aobjects_to_list(&aobjects, patterns, unpatterns)
 
 
@@ -125,7 +124,7 @@ def readYODA(file_or_filename, asdict=True, patterns=None, unpatterns=None):
     cdef c.istringstream iss
     cdef vector[c.AnalysisObject*] aobjects
     s = _str_from_file(file_or_filename)
-    _make_iss(iss, s)
+    _make_iss(iss, s.encode('utf-8'))
     c.ReaderYODA_create().read(iss, aobjects)
     # TODO: Add optional filter pattern in conversion to Python iterable (also for all other read functions)
     return _aobjects_to_dict(&aobjects, patterns, unpatterns) if asdict else _aobjects_to_list(&aobjects, patterns, unpatterns)
@@ -146,7 +145,7 @@ def readFLAT(file_or_filename, asdict=True, patterns=None, unpatterns=None):
     cdef c.istringstream iss
     cdef vector[c.AnalysisObject*] aobjects
     s = _str_from_file(file_or_filename)
-    _make_iss(iss, s)
+    _make_iss(iss, s.encode('utf-8'))
     c.ReaderFLAT_create().read(iss, aobjects)
     return _aobjects_to_dict(&aobjects, patterns, unpatterns) if asdict else _aobjects_to_list(&aobjects, patterns, unpatterns)
 
@@ -168,7 +167,7 @@ def readAIDA(file_or_filename, asdict=True, patterns=None, unpatterns=None):
     cdef c.istringstream iss
     cdef vector[c.AnalysisObject*] aobjects
     s = _str_from_file(file_or_filename)
-    _make_iss(iss, s)
+    _make_iss(iss, s.encode('utf-8'))
     c.ReaderAIDA_create().read(iss, aobjects)
     return _aobjects_to_dict(&aobjects, patterns, unpatterns) if asdict else _aobjects_to_list(&aobjects, patterns, unpatterns)
 
@@ -185,13 +184,11 @@ def write(ana_objs, filename):
     cdef c.ostringstream oss
     cdef vector[c.AnalysisObject*] vec
     cdef AnalysisObject a
-
     aolist = ana_objs.values() if hasattr(ana_objs, "values") else ana_objs if hasattr(ana_objs, "__iter__") else [ana_objs]
     for a in aolist:
         vec.push_back(a._AnalysisObject())
-
-    c.Writer_create(filename).write(oss, vec)
-    _str_to_file(oss.str().c_str(), filename)
+    c.Writer_create(filename.encode('utf-8')).write(oss, vec)
+    _str_to_file(oss.str(), filename)
 
 
 def writeYODA(ana_objs, file_or_filename):
@@ -201,13 +198,11 @@ def writeYODA(ana_objs, file_or_filename):
     cdef c.ostringstream oss
     cdef vector[c.AnalysisObject*] vec
     cdef AnalysisObject a
-
     aolist = ana_objs.values() if hasattr(ana_objs, "values") else ana_objs if hasattr(ana_objs, "__iter__") else [ana_objs]
     for a in aolist:
         vec.push_back(a._AnalysisObject())
-
     c.WriterYODA_create().write(oss, vec)
-    _str_to_file(oss.str().c_str(), file_or_filename)
+    _str_to_file(oss.str(), file_or_filename)
 
 
 def writeFLAT(ana_objs, file_or_filename):
@@ -217,13 +212,11 @@ def writeFLAT(ana_objs, file_or_filename):
     cdef c.ostringstream oss
     cdef vector[c.AnalysisObject*] vec
     cdef AnalysisObject a
-
     aolist = ana_objs.values() if hasattr(ana_objs, "values") else ana_objs if hasattr(ana_objs, "__iter__") else [ana_objs]
     for a in aolist:
         vec.push_back(a._AnalysisObject())
-
     c.WriterFLAT_create().write(oss, vec)
-    _str_to_file(oss.str().c_str(), file_or_filename)
+    _str_to_file(oss.str(), file_or_filename)
 
 
 def writeAIDA(ana_objs, file_or_filename):
@@ -233,10 +226,8 @@ def writeAIDA(ana_objs, file_or_filename):
     cdef c.ostringstream oss
     cdef vector[c.AnalysisObject*] vec
     cdef AnalysisObject a
-
     aolist = ana_objs.values() if hasattr(ana_objs, "values") else ana_objs if hasattr(ana_objs, "__iter__") else [ana_objs]
     for a in aolist:
         vec.push_back(a._AnalysisObject())
-
     c.WriterAIDA_create().write(oss, vec)
-    _str_to_file(oss.str().c_str(), file_or_filename)
+    _str_to_file(oss.str(), file_or_filename)

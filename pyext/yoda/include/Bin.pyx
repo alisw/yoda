@@ -1,3 +1,4 @@
+cimport util
 cdef class Bin(util.Base):
 
     cdef inline c.Bin* bptr(self) except NULL:

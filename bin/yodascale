@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-
+from __future__ import print_function
 """\
 Usage: %prog <yodafile1> [<yodafile2> ...] -r <yodareffile_or_dir> [-r ...]
 
@@ -23,6 +23,7 @@ The scaling specification syntax is a histogram path pattern followed by a
 definition of the scaling to be done on that histogram (or histograms). The path
 pattern consists of a regular expression, optionally followed by a range
 specifier. The best explanation is probably a few examples:
+
   /path/to/hist      (match all bins in that particular histogram)
   /.*pt              (match all bins in histograms ending in 'pt')
   /myhist@5          (match bins with high edge >= 5 in /myhist)
@@ -81,14 +82,15 @@ opts, args = op.parse_args()
 from yoda.search import PointMatcher
 def parse_specstr(line):
     ## Strip comments
+    line = " " + line
     if " #" in line:
         line = line[:line.index(" #")]
     ## Split whitespace-separated target and ref parts
-    parts = line.split()
+    parts = line.strip().split()
     pathpatt, scalespec = parts[0], " ".join(parts[1:])
     ## Match and extract the spec command structure
     import re
-    re_scalespec = re.compile(r"([\d\.eE\+\-]+x?)?(.*)")
+    re_scalespec = re.compile(r"([\d\.eE\+\-]+x?|UNSCALE)?(.*)")
     m = re_scalespec.match(scalespec)
     if not m:
         raise Exception("Invalid scaling spec string: '%s'" % scalespec)
@@ -98,9 +100,10 @@ def parse_specstr(line):
         scalearg = "1x"
     if scalearg.endswith("x"):
         scaleop = "x"
-        scalearg = scalearg[:-1]
-    scalenum = float(scalearg)
-    rtn = (PointMatcher(pathpatt), PointMatcher(refpatt), scaleop, scalenum)
+        scalearg = float(scalearg[:-1])
+    elif scalearg == "UNSCALE":
+        scaleop = "x"
+    rtn = (PointMatcher(pathpatt), PointMatcher(refpatt), scaleop, scalearg)
     #print rtn
     return rtn
 
@@ -128,20 +131,20 @@ for r in opts.REFS:
 aos_ref = {}
 for r in reffiles:
     aos = yoda.read(r)
-    for aopath, ao in aos.iteritems():
+    for aopath, ao in aos.items():
         ## Use /REF_PREFIX/foo as a ref plot for /foo, if the ref prefix is set
         if opts.REF_PREFIX and aopath.startswith("/%s/" % opts.REF_PREFIX):
             aopath = aopath.replace("/%s/" % opts.REF_PREFIX, "/", 1) # NB. ao.path is unchanged
         aos_ref[aopath] = ao
 if opts.VERBOSITY > 1:
-    print "DEBUG: %d reference histos" % len(aos_ref)
+    print("DEBUG: %d reference histos" % len(aos_ref))
 
 
 ## Loop over input files for rescaling
 for infile in args:
     aos_out = {}
     aos_in = yoda.read(infile)
-    for aopath, ao in sorted(aos_in.iteritems()):
+    for aopath, ao in sorted(aos_in.items()):
 
         ## Default is to write out the unrescaled AO if no match is found
         aos_out[aopath] = ao
@@ -149,50 +152,59 @@ for infile in args:
         ## Don't rescale /REF_PREFIX objects
         if aopath.startswith("/%s/" % opts.REF_PREFIX):
             if opts.VERBOSITY > 1:
-                print "DEBUG: not rescaling ref object '%s'" % aopath
+                print("DEBUG: not rescaling ref object '%s'" % aopath)
             continue
 
 
-        ## Match specs to MC AO path, and thence ref AOs
+        ## Match specs to MC AO path
         aospecs = []
         for s in SPECS:
             if s[0].search_path(aopath):
                 aoref, (matcher, mode, factor) = None, s[1:]
+                # TODO: s[1] -> matcher?
+                ## Match to ref AOs if any were given
                 if s[1].path is not None:
                     refpaths = []
                     if s[1].path.pattern == "REF":
-                        if aos_ref.has_key(aopath):
+                        if aopath in aos_ref:
                             refpaths = [aopath]
                     else:
-                        refpaths = [p for p in aos_ref.keys() if (s[1] and s[1].search_path(p))]
+                        refpaths = [p for p in list(aos_ref.keys()) if (s[1] and s[1].search_path(p))]
                     if opts.VERBOSITY > 1:
-                        print "DEBUG:", aopath, "=>", refpaths
+                        print("DEBUG:", aopath, "=>", refpaths)
                     if not refpaths:
-                        print "ERROR: No reference histogram '%s' found for '%s'. Not rescaling" % (s[1].path.pattern, aopath)
+                        print("ERROR: No reference histogram '%s' found for '%s'. Not rescaling" % (s[1].path.pattern, aopath))
                         # TODO: should we actually skip it from the output entirely in this case?
                         continue
                     if len(refpaths) > 1:
                         if opts.VERBOSITY > 0:
-                            print "WARNING: Multiple reference histograms found for '%s'. Using first: '%s'" % (aopath, refpaths[0])
+                            print("WARNING: Multiple reference histograms found for '%s'. Using first: '%s'" % (aopath, refpaths[0]))
                     aoref = aos_ref[refpaths[0]]
 
                 aospecs.append( [aoref, s[1], mode, factor] )
 
+
         ## Identify and check spec to be used for scaling determination
         if not aospecs:
             if opts.VERBOSITY > 1:
-                print "DEBUG: No scaling spec found for '%s'. Output is unscaled" % aopath
+                print("DEBUG: No scaling spec found for '%s'. Output is unscaled" % aopath)
             aoref, matcher, mode, factor = None, None, "x", 1.0
         else:
             if len(aospecs) > 1:
                 if opts.VERBOSITY > 0:
-                    print "WARNING: Multiple scaling specs found for '%s'. Using first: '%r'" % (aopath, aospecs[0])
+                    print("WARNING: Multiple scaling specs found for '%s'. Using first: '%r'" % (aopath, aospecs[0]))
             aoref, matcher, mode, factor = aospecs[0]
 
 
         ## Work out scalefactor
         if aoref is None and mode == "x":
-            sf = factor
+            if factor != "UNSCALE":
+                sf = factor
+            elif ao.hasAnnotation("ScaledBy"):
+                sf = 1/float(ao.annotation("ScaledBy"))
+            else:
+                sf = 1.0
+
         else:
 
             # TODO: check binning compatibility (between types... hmm, check via equiv scatters?)
@@ -211,7 +223,7 @@ for infile in args:
                 sref = aoref.mkScatter()
             if sref and type(s) is not type(sref):
                 if opts.VERBOSITY > 0:
-                    print "WARNING: Type mismatch between Scatter reps of '%s'. Are input and ref histos of same dimension?" % aopath
+                    print("WARNING: Type mismatch between Scatter reps of '%s'. Are input and ref histos of same dimension?" % aopath)
                 continue
 
             def matchpoint(i, p):
@@ -234,10 +246,10 @@ for infile in args:
                 assert(all(len(p.xErrs) == 2 for p in s.points))
                 norm = sum(p.y * sum(p.xErrs) for i, p in enumerate(s.points) if matchpoint(i, p))
                 if norm == 0:
-                    print "ERROR: Normalisation of given range is 0; cannot rescale this to a finite value. Result will be unscaled"
+                    print("ERROR: Normalisation of given range is 0; cannot rescale this to a finite value. Result will be unscaled")
                     sf = 1.0
                 elif mode == "=":
-                    sf = factor/norm
+                    sf = float(factor)/norm
                 elif mode == "x":
                     assert(all(len(p.xErrs) == 2 for p in sref.points))
                     refnorm = sum(p.y * sum(p.xErrs) for i, p in enumerate(sref.points) if matchpoint(i, p))
@@ -247,11 +259,11 @@ for infile in args:
                 ## NOTE: sum(errs) only works if there's only one +- pair
                 # TODO: only loop over specified bins/points
                 if opts.VERBOSITY > 0:
-                    print "WARNING: Point/bin range restrictions are not yet implemented for 2D scatter / 3D histo types"
+                    print("WARNING: Point/bin range restrictions are not yet implemented for 2D scatter / 3D histo types")
                 assert(all(len(p.xErrs) == 2 and len(p.yErrs) == 2) for p in s.points)
                 norm = sum(p.z * sum(p.xErrs) * sum(p.yErrs) for p in s.points)
                 if norm == 0:
-                    print "ERROR: Normalisation of given range is 0; cannot rescale this to a finite value. Result will be unscaled"
+                    print("ERROR: Normalisation of given range is 0; cannot rescale this to a finite value. Result will be unscaled")
                     sf = 1.0
                 elif mode == "=":
                     sf = factor/norm
@@ -263,15 +275,15 @@ for infile in args:
 
         ## Rescale
         if opts.VERBOSITY > 1:
-            print "DEBUG: '%s' rescaled by factor %.3g" % (aopath, sf)
+            print("DEBUG: '%s' rescaled by factor %.3g" % (aopath, sf))
         if type(ao) in (yoda.Histo1D, yoda.Histo2D):
             ao.scaleW(sf)
         elif type(ao) is yoda.Profile1D:
             # TODO: should this scale y or sumW? A: sumW... only relevant for merging & "norm" is wrong concept
-            print "WARNING:", ao.path, "no scaling applied to Profile1D"
+            print("WARNING:", ao.path, "no scaling applied to Profile1D")
         elif type(ao) is yoda.Profile2D:
             # TODO: should this scale z or sumW? A: sumW... only relevant for merging & "norm" is wrong concept
-            print "WARNING:", ao.path, "no scaling applied to Profile2D"
+            print("WARNING:", ao.path, "no scaling applied to Profile2D")
         elif type(ao) is yoda.Scatter2D:
             ao.scale(1, sf)
         elif type(ao) is yoda.Scatter3D:

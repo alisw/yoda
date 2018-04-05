@@ -7,7 +7,7 @@ datarootdir=${prefix}/share
 Name: yoda
 Description: YODA data analysis library
 URL: https://yoda.hepforge.org
-Version: 1.6.3
+Version: 1.7.0
 Libs: -L${exec_prefix}/lib -lYODA
 Cflags: -I${prefix}/include
 #-I@BOOST_CPPFLAGS@

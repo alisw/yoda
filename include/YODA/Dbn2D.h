@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Dbn2D_h
 #define YODA_Dbn2D_h
@@ -28,7 +28,7 @@ namespace YODA {
     /// Constructor to set a distribution with a pre-filled state.
     ///
     /// Principally designed for internal persistency use.
-    Dbn2D(unsigned long numEntries, double sumW, double sumW2,
+    Dbn2D(double numEntries, double sumW, double sumW2,
           double sumWX, double sumWX2, double sumWY, double sumWY2, double sumWXY)
       : _dbnX(numEntries, sumW, sumW2, sumWX, sumWX2),
         _dbnY(numEntries, sumW, sumW2, sumWY, sumWY2),
@@ -63,16 +63,16 @@ namespace YODA {
     //@{
 
     /// Fill, providing the fill coordinates as two different numbers.
-    void fill(double valX, double valY, double weight=1.0) {
-      _dbnX.fill(valX, weight);
-      _dbnY.fill(valY, weight);
-      _sumWXY += weight*valX*valY;
+    void fill(double valX, double valY, double weight=1.0, double fraction=1.0) {
+      _dbnX.fill(valX, weight, fraction);
+      _dbnY.fill(valY, weight, fraction);
+      _sumWXY += fraction*weight*valX*valY;
     }
 
 
     /// Fill, providing the fill coordinates as a pair.
-    void fill(std::pair<double,double> val, double weight=1.0) {
-      fill(val.first, val.second, weight);
+    void fill(std::pair<double,double> val, double weight=1.0, double fraction=1.0) {
+      fill(val.first, val.second, weight, fraction);
     }
 
 
@@ -163,7 +163,7 @@ namespace YODA {
     //@{
 
     /// Number of entries (number of times @c fill was called, ignoring weights)
-    unsigned long numEntries() const {
+    double numEntries() const {
       return _dbnX.numEntries();
     }
 

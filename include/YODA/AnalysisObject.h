@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_AnalysisObject_h
 #define YODA_AnalysisObject_h
@@ -85,6 +85,7 @@ namespace YODA {
     //@{
 
     /// Get all the annotation names
+    /// @todo Change this to return the str->str map, with a separate annotationKeys, etc.
     std::vector<std::string> annotations() const {
       std::vector<std::string> rtn;
       rtn.reserve(_annotations.size());
@@ -289,6 +290,10 @@ namespace YODA {
     std::map<std::string,std::string> _annotations;
 
   };
+
+
+  // Convenience alias
+  using AO = AnalysisObject;
 
 
 }

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #include "YODA/Profile2D.h"
 #include "YODA/Scatter3D.h"
@@ -12,20 +12,20 @@ using namespace std;
 namespace YODA {
 
 
-  void Profile2D::fill(double x, double y, double z, double weight) {
+  void Profile2D::fill(double x, double y, double z, double weight, double fraction) {
     if ( std::isnan(x) ) throw RangeError("X is NaN");
     if ( std::isnan(y) ) throw RangeError("Y is NaN");
     if ( std::isnan(z) ) throw RangeError("Z is NaN");
 
     // Fill the overall distribution
-    _axis.totalDbn().fill(x, y, z, weight);
+    _axis.totalDbn().fill(x, y, z, weight, fraction);
 
     // Fill the bins and overflows
     /// Unify this with Histo2D's version, when binning and inheritance are reworked
     if (inRange(x, _axis.xMin(), _axis.xMax()) && inRange(y, _axis.yMin(), _axis.yMax())) {
       try {
         /// @todo Replace try block with a check that there is a bin at x, y
-        binAt(x, y).fill(x, y, z, weight);
+        binAt(x, y).fill(x, y, z, weight, fraction);
       } catch (const RangeError& re) {    }
     }
     /// @todo Reinstate! With outflow axis bin lookup
@@ -33,7 +33,7 @@ namespace YODA {
     //   size_t ix(0), iy(0);
     //   if (x <  _axis.xMin()) ix = -1; else if (x >= _axis.xMax()) ix = 1;
     //   if (y <  _axis.yMin()) iy = -1; else if (y >= _axis.yMax()) iy = 1;
-    //   _axis.outflow(ix, iy).fill(x, y, z, weight);
+    //   _axis.outflow(ix, iy).fill(x, y, z, weight, fraction);
     // }
 
     // Lock the axis now that a fill has happened
@@ -41,15 +41,15 @@ namespace YODA {
   }
 
 
-  void Profile2D::fillBin(size_t i, double z, double weight) {
+  void Profile2D::fillBin(size_t i, double z, double weight, double fraction) {
     pair<double, double> mid = bin(i).xyMid();
-    fill(mid.first, mid.second, z, weight);
+    fill(mid.first, mid.second, z, weight, fraction);
   }
 
 
   /////////////// COMMON TO ALL BINNED
 
-  unsigned long Profile2D::numEntries(bool includeoverflows) const {
+  double Profile2D::numEntries(bool includeoverflows) const {
     if (includeoverflows) return totalDbn().numEntries();
     unsigned long n = 0;
     for (const Bin& b : bins()) n += b.numEntries();

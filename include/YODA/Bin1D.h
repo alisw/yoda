@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Bin1D_h
 #define YODA_Bin1D_h
@@ -205,7 +205,7 @@ namespace YODA {
 
 
     /// The number of entries
-    unsigned long numEntries() const {
+    double numEntries() const {
       return _dbn.numEntries();
     }
 

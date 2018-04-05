@@ -1,3 +1,4 @@
+cimport util
 cdef class Point1D(Point):
     """
     A 1D point with errors, used by the Scatter1D class.

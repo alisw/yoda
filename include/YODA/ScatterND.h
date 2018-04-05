@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_SCATTERND_H
 #define YODA_SCATTERND_H
@@ -14,6 +14,7 @@
 #include <set>
 #include <string>
 #include <utility>
+#include <memory>
 
 namespace YODA {
 
@@ -27,6 +28,7 @@ namespace YODA {
     typedef Utils::ndarray<double, N> NdVal;
     typedef Utils::ndarray<std::pair<double,double>, N> NdValPair;
     typedef Utils::sortedvector< Point<N> > Points;
+    typedef std::shared_ptr<Scatter> Ptr;
 
 
     /// @name Constructors

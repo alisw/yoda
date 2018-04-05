@@ -90,12 +90,13 @@ build_triplet = @build@
 host_triplet = @host@
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/m4/ax_cxx_compile_stdcxx_11.m4 \
-	$(top_srcdir)/m4/cxx.m4 $(top_srcdir)/m4/cython.m4 \
-	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
-	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/m4/osx.m4 \
-	$(top_srcdir)/m4/pkgchecks.m4 $(top_srcdir)/m4/python.m4 \
+am__aclocal_m4_deps = $(top_srcdir)/m4/ax_check_zlib.m4 \
+	$(top_srcdir)/m4/ax_cxx_compile_stdcxx_11.m4 \
+	$(top_srcdir)/m4/ax_python_devel.m4 $(top_srcdir)/m4/cxx.m4 \
+	$(top_srcdir)/m4/cython.m4 $(top_srcdir)/m4/libtool.m4 \
+	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
+	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/m4/osx.m4 $(top_srcdir)/m4/pkgchecks.m4 \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
@@ -135,12 +136,14 @@ am__uninstall_files_from_dir = { \
   }
 am__installdirs = "$(DESTDIR)$(libdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
-libYODA_la_DEPENDENCIES = tinyxml/libtinyxml.la
-am_libYODA_la_OBJECTS = libYODA_la-Reader.lo libYODA_la-ReaderYODA.lo \
-	libYODA_la-ReaderFLAT.lo libYODA_la-ReaderAIDA.lo \
-	libYODA_la-Writer.lo libYODA_la-WriterYODA.lo \
-	libYODA_la-WriterFLAT.lo libYODA_la-WriterAIDA.lo \
-	libYODA_la-Dbn0D.lo libYODA_la-Dbn1D.lo libYODA_la-Counter.lo \
+libYODA_la_DEPENDENCIES = $(builddir)/tinyxml/libyoda-tinyxml.la \
+	$(builddir)/yamlcpp/libyoda-yaml-cpp.la
+am_libYODA_la_OBJECTS = libYODA_la-Exceptions.lo libYODA_la-Reader.lo \
+	libYODA_la-ReaderYODA.lo libYODA_la-ReaderFLAT.lo \
+	libYODA_la-ReaderAIDA.lo libYODA_la-Writer.lo \
+	libYODA_la-WriterYODA.lo libYODA_la-WriterFLAT.lo \
+	libYODA_la-WriterAIDA.lo libYODA_la-Dbn0D.lo \
+	libYODA_la-Dbn1D.lo libYODA_la-Counter.lo \
 	libYODA_la-Histo1D.lo libYODA_la-Histo2D.lo \
 	libYODA_la-Profile1D.lo libYODA_la-Profile2D.lo \
 	libYODA_la-Scatter1D.lo libYODA_la-Scatter2D.lo \
@@ -307,6 +310,7 @@ LIB_SUFFIX = @LIB_SUFFIX@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
+LT_SYS_LIBRARY_PATH = @LT_SYS_LIBRARY_PATH@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
 MKDIR_P = @MKDIR_P@
@@ -326,9 +330,14 @@ PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PYEXT_CXXFLAGS = @PYEXT_CXXFLAGS@
 PYTHON = @PYTHON@
+PYTHON_CPPFLAGS = @PYTHON_CPPFLAGS@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
+PYTHON_EXTRA_LDFLAGS = @PYTHON_EXTRA_LDFLAGS@
+PYTHON_EXTRA_LIBS = @PYTHON_EXTRA_LIBS@
+PYTHON_LIBS = @PYTHON_LIBS@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
 PYTHON_PREFIX = @PYTHON_PREFIX@
+PYTHON_SITE_PKG = @PYTHON_SITE_PKG@
 PYTHON_VERSION = @PYTHON_VERSION@
 RANLIB = @RANLIB@
 ROOTCONFIG = @ROOTCONFIG@
@@ -342,6 +351,7 @@ STRIP = @STRIP@
 SWVERS = @SWVERS@
 VERSION = @VERSION@
 YODA_PYTHONPATH = @YODA_PYTHONPATH@
+YODA_SETUP_PY_PATH = @YODA_SETUP_PY_PATH@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -400,9 +410,10 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = tinyxml .
+SUBDIRS = tinyxml yamlcpp .
 lib_LTLIBRARIES = libYODA.la
 libYODA_la_SOURCES = \
+    Exceptions.cc \
     Reader.cc \
     ReaderYODA.cc \
     ReaderFLAT.cc \
@@ -423,8 +434,9 @@ libYODA_la_SOURCES = \
     Scatter3D.cc
 
 libYODA_la_LDFLAGS = -avoid-version
-libYODA_la_LIBADD = tinyxml/libtinyxml.la
-libYODA_la_CPPFLAGS = $(AM_CPPFLAGS) -DTIXML_USE_STL
+libYODA_la_LIBADD = $(builddir)/tinyxml/libyoda-tinyxml.la $(builddir)/yamlcpp/libyoda-yaml-cpp.la
+libYODA_la_CPPFLAGS = $(AM_CPPFLAGS) -DTIXML_USE_STL -I$(srcdir)/yamlcpp -I$(srcdir) -DYAMLCPP_API=3 -DYAML_NAMESPACE=YODA_YAML
+EXTRA_DIST = zstr
 all: all-recursive
 
 .SUFFIXES:
@@ -506,6 +518,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libYODA_la-Counter.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libYODA_la-Dbn0D.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libYODA_la-Dbn1D.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libYODA_la-Exceptions.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libYODA_la-Histo1D.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libYODA_la-Histo2D.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libYODA_la-Profile1D.Plo@am__quote@
@@ -545,6 +558,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
+
+libYODA_la-Exceptions.lo: Exceptions.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libYODA_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libYODA_la-Exceptions.lo -MD -MP -MF $(DEPDIR)/libYODA_la-Exceptions.Tpo -c -o libYODA_la-Exceptions.lo `test -f 'Exceptions.cc' || echo '$(srcdir)/'`Exceptions.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libYODA_la-Exceptions.Tpo $(DEPDIR)/libYODA_la-Exceptions.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Exceptions.cc' object='libYODA_la-Exceptions.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libYODA_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libYODA_la-Exceptions.lo `test -f 'Exceptions.cc' || echo '$(srcdir)/'`Exceptions.cc
 
 libYODA_la-Reader.lo: Reader.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libYODA_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libYODA_la-Reader.lo -MD -MP -MF $(DEPDIR)/libYODA_la-Reader.Tpo -c -o libYODA_la-Reader.lo `test -f 'Reader.cc' || echo '$(srcdir)/'`Reader.cc

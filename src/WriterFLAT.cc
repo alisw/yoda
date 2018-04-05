@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #include "YODA/WriterFLAT.h"
 
@@ -21,16 +21,12 @@ using namespace std;
 
 namespace YODA {
 
-
-  void WriterFLAT::writeHeader(std::ostream& os) {
-    os << flush;
+  /// Singleton creation function
+  Writer& WriterFLAT::create() {
+    static WriterFLAT _instance;
+    _instance.setPrecision(6);
+    return _instance;
   }
-
-
-  void WriterFLAT::writeFooter(std::ostream& os) {
-    os << flush;
-  }
-
 
   void WriterFLAT::_writeAnnotations(std::ostream& os, const AnalysisObject& ao) {
     os << scientific << setprecision(_precision);

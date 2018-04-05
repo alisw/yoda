@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Histo1D_h
 #define YODA_Histo1D_h
@@ -22,7 +22,6 @@ namespace YODA {
   /// Convenience typedef
   typedef Axis1D<HistoBin1D, Dbn1D> Histo1DAxis;
 
-
   /// A  one-dimensional histogram.
   class Histo1D : public AnalysisObject {
   public:
@@ -32,6 +31,9 @@ namespace YODA {
     typedef Axis::Bins Bins;
     typedef HistoBin1D Bin;
 
+    typedef double FillType;
+    typedef FillType BinType;
+    typedef std::shared_ptr<Histo1D> Ptr;
 
     /// @name Constructors
     //@{
@@ -130,11 +132,11 @@ namespace YODA {
       _axis.reset();
     }
 
-    /// Fill histo by value and weight
-    void fill(double x, double weight=1.0);
+    /// Fill histo by value and weight, optionally as a fractional fill
+    virtual void fill(double x, double weight=1.0, double fraction=1.0);
 
-    /// Fill histo bin i with the given weight
-    void fillBin(size_t i, double weight=1.0);
+    /// Fill histo bin i with the given weight, optionally as a fractional fill
+    virtual void fillBin(size_t i, double weight=1.0, double fraction=1.0);
 
 
     /// Rescale as if all fill weights had been different by factor @a scalefactor.
@@ -315,7 +317,7 @@ namespace YODA {
     }
 
     /// Get the number of fills
-    unsigned long numEntries(bool includeoverflows=true) const;
+    double numEntries(bool includeoverflows=true) const;
 
     /// Get the effective number of fills
     double effNumEntries(bool includeoverflows=true) const;
@@ -411,6 +413,10 @@ namespace YODA {
   };
 
 
+  /// Convenience typedef
+  typedef Histo1D H1D;
+
+
   /// @name Combining histos: global operators
   //@{
 
@@ -463,7 +469,35 @@ namespace YODA {
   }
 
 
+  /// Add histogram and scatter
+  Scatter2D add(const Histo1D& histo, const Scatter2D& scatt);
+
+  inline Scatter2D add(const Scatter2D& scatt, const Histo1D& histo) {
+    return add(histo, scatt);
+  }
+
+  /// Subtract scatter from histogram
+  Scatter2D subtract(const Histo1D& histo, const Scatter2D& scatt);
+
+  /// Subtract histogram from scatter
+  Scatter2D subtract(const Scatter2D& scatt, const Histo1D& histo);
+
+  /// Multiply histogram with scatter
+  Scatter2D multiply(const Histo1D& histo, const Scatter2D& scatt);
+
+  /// Multiply scatter with histogram
+  inline Scatter2D multiply(const Scatter2D& scatt, const Histo1D& histo) {
+    return multiply(histo, scatt);
+  }
+
+  /// Divide histogram by scatter
+  Scatter2D divide(const Histo1D& numer, const Scatter2D& denom);
+
+  /// Divide scatter by histogram
+  Scatter2D divide(const Scatter2D& numer, const Histo1D& denom);
+
   /// @todo Add functions/operators on pointers
+
 
 
   /// @brief Calculate a histogrammed efficiency ratio of two histograms

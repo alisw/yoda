@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_READER_H
 #define YODA_READER_H
@@ -32,18 +32,17 @@ namespace YODA {
     ///
     /// This version fills (actually, appends to) a variable supplied container
     /// Note: SFINAE is used to check for a void push_back(const AnalysisObject*) method
+    ///
+    /// @todo Extend SFINAE Pushable cf. Writer to allow adding to containers of smart ptr type
     template<typename CONT>
     typename std::enable_if<YODA::Pushable<CONT,AnalysisObject*>::value>::type
     read(std::istream& stream, CONT& aos) {
-      //if CONT==std::vector<AnalysisObject*>, the compiler should select
-      //the virtual method below, since it prefers non-templated methods in the lookup
-      //otherwise we would enter a endless recursion. Check in case of problems.
+      // if CONT==std::vector<AnalysisObject*>, the compiler should select
+      // the virtual method below, since it prefers non-templated methods in the lookup
+      // otherwise we would enter a endless recursion. Check in case of problems.
       std::vector<AnalysisObject*> v_aos;
-      read(stream,v_aos);
-      std::vector<AnalysisObject*>::const_iterator it = v_aos.begin();
-      for(it = v_aos.begin(); it!=v_aos.end(); ++it){
-        aos.push_back(*it);
-      }
+      read(stream, v_aos);
+      for (const AnalysisObject* ao : v_aos) aos.push_back(ao);
     }
 
     /// @brief Read in a collection of objects @a objs from output stream @a stream.
@@ -63,12 +62,30 @@ namespace YODA {
       return rtn;
     }
 
+
+    /// @brief Read in a collection of objects @a objs from file @a filename.
+    ///
+    ///
+    /// This version fills (actually, appends to) a variable supplied container
+    /// Note: SFINAE is used to check for a void push_back(const AnalysisObject*) method
+    ///
+    /// @todo Extend SFINAE Pushable cf. Writer to allow adding to containers of smart ptr type
+    template<typename CONT>
+    typename std::enable_if<YODA::Pushable<CONT,AnalysisObject*>::value>::type
+    read(const std::string& filename, CONT& aos) {
+      // if CONT==std::vector<AnalysisObject*>, the compiler should select
+      // the virtual method below, since it prefers non-templated methods in the lookup
+      // otherwise we would enter a endless recursion. Check in case of problems.
+      std::vector<AnalysisObject*> v_aos;
+      read(filename, v_aos);
+      for (const AnalysisObject* ao : v_aos) aos.push_back(ao);
+    }
+
     /// @brief Read in a collection of objects @a objs from file @a filename.
     ///
     /// This version fills (actually, appends to) a supplied vector, avoiding copying,
     /// and is hence CPU efficient.
     ///
-    /// @todo Use SFINAE magic to allow ~arbitrary collection<AnalysisObject*> (with push_back()?) to be passed
     void read(const std::string& filename, std::vector<AnalysisObject*>& aos) {
       std::ifstream instream;
       instream.open(filename.c_str());

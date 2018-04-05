@@ -11,19 +11,19 @@ cdef class HistoBin1D(Bin1D_Dbn1D):
         cutil.set_owned_ptr(self, new c.HistoBin1D(a, b))
 
 
-    # def fill(self, value, double weight=1.0):
+    # def fill(self, value, double weight=1.0, fraction=1.0):
     #     """
     #     (value=None, weight=1.0)
 
     #     Fill this bin with the given value and given weight.
     #     """
-    #     self.hb1ptr().fill(value, weight)
+    #     self.hb1ptr().fill(value, weight, fraction)
 
-    # def fillBin(self, weight=1.0):
+    # def fillBin(self, weight=1.0, fraction=1.0):
     #     """
     #     (weight=1.0) -> None. Fill this bin with given weight.
     #     """
-    #     self.hb1ptr().fillBin(weight)
+    #     self.hb1ptr().fillBin(weight, fraction)
 
 
     @property

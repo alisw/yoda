@@ -1,3 +1,4 @@
+cimport util
 cdef class Dbn2D(util.Base):
     """
     A 2D distribution 'counter', used and exposed by 2D histograms and
@@ -39,14 +40,14 @@ cdef class Dbn2D(util.Base):
         self.d2ptr().reset()
 
 
-    def fill(self, x, y, weight=1.0):
+    def fill(self, x, y, weight=1.0, fraction=1.0):
         """
         (x, y, weight=1.0) -> None
 
         Fills the distribution with the given weight at given (x, y).
 
         """
-        self.d2ptr().fill(x, y, weight)
+        self.d2ptr().fill(x, y, weight, fraction)
 
 
     def scaleW(self, w):
@@ -113,7 +114,7 @@ cdef class Dbn2D(util.Base):
     @property
     def numEntries(self):
         """The number of entries"""
-        return int(self.d2ptr().numEntries())
+        return self.d2ptr().numEntries()
 
     @property
     def effNumEntries(self):

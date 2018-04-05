@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_SCATTER3D_H
 #define YODA_SCATTER3D_H
@@ -10,6 +10,7 @@
 #include "YODA/Point3D.h"
 #include "YODA/Utils/sortedvector.h"
 #include <utility>
+#include <memory>
 
 namespace YODA {
 
@@ -26,6 +27,7 @@ namespace YODA {
     /// Types of the native Point3D collection
     typedef Point3D Point;
     typedef Utils::sortedvector<Point3D> Points;
+    typedef std::shared_ptr<Scatter3D> Ptr;
 
 
     /// @name Constructors
@@ -287,6 +289,9 @@ namespace YODA {
 
   };
 
+
+  /// Convenience typedef
+  typedef Scatter3D S3D;
 
 
   /// @name Combining scatters by merging sets of points

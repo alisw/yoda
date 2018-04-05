@@ -1,3 +1,4 @@
+cimport util
 cdef class Point3D(Point):
     """
     A 3D point with errors, used by the Scatter3D class.

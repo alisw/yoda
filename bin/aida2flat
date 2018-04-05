@@ -18,7 +18,7 @@ parser.add_option("-m", "--match", dest="MATCH", metavar="PATT", default=None,
 parser.add_option("-M", "--unmatch", dest="UNMATCH", metavar="PATT", default=None,
                   help="exclude histograms whose path matches this regex")
 
-sys.stderr.write("WARNING: aida2flat is DEPRECATED.\n  It will die when AIDA does... *soon*\n"
+sys.stderr.write("WARNING: aida2flat is DEPRECATED.\n  It will die when AIDA does... *soon*\n")
 
 opts, args = parser.parse_args()
 in_out = parse_x2y_args(args, ".aida", ".dat")

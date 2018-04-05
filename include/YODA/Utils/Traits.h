@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_TRAITS_H
 #define YODA_TRAITS_H
@@ -12,7 +12,7 @@ namespace YODA {
 
 
   namespace SFINAE {
-    /// @todo Replaceable by C++11 std::false/true_type?
+    /// @todo Replace by C++11 std::false/true_type
     typedef char yes[1]; typedef char no[2];
 
     /// C++11 equivalent of C++17 std::void_t

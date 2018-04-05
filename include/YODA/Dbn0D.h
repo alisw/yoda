@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Dbn0D_h
 #define YODA_Dbn0D_h
@@ -40,8 +40,8 @@ namespace YODA {
     /// @brief Constructor to set a distribution with a pre-filled state.
     ///
     /// Principally designed for internal persistency use.
-    Dbn0D(unsigned long numEntries, double sumW, double sumW2)
-      : _numFills(numEntries),
+    Dbn0D(double numEntries, double sumW, double sumW2)
+      : _numEntries(numEntries),
         _sumW(sumW),
         _sumW2(sumW2)
     { }
@@ -51,7 +51,7 @@ namespace YODA {
     ///
     /// Sets all the parameters using the ones provided from an existing Dbn0D.
     Dbn0D(const Dbn0D& toCopy) {
-      _numFills = toCopy._numFills;
+      _numEntries = toCopy._numEntries;
       _sumW = toCopy._sumW;
       _sumW2 = toCopy._sumW2;
     }
@@ -61,7 +61,7 @@ namespace YODA {
     ///
     /// Sets all the parameters using the ones provided from an existing Dbn0D.
     Dbn0D& operator=(const Dbn0D& toCopy) {
-      _numFills = toCopy._numFills;
+      _numEntries = toCopy._numEntries;
       _sumW = toCopy._sumW;
       _sumW2 = toCopy._sumW2;
       return *this;
@@ -76,16 +76,16 @@ namespace YODA {
     /// @brief Contribute a weight @a weight.
     ///
     /// @todo Be careful about negative weights.
-    void fill(double weight=1.0) {
-      _numFills += 1;
-      _sumW += weight;
-      _sumW2 += weight*weight;
+    void fill(double weight=1.0, double fraction=1.0) {
+      _numEntries += fraction;
+      _sumW += fraction*weight;
+      _sumW2 += fraction*weight*weight;
     }
 
 
     /// Reset the internal counters.
     void reset() {
-      _numFills = 0;
+      _numEntries = 0;
       _sumW = 0;
       _sumW2 = 0;
     }
@@ -104,8 +104,8 @@ namespace YODA {
     //@{
 
     /// Number of entries (number of times @c fill was called, ignoring weights)
-    unsigned long numEntries() const {
-      return _numFills;
+    double numEntries() const {
+      return _numEntries;
     }
 
     /// Effective number of entries \f$ = (\sum w)^2 / \sum w^2 \f$
@@ -170,7 +170,7 @@ namespace YODA {
     //@{
 
     /// Number of times fill() has been called on this object
-    unsigned long _numFills;
+    double _numEntries;
 
     /// Sum of weights
     double _sumW;

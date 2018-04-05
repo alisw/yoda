@@ -21,6 +21,7 @@ pkginclude_HEADERS = \
     YODA.h IO.h ROOTCnv.h
 
 nobase_pkginclude_HEADERS = \
+	ReaderMethods.icc \
 	WriterMethods.icc \
 	Utils/StringUtils.h \
 	Utils/MathUtils.h \

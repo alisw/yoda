@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #include "YODA/ReaderAIDA.h"
 #include "YODA/Utils/StringUtils.h"
@@ -22,6 +22,11 @@ using namespace std;
 
 namespace YODA {
 
+  /// Singleton creation function
+  Reader& ReaderAIDA::create() {
+    static ReaderAIDA _instance;
+    return _instance;
+  }
 
   void ReaderAIDA::_readDoc(std::istream& stream, vector<AnalysisObject*>& aos) {
     TiXmlDocument doc;

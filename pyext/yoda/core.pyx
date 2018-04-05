@@ -13,7 +13,7 @@ cimport yoda.util as cutil
 import yoda.util as util
 
 ## Pure Python imports
-from itertools import repeat, imap
+from itertools import repeat
 from operator import attrgetter
 
 def version():

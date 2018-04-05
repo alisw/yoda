@@ -1,3 +1,4 @@
+cimport util
 cdef class Point2D(Point):
     """
     A 2D point with errors, used by the Scatter2D class.

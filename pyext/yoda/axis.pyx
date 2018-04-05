@@ -9,7 +9,7 @@ from libcpp.pair cimport pair
 from libcpp.map cimport map
 
 # Pure python imports
-from itertools import repeat, imap
+from itertools import repeat
 from operator import attrgetter
 
 from yoda.core import (Dbn1D, Dbn2D, Dbn3D,

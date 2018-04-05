@@ -1,3 +1,4 @@
+cimport util
 cdef class Profile2D(AnalysisObject):
     """
     2D profile histogram, used to measure mean values of a z variable, binned in x and y.
@@ -34,15 +35,21 @@ cdef class Profile2D(AnalysisObject):
     def __init__(self, *args, **kwargs):
         util.try_loop([self.__init2, self.__init4, self.__init8], *args, **kwargs)
 
-    def __init2(Profile2D self, char *path="", char *title=""):
-        cutil.set_owned_ptr(self, new c.Profile2D(string(path), string(title)))
+    def __init2(Profile2D self, path="", title=""):
+        path  = path.encode('utf-8')
+        title = title.encode('utf-8')
+        cutil.set_owned_ptr(self, new c.Profile2D(<string>path, <string>title))
 
-    def __init4(Profile2D self, xedges,  yedges,  char* path="", char* title=""):
+    def __init4(Profile2D self, xedges,  yedges,  path="", title=""):
+        path  = path.encode('utf-8')
+        title = title.encode('utf-8')
         # TODO: Do some type-checking and allow iterables of ProfileBin2D as well?
-        cutil.set_owned_ptr(self, new c.Profile2D(xedges, yedges, string(path), string(title)))
+        cutil.set_owned_ptr(self, new c.Profile2D(xedges, yedges, <string>path, <string>title))
 
-    def __init8(Profile2D self, nxbins, xlow, xhigh,  nybins, ylow, yhigh,  char *path="", char *title=""):
-        cutil.set_owned_ptr(self, new c.Profile2D(nxbins, xlow, xhigh,  nybins, ylow, yhigh,  string(path), string(title)))
+    def __init8(Profile2D self, nxbins, xlow, xhigh,  nybins, ylow, yhigh,  path="", title=""):
+        path  = path.encode('utf-8')
+        title = title.encode('utf-8')
+        cutil.set_owned_ptr(self, new c.Profile2D(nxbins, xlow, xhigh,  nybins, ylow, yhigh,  <string>path, <string>title))
 
 
     def __len__(self):
@@ -69,15 +76,15 @@ cdef class Profile2D(AnalysisObject):
         return cutil.new_owned_cls(Profile2D, self.p2ptr().newclone())
 
 
-    def fill(self, double x, double y, double z, double weight=1.0):
+    def fill(self, double x, double y, double z, double weight=1.0, double fraction=1.0):
         """(x,y,z,[w]) -> None.
-        Fill with given x,y & z values and optional weight."""
-        self.p2ptr().fill(x, y, z, weight)
+        Fill with given x,y & z values and optional weight and fill fraction."""
+        self.p2ptr().fill(x, y, z, weight, fraction)
 
-    def fillBin(self, size_t i, double z, weight=1.0):
+    def fillBin(self, size_t i, double z, double weight=1.0, double fraction=1.0):
         """(i,z,[w]) -> None.
-        Fill bin i with value z and optional weight."""
-        self.p2ptr().fillBin(i, z, weight)
+        Fill bin i with value z and optional weight and fill fraction."""
+        self.p2ptr().fillBin(i, z, weight, fraction)
 
 
     @property
@@ -96,7 +103,7 @@ cdef class Profile2D(AnalysisObject):
 
 
     def numEntries(self, includeoverflows=True):
-        """([bool]) -> int
+        """([bool]) -> float
         Number of times this histogram was filled, optionally excluding the overflows."""
         return self.p2ptr().numEntries(includeoverflows)
 
@@ -333,3 +340,9 @@ cdef class Profile2D(AnalysisObject):
 
     def __div__(Profile2D self, Profile2D other):
         return self.divideBy(other)
+
+    def __truediv__(Profile2D self, Profile2D other):
+        return self.divideBy(other)
+
+## Convenience alias
+P2D = Profile2D

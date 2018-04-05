@@ -6,6 +6,8 @@
 Compare analysis objects between two YODA-readable data files.
 """
 
+from __future__ import print_function
+
 import yoda, sys, optparse
 
 parser = optparse.OptionParser(usage=__doc__)
@@ -16,18 +18,22 @@ parser.add_option("-t", "--tol", type=float, default=1e-5, dest="TOL",
 opts, filenames = parser.parse_args()
 
 if len(filenames) != 2:
-    print "ERROR! Please supply *two* YODA files for comparison"
-    sys.exit(1)
+    print("ERROR! Please supply *two* YODA files for comparison")
+    sys.exit(7)
 
 ## Get data objects
 aodict1 = yoda.read(filenames[0])
 aodict2 = yoda.read(filenames[1])
 
+CLEAN = True
+
 ## Check number of data objects in each file
 if len(aodict1) != len(aodict2):
-    print "Different numbers of data objects in %s and %s" % tuple(filenames[:2])
-elif aodict1.keys() != aodict2.keys():
-    print "Different data object paths in %s and %s" % tuple(filenames[:2])
+    CLEAN = False
+    print("Different numbers of data objects in %s and %s" % tuple(filenames[:2]))
+elif list(aodict1.keys()) != list(aodict2.keys()):
+    CLEAN = False
+    print("Different data object paths in %s and %s" % tuple(filenames[:2]))
 
 ## A slightly tolerant numerical comparison function
 def eq(a, b):
@@ -59,41 +65,46 @@ def ptstr(pt):
     return "(" + ", ".join(vstrs) + ")"
 
 ## Compare each object pair
-for path in sorted(set(aodict1.keys() + aodict2.keys())):
+for path in sorted(set(list(aodict1.keys()) + list(aodict2.keys()))):
     ## Get the object in file #1
     ao1 = aodict1.get(path, None)
     if ao1 is None:
-        print "Data object '%s' not found in %s" % (path, filenames[0])
+        CLEAN = False
+        print("Data object '%s' not found in %s" % (path, filenames[0]))
         continue
     ## Get the object in file #2
     ao2 = aodict2.get(path, None)
     if ao2 is None:
-        print "Data object '%s' not found in %s" % (path, filenames[1])
+        CLEAN = False
+        print("Data object '%s' not found in %s" % (path, filenames[1]))
         continue
 
     ## Compare the file #1 vs. #2 object types
     if type(ao1) is not type(ao2):
-        print "Data objects with path '%s' have different types (%s and %s) in %s and %s" % \
-              (path, str(type(ao1)), str(type(ao2)), filenames[0], filenames[1])
+        CLEAN = False
+        print("Data objects with path '%s' have different types (%s and %s) in %s and %s" % \
+              (path, str(type(ao1)), str(type(ao2)), filenames[0], filenames[1]))
         continue
 
     ## Convert to scatter representations
     try:
         s1 = ao1.mkScatter()
         s2 = ao2.mkScatter()
-    except Exception, e:
-        print "WARNING! Could not create a '%s' scatter for comparison (%s)" % (path, type(e).__name__)
+    except Exception as e:
+        print("WARNING! Could not create a '%s' scatter for comparison (%s)" % (path, type(e).__name__))
 
     ## Check for compatible dimensionalities (should already be ok, but just making sure)
     if s1.dim != s2.dim:
-        print "Data objects with path '%s' have different scatter dimensions (%d and %d) in %s and %s" % \
-              (path, s1.dim, s2.dim, filenames[0], filenames[1])
+        CLEAN = False
+        print("Data objects with path '%s' have different scatter dimensions (%d and %d) in %s and %s" % \
+              (path, s1.dim, s2.dim, filenames[0], filenames[1]))
         continue
 
     ## Compare the numbers of points/bins
     if s1.numPoints != s2.numPoints:
-        print "Data objects with path '%s' have different numbers of points (%d and %d) in %s and %s" % \
-              (path, s1.numPoints, s2.numPoints, filenames[0], filenames[1])
+        CLEAN = False
+        print("Data objects with path '%s' have different numbers of points (%d and %d) in %s and %s" % \
+              (path, s1.numPoints, s2.numPoints, filenames[0], filenames[1]))
         continue
 
     ## Compare the numeric values of each point
@@ -111,4 +122,10 @@ for path in sorted(set(aodict1.keys() + aodict2.keys())):
         if not ok:
             msgs.append("  Point #%d: %s vs. %s" % (i, ptstr(p1), ptstr(p2)))
     if msgs:
-        print premsg + "\n".join(msgs)
+        CLEAN = False
+        print(premsg + "\n".join(msgs))
+
+if not CLEAN:
+    sys.exit(1)
+
+sys.exit(0)

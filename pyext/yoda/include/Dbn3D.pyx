@@ -1,3 +1,4 @@
+cimport util
 cdef class Dbn3D(util.Base):
     """
     A 3D distribution 'counter', used and exposed by 2D profiles and their bins.
@@ -31,14 +32,14 @@ cdef class Dbn3D(util.Base):
         return cutil.new_owned_cls(Dbn3D, new c.Dbn3D(deref(self.d3ptr())))
 
 
-    def fill(self, x, y, z, weight=1.0):
+    def fill(self, x, y, z, weight=1.0, fraction=1.0):
         """
         (x, y, z, weight=1.0) -> None
 
         Fills the distribution with the given weight at given (x, y).
 
         """
-        self.d3ptr().fill(x, y, z, weight)
+        self.d3ptr().fill(x, y, z, weight, fraction)
 
     def reset(self):
         """
@@ -130,7 +131,7 @@ cdef class Dbn3D(util.Base):
     @property
     def numEntries(self):
         """The number of entries"""
-        return int(self.d3ptr().numEntries())
+        return self.d3ptr().numEntries()
 
     @property
     def effNumEntries(self):

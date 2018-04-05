@@ -89,12 +89,13 @@ build_triplet = @build@
 host_triplet = @host@
 subdir = pyext/yoda
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/m4/ax_cxx_compile_stdcxx_11.m4 \
-	$(top_srcdir)/m4/cxx.m4 $(top_srcdir)/m4/cython.m4 \
-	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
-	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/m4/osx.m4 \
-	$(top_srcdir)/m4/pkgchecks.m4 $(top_srcdir)/m4/python.m4 \
+am__aclocal_m4_deps = $(top_srcdir)/m4/ax_check_zlib.m4 \
+	$(top_srcdir)/m4/ax_cxx_compile_stdcxx_11.m4 \
+	$(top_srcdir)/m4/ax_python_devel.m4 $(top_srcdir)/m4/cxx.m4 \
+	$(top_srcdir)/m4/cython.m4 $(top_srcdir)/m4/libtool.m4 \
+	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
+	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/m4/osx.m4 $(top_srcdir)/m4/pkgchecks.m4 \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
@@ -177,6 +178,7 @@ LIB_SUFFIX = @LIB_SUFFIX@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
+LT_SYS_LIBRARY_PATH = @LT_SYS_LIBRARY_PATH@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
 MKDIR_P = @MKDIR_P@
@@ -196,9 +198,14 @@ PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PYEXT_CXXFLAGS = @PYEXT_CXXFLAGS@
 PYTHON = @PYTHON@
+PYTHON_CPPFLAGS = @PYTHON_CPPFLAGS@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
+PYTHON_EXTRA_LDFLAGS = @PYTHON_EXTRA_LDFLAGS@
+PYTHON_EXTRA_LIBS = @PYTHON_EXTRA_LIBS@
+PYTHON_LIBS = @PYTHON_LIBS@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
 PYTHON_PREFIX = @PYTHON_PREFIX@
+PYTHON_SITE_PKG = @PYTHON_SITE_PKG@
 PYTHON_VERSION = @PYTHON_VERSION@
 RANLIB = @RANLIB@
 ROOTCONFIG = @ROOTCONFIG@
@@ -212,6 +219,7 @@ STRIP = @STRIP@
 SWVERS = @SWVERS@
 VERSION = @VERSION@
 YODA_PYTHONPATH = @YODA_PYTHONPATH@
+YODA_SETUP_PY_PATH = @YODA_SETUP_PY_PATH@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -298,6 +306,7 @@ CYTHON_SRC = \
     include/HistoBin1D.pyx \
     include/HistoBin2D.pyx \
     include/IO.pyx \
+    include/Point.pyx \
     include/Point1D.pyx \
     include/Point2D.pyx \
     include/Point3D.pyx \
@@ -319,9 +328,13 @@ BUILT_SRC = \
     include/generated/Bin2D_Dbn2D.pyx \
     include/generated/Bin2D_Dbn3D.pyx
 
+MAINTAINERCLEANFILES = \
+  core.h core.cpp util.cpp rootcompat.cpp .made_pyx_templates
+
 EXTRA_DIST = $(STATIC_SRC) $(BUILT_SRC)
-FIXSOURCES = $(STATIC_SRC)
-all: all-am
+BUILT_SOURCES = util.cpp core.cpp core.h rootcompat.cpp
+all: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
@@ -397,10 +410,12 @@ distdir: $(DISTFILES)
 	  fi; \
 	done
 check-am: all-am
-check: check-am
-all-am: Makefile all-local
+check: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) check-am
+all-am: Makefile
 installdirs:
-install: install-am
+install: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) install-am
 install-exec: install-exec-am
 install-data: install-data-am
 uninstall: uninstall-am
@@ -430,13 +445,15 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
+	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
+	-test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
 clean: clean-am
 
-clean-am: clean-generic clean-libtool clean-local mostlyclean-am
+clean-am: clean-generic clean-libtool mostlyclean-am
 
 distclean: distclean-am
 	-rm -f Makefile
-distclean-am: clean-am distclean-generic distclean-local
+distclean-am: clean-am distclean-generic
 
 dvi: dvi-am
 
@@ -496,32 +513,40 @@ ps-am:
 
 uninstall-am:
 
-.MAKE: install-am install-strip
+.MAKE: all check install install-am install-strip
 
-.PHONY: all all-am all-local check check-am clean clean-generic \
-	clean-libtool clean-local cscopelist-am ctags-am distclean \
-	distclean-generic distclean-libtool distclean-local distdir \
-	dvi dvi-am html html-am info info-am install install-am \
-	install-data install-data-am install-dvi install-dvi-am \
-	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags-am uninstall \
-	uninstall-am
+.PHONY: all all-am check check-am clean clean-generic clean-libtool \
+	cscopelist-am ctags-am distclean distclean-generic \
+	distclean-libtool distdir dvi dvi-am html html-am info info-am \
+	install install-am install-data install-data-am install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
+	install-html-am install-info install-info-am install-man \
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags-am uninstall uninstall-am
 
 .PRECIOUS: Makefile
 
 
 @WITH_CYTHON_TRUE@core.cpp core.h: $(CYTHON_SRC) .made_pyx_templates
-@WITH_CYTHON_TRUE@	cython $(srcdir)/core.pyx --cplus -I $(srcdir) -I $(srcdir)/include -I $(builddir) -I $(builddir)/include -o $@
+@WITH_CYTHON_TRUE@	cython $(srcdir)/core.pyx --cplus \
+@WITH_CYTHON_TRUE@       -I $(srcdir) -I $(srcdir)/include \
+@WITH_CYTHON_TRUE@       -I $(builddir) -I $(builddir)/include \
+@WITH_CYTHON_TRUE@       -o $@
 
 @WITH_CYTHON_TRUE@util.cpp: util.pxd util.pyx .made_pyx_templates
-@WITH_CYTHON_TRUE@	cython $(srcdir)/util.pyx --cplus -I $(srcdir) -I $(srcdir)/include -I $(builddir) -I $(builddir)/include -o $@
+@WITH_CYTHON_TRUE@	cython $(srcdir)/util.pyx --cplus \
+@WITH_CYTHON_TRUE@       -I $(srcdir) -I $(srcdir)/include \
+@WITH_CYTHON_TRUE@       -I $(builddir) -I $(builddir)/include \
+@WITH_CYTHON_TRUE@       -o $@
 
 @WITH_CYTHON_TRUE@rootcompat.cpp: util.pxd rootcompat.pxd rootcompat.pyx .made_pyx_templates
-@WITH_CYTHON_TRUE@	cython $(srcdir)/rootcompat.pyx --cplus -I $(srcdir) -I $(srcdir)/include -I $(builddir) -I $(builddir)/include -o $@
+@WITH_CYTHON_TRUE@	cython $(srcdir)/rootcompat.pyx --cplus \
+@WITH_CYTHON_TRUE@       -I $(srcdir) -I $(srcdir)/include \
+@WITH_CYTHON_TRUE@       -I $(builddir) -I $(builddir)/include \
+@WITH_CYTHON_TRUE@       -o $@
 
 @WITH_CYTHON_FALSE@core.cpp core.h: $(CYTHON_SRC)
 @WITH_CYTHON_FALSE@	@echo "Not (re)generating core.cpp since Cython is not installed"
@@ -535,27 +560,6 @@ uninstall-am:
 .made_pyx_templates: include/Bin1D_DBN.pyx include/Bin2D_DBN.pyx include/Axis1D_BIN1D_DBN.pyx include/Axis2D_BIN2D_DBN.pyx
 	$(srcdir)/mktemplates $^
 	touch $@
-
-all-local: fix-out-of-source
-
-fix-out-of-source: $(FIXSOURCES)
-	rm -f $@
-	mkdir -p include
-	for i in $^; do \
-	  orig="$$i"; \
-	  build="$$(basename $$i)"; \
-	  if [[ "$${orig}" == *include* ]]; then build="include/$${build}"; fi; \
-	  if [ ! -e $${build} ]; then cp $${orig} $${build}; \
-	  echo $${build} >> $@; fi; \
-	done
-	touch $@
-
-clean-local: fix-out-of-source
-	if [ -e $< ]; then if [ -n "$$(cat $<)" ]; then rm -f $$(cat $<); fi; fi
-	rm -f $<
-
-distclean-local:
-	rm -f core.cpp core.h util.cpp rootcompat.cpp include/generated/* include/*.pxi .made_pyx_templates
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

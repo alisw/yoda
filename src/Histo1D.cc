@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #include "YODA/Histo1D.h"
 #include "YODA/Profile1D.h"
@@ -13,23 +13,23 @@ using namespace std;
 namespace YODA {
 
 
-  void Histo1D::fill(double x, double weight) {
+  void Histo1D::fill(double x, double weight, double fraction) {
     if ( std::isnan(x) ) throw RangeError("X is NaN");
 
     // Fill the overall distribution
-    _axis.totalDbn().fill(x, weight);
+    _axis.totalDbn().fill(x, weight, fraction);
 
     // Fill the bins and overflows
     /// Unify this with Profile1D's version, when binning and inheritance are reworked
     if (inRange(x, _axis.xMin(), _axis.xMax())) {
       try {
         /// @todo Replace try block with a check that there is a bin at x
-        binAt(x).fill(x, weight);
+        binAt(x).fill(x, weight, fraction);
       } catch (const RangeError& re) {    }
     } else if (x < _axis.xMin()) {
-      _axis.underflow().fill(x, weight);
+      _axis.underflow().fill(x, weight, fraction);
     } else if (x >= _axis.xMax()) {
-      _axis.overflow().fill(x, weight);
+      _axis.overflow().fill(x, weight, fraction);
     }
 
     // Lock the axis now that a fill has happened
@@ -37,15 +37,15 @@ namespace YODA {
   }
 
 
-  void Histo1D::fillBin(size_t i, double weight) {
-    fill(bin(i).xMid(), weight);
+  void Histo1D::fillBin(size_t i, double weight, double fraction) {
+    fill(bin(i).xMid(), weight, fraction);
   }
 
 
 
   /////////////// COMMON TO ALL BINNED
 
-  unsigned long Histo1D::numEntries(bool includeoverflows) const {
+  double Histo1D::numEntries(bool includeoverflows) const {
     if (includeoverflows) return totalDbn().numEntries();
     unsigned long n = 0;
     for (const Bin& b : bins()) n += b.numEntries();
@@ -192,6 +192,311 @@ namespace YODA {
     assert(rtn.numPoints() == numer.numBins());
     return rtn;
   }
+
+
+  ////////////////////////////////////////
+
+
+  Scatter2D add(const Histo1D& histo, const Scatter2D& scatt) {
+    if (histo.numBins() != scatt.numPoints()) throw BinningError("Histogram binning incompatible with number of scatter points");
+
+    Scatter2D rtn = scatt.clone();
+    if (histo.path() != scatt.path())  rtn.setPath("");
+    if (rtn.hasAnnotation("ScaledBy")) rtn.rmAnnotation("ScaledBy");
+
+    for (size_t i = 0; i < rtn.numPoints(); ++i) {
+      const HistoBin1D& b = histo.bin(i);
+      const Point2D& s = scatt.point(i);
+
+      /// @todo Create a compatibleBinning function? Or just compare vectors of edges().
+      if (!fuzzyEquals(b.xMin(), s.x() - s.xErrMinus()) || !fuzzyEquals(b.xMax(), s.x() + s.xErrPlus()))
+        throw BinningError("x binnings are not equivalent in " + histo.path() + " + " + scatt.path());
+
+
+      // convert bin to scatter point
+      double biny;
+      try {
+        biny = b.height();
+      } catch (const Exception&) { // LowStatsError or WeightError
+        biny = 0;
+      }
+      double biney;
+      try {
+        biney = b.heightErr();
+      } catch (const Exception&) { // LowStatsError or WeightError
+        biney = 0;
+      }
+      // combine with scatter values
+      double newy = biny + s.y();
+      double newey_p = sqrt(sqr(biney) + sqr(s.yErrPlus()));
+      double newey_m = sqrt(sqr(biney) + sqr(s.yErrMinus()));
+      // set new values
+      Point2D& t = rtn.point(i);
+      t.setY(newy);
+      t.setYErrMinus(newey_p);
+      t.setYErrPlus(newey_m);
+    }
+
+    assert(rtn.numPoints() == histo.numBins());
+    return rtn;
+  }
+
+
+  ////////////////////////////////////////
+
+
+  Scatter2D subtract(const Histo1D& histo, const Scatter2D& scatt) {
+    if (histo.numBins() != scatt.numPoints()) throw BinningError("Histogram binning incompatible with number of scatter points");
+
+    Scatter2D rtn = scatt.clone();
+    if (histo.path() != scatt.path())  rtn.setPath("");
+    if (rtn.hasAnnotation("ScaledBy")) rtn.rmAnnotation("ScaledBy");
+
+    for (size_t i = 0; i < rtn.numPoints(); ++i) {
+      const HistoBin1D& b = histo.bin(i);
+      const Point2D& s = scatt.point(i);
+
+      /// @todo Create a compatibleBinning function? Or just compare vectors of edges().
+      if (!fuzzyEquals(b.xMin(), s.x() - s.xErrMinus()) || !fuzzyEquals(b.xMax(), s.x() + s.xErrPlus()))
+        throw BinningError("x binnings are not equivalent in " + histo.path() + " - " + scatt.path());
+
+
+      // convert bin to scatter point
+      double biny;
+      try {
+        biny = b.height();
+      } catch (const Exception&) { // LowStatsError or WeightError
+        biny = 0;
+      }
+      double biney;
+      try {
+        biney = b.heightErr();
+      } catch (const Exception&) { // LowStatsError or WeightError
+        biney = 0;
+      }
+      // combine with scatter values
+      double newy = biny - s.y();
+      double newey_p = sqrt(sqr(biney) + sqr(s.yErrPlus()));
+      double newey_m = sqrt(sqr(biney) + sqr(s.yErrMinus()));
+      // set new values
+      Point2D& t = rtn.point(i);
+      t.setY(newy);
+      t.setYErrMinus(newey_p);
+      t.setYErrPlus(newey_m);
+    }
+
+    assert(rtn.numPoints() == histo.numBins());
+    return rtn;
+  }
+
+
+  ////////////////////////////////////////
+
+
+  Scatter2D subtract(const Scatter2D& scatt, const Histo1D& histo) {
+    if (histo.numBins() != scatt.numPoints()) throw BinningError("Histogram binning incompatible with number of scatter points");
+
+    Scatter2D rtn = scatt.clone();
+    if (histo.path() != scatt.path())  rtn.setPath("");
+    if (rtn.hasAnnotation("ScaledBy")) rtn.rmAnnotation("ScaledBy");
+
+    for (size_t i = 0; i < rtn.numPoints(); ++i) {
+      const HistoBin1D& b = histo.bin(i);
+      const Point2D& s = scatt.point(i);
+
+      /// @todo Create a compatibleBinning function? Or just compare vectors of edges().
+      if (!fuzzyEquals(b.xMin(), s.x() - s.xErrMinus()) || !fuzzyEquals(b.xMax(), s.x() + s.xErrPlus()))
+        throw BinningError("x binnings are not equivalent in " + scatt.path() + " - " + histo.path());
+
+
+      // convert bin to scatter point
+      double biny;
+      try {
+        biny = b.height();
+      } catch (const Exception&) { // LowStatsError or WeightError
+        biny = 0;
+      }
+      double biney;
+      try {
+        biney = b.heightErr();
+      } catch (const Exception&) { // LowStatsError or WeightError
+        biney = 0;
+      }
+      // combine with scatter values
+      double newy = s.y() - biny;
+      double newey_p = sqrt(sqr(biney) + sqr(s.yErrPlus()));
+      double newey_m = sqrt(sqr(biney) + sqr(s.yErrMinus()));
+      // set new values
+      Point2D& t = rtn.point(i);
+      t.setY(newy);
+      t.setYErrMinus(newey_p);
+      t.setYErrPlus(newey_m);
+    }
+
+    assert(rtn.numPoints() == histo.numBins());
+    return rtn;
+  }
+
+
+  ////////////////////////////////////////
+
+
+  Scatter2D multiply(const Histo1D& histo, const Scatter2D& scatt) {
+    if (histo.numBins() != scatt.numPoints()) throw BinningError("Histogram binning incompatible with number of scatter points");
+
+    Scatter2D rtn = scatt.clone();
+    if (histo.path() != scatt.path())  rtn.setPath("");
+    if (rtn.hasAnnotation("ScaledBy")) rtn.rmAnnotation("ScaledBy");
+
+    for (size_t i = 0; i < rtn.numPoints(); ++i) {
+      const HistoBin1D& b = histo.bin(i);
+      const Point2D& s = scatt.point(i);
+
+      /// @todo Create a compatibleBinning function? Or just compare vectors of edges().
+      if (!fuzzyEquals(b.xMin(), s.x() - s.xErrMinus()) || !fuzzyEquals(b.xMax(), s.x() + s.xErrPlus()))
+        throw BinningError("x binnings are not equivalent in " + histo.path() + " * " + scatt.path());
+
+
+      // convert bin to scatter point
+      double biny;
+      try {
+        biny = b.height();
+      } catch (const Exception&) { // LowStatsError or WeightError
+        biny = 0;
+      }
+      double biney;
+      try {
+        biney = b.relErr();
+      } catch (const Exception&) { // LowStatsError or WeightError
+        biney = 0;
+      }
+      // combine with scatter values
+      double newy = biny * s.y();
+      double newey_p = newy * sqrt(sqr(biney) + sqr(s.yErrPlus()  / s.y()));
+      double newey_m = newy * sqrt(sqr(biney) + sqr(s.yErrMinus() / s.y()));
+      // set new values
+      Point2D& t = rtn.point(i);
+      t.setY(newy);
+      t.setYErrMinus(newey_p);
+      t.setYErrPlus(newey_m);
+    }
+
+    assert(rtn.numPoints() == histo.numBins());
+    return rtn;
+  }
+
+
+  ////////////////////////////////////////
+
+
+  Scatter2D divide(const Histo1D& numer, const Scatter2D& denom) {
+    if (numer.numBins() != denom.numPoints()) throw BinningError("Histogram binning incompatible with number of scatter points");
+
+    Scatter2D rtn = denom.clone();
+    if (numer.path() != denom.path()) rtn.setPath("");
+    if (rtn.hasAnnotation("ScaledBy")) rtn.rmAnnotation("ScaledBy");
+
+    for (size_t i = 0; i < rtn.numPoints(); ++i) {
+      const HistoBin1D& b = numer.bin(i);
+      const Point2D& s = denom.point(i);
+
+      /// @todo Create a compatibleBinning function? Or just compare vectors of edges().
+      if (!fuzzyEquals(b.xMin(), s.x() - s.xErrMinus()) || !fuzzyEquals(b.xMax(), s.x() + s.xErrPlus()))
+        throw BinningError("x binnings are not equivalent in " + numer.path() + " / " + denom.path());
+
+
+      // convert bin to scatter point
+      double biny;
+      try {
+        biny = b.height();
+      } catch (const Exception&) { // LowStatsError or WeightError
+        biny = 0;
+      }
+      double biney;
+      try {
+        biney = b.relErr();
+      } catch (const Exception&) { // LowStatsError or WeightError
+        biney = 0;
+      }
+      // combine with scatter values
+      double newy, newey_p, newey_m;
+      if (s.y() == 0 || (b.height() == 0 && b.heightErr() != 0)) { ///< @todo Ok?
+        newy = std::numeric_limits<double>::quiet_NaN();
+        newey_m = newey_p = std::numeric_limits<double>::quiet_NaN();
+        // throw LowStatsError("Requested division of empty bin");
+      } else {
+        newy = biny / s.y();
+        newey_p = newy * sqrt(sqr(biney) + sqr(s.yErrPlus()  / s.y()));
+        newey_m = newy * sqrt(sqr(biney) + sqr(s.yErrMinus() / s.y()));
+      }
+      // set new values
+      Point2D& t = rtn.point(i);
+      t.setY(newy);
+      t.setYErrMinus(newey_p);
+      t.setYErrPlus(newey_m);
+    }
+
+    assert(rtn.numPoints() == numer.numBins());
+    return rtn;
+  }
+
+
+  ////////////////////////////////////////
+
+
+  Scatter2D divide(const Scatter2D& numer, const Histo1D& denom) {
+    if (numer.numPoints() != denom.numBins()) throw BinningError("Histogram binning incompatible with number of scatter points");
+
+    Scatter2D rtn = numer.clone();
+    if (numer.path() != denom.path()) rtn.setPath("");
+    if (rtn.hasAnnotation("ScaledBy")) rtn.rmAnnotation("ScaledBy");
+
+    for (size_t i = 0; i < rtn.numPoints(); ++i) {
+      const Point2D& s = numer.point(i);
+      const HistoBin1D& b = denom.bin(i);
+
+      /// @todo Create a compatibleBinning function? Or just compare vectors of edges().
+      if (!fuzzyEquals(b.xMin(), s.x() - s.xErrMinus()) || !fuzzyEquals(b.xMax(), s.x() + s.xErrPlus()))
+        throw BinningError("x binnings are not equivalent in " + numer.path() + " / " + denom.path());
+
+
+      // convert bin to scatter point
+      double biny;
+      try {
+        biny = b.height();
+      } catch (const Exception&) { // LowStatsError or WeightError
+        biny = 0;
+      }
+      double biney;
+      try {
+        biney = b.relErr();
+      } catch (const Exception&) { // LowStatsError or WeightError
+        biney = 0;
+      }
+      // combine with scatter values
+      double newy, newey_p, newey_m;
+      if (b.height() == 0 || (s.y() == 0 && s.yErrAvg() != 0)) { ///< @todo Ok?
+        newy = std::numeric_limits<double>::quiet_NaN();
+        newey_m = newey_p = std::numeric_limits<double>::quiet_NaN();
+        // throw LowStatsError("Requested division of empty bin");
+      } else {
+        newy = s.y() / biny;
+        newey_p = newy * sqrt(sqr(biney) + sqr(s.yErrPlus()  / s.y()));
+        newey_m = newy * sqrt(sqr(biney) + sqr(s.yErrMinus() / s.y()));
+      }
+      // set new values
+      Point2D& t = rtn.point(i);
+      t.setY(newy);
+      t.setYErrMinus(newey_p);
+      t.setYErrPlus(newey_m);
+    }
+
+    assert(rtn.numPoints() == denom.numBins());
+    return rtn;
+  }
+
+
+  /// @todo Add functions/operators on pointers
 
 
   // Calculate a histogrammed efficiency ratio of two histograms

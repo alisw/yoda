@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_SCATTER2D_H
 #define YODA_SCATTER2D_H
@@ -10,6 +10,7 @@
 #include "YODA/Point2D.h"
 #include "YODA/Utils/sortedvector.h"
 #include <utility>
+#include <memory>
 
 namespace YODA {
 
@@ -26,6 +27,7 @@ namespace YODA {
     /// Type of the native Point2D collection
     typedef Point2D Point;
     typedef Utils::sortedvector<Point2D> Points;
+    typedef std::shared_ptr<Scatter2D> Ptr;
 
 
     /// @name Constructors
@@ -276,6 +278,10 @@ namespace YODA {
     Points _points;
 
   };
+
+
+  /// Convenience typedef
+  typedef Scatter2D S2D;
 
 
   /// @name Combining scatters by merging sets of points

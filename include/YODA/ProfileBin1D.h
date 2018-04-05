@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_ProfileBin1D_h
 #define YODA_ProfileBin1D_h
@@ -67,15 +67,15 @@ namespace YODA {
     /// Fill histo by x and y values and weight.
     ///
     /// @note This should not be used, since it breaks histogram consistency. It will be removed in a future version.
-    void fill(double x, double y, double weight=1.0) {
-      _dbn.fill(x, y, weight);
+    void fill(double x, double y, double weight=1.0, double fraction=1.0) {
+      _dbn.fill(x, y, weight, fraction);
     }
 
     /// Fill histo with @a weight and y-value @c y at x = bin midpoint.
     ///
     /// @note This should not be used, since it breaks histogram consistency. It will be removed in a future version.
-    void fillBin(double y, double weight=1.0) {
-      fill(xMid(), y, weight);
+    void fillBin(double y, double weight=1.0, double fraction=1.0) {
+      fill(xMid(), y, weight, fraction);
     }
 
     //@}

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #include "YODA/Profile1D.h"
 #include "YODA/Histo1D.h"
@@ -13,24 +13,24 @@ using namespace std;
 namespace YODA {
 
 
-  void Profile1D::fill(double x, double y, double weight) {
+  void Profile1D::fill(double x, double y, double weight, double fraction) {
     if ( std::isnan(x) ) throw RangeError("X is NaN");
     if ( std::isnan(y) ) throw RangeError("Y is NaN");
 
     // Fill the overall distribution
-    _axis.totalDbn().fill(x, y, weight);
+    _axis.totalDbn().fill(x, y, weight, fraction);
 
     // Fill the bins and overflows
     /// Unify this with Histo1D's version, when binning and inheritance are reworked
     if (inRange(x, _axis.xMin(), _axis.xMax())) {
       try {
         /// @todo Replace try block with a check that there is a bin at x
-        binAt(x).fill(x, y, weight);
+        binAt(x).fill(x, y, weight, fraction);
       } catch (const RangeError& re) {    }
     } else if (x < _axis.xMin()) {
-      _axis.underflow().fill(x, y, weight);
+      _axis.underflow().fill(x, y, weight, fraction);
     } else if (x >= _axis.xMax()) {
-      _axis.overflow().fill(x, y, weight);
+      _axis.overflow().fill(x, y, weight, fraction);
     }
 
     // Lock the axis now that a fill has happened
@@ -38,15 +38,15 @@ namespace YODA {
   }
 
 
-  void Profile1D::fillBin(size_t i, double y, double weight) {
-    fill(bin(i).xMid(), y, weight);
+  void Profile1D::fillBin(size_t i, double y, double weight, double fraction) {
+    fill(bin(i).xMid(), y, weight, fraction);
   }
 
 
 
   /////////////// COMMON TO ALL BINNED
 
-  unsigned long Profile1D::numEntries(bool includeoverflows) const {
+  double Profile1D::numEntries(bool includeoverflows) const {
     if (includeoverflows) return totalDbn().numEntries();
     unsigned long n = 0;
     for (const Bin& b : bins()) n += b.numEntries();

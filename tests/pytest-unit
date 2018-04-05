@@ -2,7 +2,7 @@
 
 import yoda
 
-print "WE NEED SOME REAL WORLD YODA PYTHON EXAMPLES AS TESTS!"
+print("WE NEED SOME REAL WORLD YODA PYTHON EXAMPLES AS TESTS!")
 
 # import unittest
 

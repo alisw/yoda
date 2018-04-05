@@ -1,3 +1,4 @@
+cimport util
 
 cdef class AnalysisObject(util.Base):
     """
@@ -24,7 +25,7 @@ cdef class AnalysisObject(util.Base):
     @property
     def type(self):
         "String identifier for this type"
-        return self.aoptr().type()
+        return self.aoptr().type().decode('utf-8')
 
     @property
     def dim(self):
@@ -35,26 +36,43 @@ cdef class AnalysisObject(util.Base):
     def annotations(self):
         """() -> list[str]
         A list of all annotation/metadata keys."""
-        return self.aoptr().annotations()
+        return [ a.decode('utf-8') for a in self.aoptr().annotations() ]
 
-    def annotation(self, string k, default=None):
-        """Get annotation k from this object (falling back to default if not set)."""
+    @property
+    def annotationsDict(self):
+        """() -> dict[str->str]
+        A dict of all annotations/metadata entries."""
+        # TODO: add a map equivalent to C++?
+        return dict((k.lower(), self.annotation(k)) for k in self.annotations)
+
+    def annotation(self, k, default=None):
+        """Get annotation k from this object (falling back to default if not set).
+
+        The annotation string will be automatically converted to Python
+        native types as far as possible -- more complex types are possible
+        if the yaml module is installed."""
         try:
-            return util._autotype(self.aoptr().annotation(string(k)))
+            astr = self.aoptr().annotation(<string>k.encode('utf-8'))
+            try:
+                import yaml
+                return yaml.load(astr)
+            except ImportError:
+                return util._autotype(astr)
         except:
             return default
 
-    def setAnnotation(self, string k, v):
+    def setAnnotation(self, k, v):
         """Set annotation k on this object."""
-        self.aoptr().setAnnotation(k, util._autostr(v))
+        self.aoptr().setAnnotation(<string>k.encode('utf-8'), 
+                                   <string>util._autostr(v).encode('utf-8'))
 
-    def hasAnnotation(self, string k):
+    def hasAnnotation(self, k):
         """Check if this object has annotation k."""
-        return self.aoptr().hasAnnotation(string(k))
+        return self.aoptr().hasAnnotation(<string>k.encode('utf-8'))
 
-    def rmAnnotation(self, string k):
+    def rmAnnotation(self, k):
         """Remove annotation k from this object."""
-        self.aoptr().rmAnnotation(string(k))
+        self.aoptr().rmAnnotation(<string>k.encode('utf-8'))
 
     def clearAnnotations(self):
         """Clear the annotations dictionary."""
@@ -75,7 +93,7 @@ cdef class AnalysisObject(util.Base):
         """
         Return the histogram name, i.e. the last part of the path (which may be empty).
         """
-        return self.aoptr().name().c_str()
+        return self.aoptr().name().decode('utf-8')
 
 
     property path:
@@ -84,10 +102,10 @@ cdef class AnalysisObject(util.Base):
         a '/' if not the empty string.
         """
         def __get__(self):
-            return self.aoptr().path().c_str()
+            return self.aoptr().path().decode('utf-8')
 
-        def __set__(self, char *path):
-            self.aoptr().setPath(string(path))
+        def __set__(self, path):
+            self.aoptr().setPath(<string>path.encode('utf-8'))
 
 
     property title:
@@ -95,11 +113,15 @@ cdef class AnalysisObject(util.Base):
         Convenient access to the histogram title (optional).
         """
         def __get__(self):
-            return self.aoptr().title().c_str()
+            return self.aoptr().title().decode('utf-8')
 
-        def __set__(self, char *title):
-            self.aoptr().setTitle(string(title))
+        def __set__(self, title):
+            self.aoptr().setTitle(<string>title.encode('utf-8'))
 
 
     def __repr__(self):
         return "<%s '%s'>" % (self.__class__.__name__, self.path)
+
+
+## Convenience alias
+AO = AnalysisObject

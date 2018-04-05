@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Bin2D_h
 #define YODA_Bin2D_h
@@ -197,6 +197,12 @@ namespace YODA {
     }
 
 
+    /// Area of the bin in x-y
+    double area() const {
+      return xWidth() * yWidth();
+    }
+
+
     /// The mean x position in the bin, or the x midpoint if that is not available.
     double xFocus() const {
       return (!isZero(sumW())) ? xMean() : xMid();
@@ -289,7 +295,7 @@ namespace YODA {
     }
 
     /// The number of entries
-    unsigned long numEntries() const {
+    double numEntries() const {
       return _dbn.numEntries();
     }
 
@@ -414,7 +420,6 @@ namespace YODA {
     bool bounds(double x, double y) const {
       return (x >= xMin() && x < xMax() && y >= yMin() && y < yMax());
     }
-
 
 
     /// Test whether two bins are adjacent and, if so, return how as an integer.

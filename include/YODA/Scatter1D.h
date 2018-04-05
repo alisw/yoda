@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_SCATTER1D_H
 #define YODA_SCATTER1D_H
@@ -10,6 +10,7 @@
 #include "YODA/Point1D.h"
 #include "YODA/Utils/sortedvector.h"
 #include <utility>
+#include <memory>
 
 namespace YODA {
 
@@ -25,6 +26,7 @@ namespace YODA {
     /// Type of the native Point1D collection
     typedef Point1D Point;
     typedef Utils::sortedvector<Point1D> Points;
+    typedef std::shared_ptr<Scatter1D> Ptr;
 
 
     /// @name Constructors
@@ -73,11 +75,9 @@ namespace YODA {
 
 
     /// Constructor from values with completely explicit asymmetric errors
-    Scatter1D(const std::vector<double>& x, const std::vector<double>& y,
+    Scatter1D(const std::vector<double>& x,
               const std::vector<double>& exminus,
               const std::vector<double>& explus,
-              const std::vector<double>& eyminus,
-              const std::vector<double>& eyplus,
               const std::string& path="", const std::string& title="")
       : AnalysisObject("Scatter1D", path, title)
     {
@@ -244,6 +244,10 @@ namespace YODA {
     Points _points;
 
   };
+
+
+  /// Convenience typedef
+  typedef Scatter1D S1D;
 
 
   /// @name Combining scatters by merging sets of points

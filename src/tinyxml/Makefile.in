@@ -90,12 +90,13 @@ build_triplet = @build@
 host_triplet = @host@
 subdir = src/tinyxml
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/m4/ax_cxx_compile_stdcxx_11.m4 \
-	$(top_srcdir)/m4/cxx.m4 $(top_srcdir)/m4/cython.m4 \
-	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
-	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/m4/osx.m4 \
-	$(top_srcdir)/m4/pkgchecks.m4 $(top_srcdir)/m4/python.m4 \
+am__aclocal_m4_deps = $(top_srcdir)/m4/ax_check_zlib.m4 \
+	$(top_srcdir)/m4/ax_cxx_compile_stdcxx_11.m4 \
+	$(top_srcdir)/m4/ax_python_devel.m4 $(top_srcdir)/m4/cxx.m4 \
+	$(top_srcdir)/m4/cython.m4 $(top_srcdir)/m4/libtool.m4 \
+	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
+	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/m4/osx.m4 $(top_srcdir)/m4/pkgchecks.m4 \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
@@ -107,11 +108,12 @@ CONFIG_HEADER = $(top_builddir)/include/YODA/Config/DummyConfig.h \
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 LTLIBRARIES = $(noinst_LTLIBRARIES)
-libtinyxml_la_LIBADD =
-am_libtinyxml_la_OBJECTS = libtinyxml_la-tinystr.lo \
-	libtinyxml_la-tinyxml.lo libtinyxml_la-tinyxmlerror.lo \
-	libtinyxml_la-tinyxmlparser.lo
-libtinyxml_la_OBJECTS = $(am_libtinyxml_la_OBJECTS)
+libyoda_tinyxml_la_LIBADD =
+am_libyoda_tinyxml_la_OBJECTS = libyoda_tinyxml_la-tinystr.lo \
+	libyoda_tinyxml_la-tinyxml.lo \
+	libyoda_tinyxml_la-tinyxmlerror.lo \
+	libyoda_tinyxml_la-tinyxmlparser.lo
+libyoda_tinyxml_la_OBJECTS = $(am_libyoda_tinyxml_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
@@ -150,8 +152,8 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(libtinyxml_la_SOURCES)
-DIST_SOURCES = $(libtinyxml_la_SOURCES)
+SOURCES = $(libyoda_tinyxml_la_SOURCES)
+DIST_SOURCES = $(libyoda_tinyxml_la_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -228,6 +230,7 @@ LIB_SUFFIX = @LIB_SUFFIX@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
+LT_SYS_LIBRARY_PATH = @LT_SYS_LIBRARY_PATH@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
 MKDIR_P = @MKDIR_P@
@@ -247,9 +250,14 @@ PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PYEXT_CXXFLAGS = @PYEXT_CXXFLAGS@
 PYTHON = @PYTHON@
+PYTHON_CPPFLAGS = @PYTHON_CPPFLAGS@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
+PYTHON_EXTRA_LDFLAGS = @PYTHON_EXTRA_LDFLAGS@
+PYTHON_EXTRA_LIBS = @PYTHON_EXTRA_LIBS@
+PYTHON_LIBS = @PYTHON_LIBS@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
 PYTHON_PREFIX = @PYTHON_PREFIX@
+PYTHON_SITE_PKG = @PYTHON_SITE_PKG@
 PYTHON_VERSION = @PYTHON_VERSION@
 RANLIB = @RANLIB@
 ROOTCONFIG = @ROOTCONFIG@
@@ -263,6 +271,7 @@ STRIP = @STRIP@
 SWVERS = @SWVERS@
 VERSION = @VERSION@
 YODA_PYTHONPATH = @YODA_PYTHONPATH@
+YODA_SETUP_PY_PATH = @YODA_SETUP_PY_PATH@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -321,9 +330,9 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-noinst_LTLIBRARIES = libtinyxml.la
-libtinyxml_la_SOURCES = tinystr.cpp tinyxml.cpp tinyxmlerror.cpp tinyxmlparser.cpp
-libtinyxml_la_CPPFLAGS = $(AM_CPPFLAGS) -DTIXML_USE_STL
+noinst_LTLIBRARIES = libyoda-tinyxml.la
+libyoda_tinyxml_la_SOURCES = tinystr.cpp tinyxml.cpp tinyxmlerror.cpp tinyxmlparser.cpp
+libyoda_tinyxml_la_CPPFLAGS = $(AM_CPPFLAGS) -DTIXML_USE_STL
 EXTRA_DIST = tinystr.h tinyxml.h
 all: all-am
 
@@ -370,8 +379,8 @@ clean-noinstLTLIBRARIES:
 	  rm -f $${locs}; \
 	}
 
-libtinyxml.la: $(libtinyxml_la_OBJECTS) $(libtinyxml_la_DEPENDENCIES) $(EXTRA_libtinyxml_la_DEPENDENCIES) 
-	$(AM_V_CXXLD)$(CXXLINK)  $(libtinyxml_la_OBJECTS) $(libtinyxml_la_LIBADD) $(LIBS)
+libyoda-tinyxml.la: $(libyoda_tinyxml_la_OBJECTS) $(libyoda_tinyxml_la_DEPENDENCIES) $(EXTRA_libyoda_tinyxml_la_DEPENDENCIES) 
+	$(AM_V_CXXLD)$(CXXLINK)  $(libyoda_tinyxml_la_OBJECTS) $(libyoda_tinyxml_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -379,10 +388,10 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtinyxml_la-tinystr.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtinyxml_la-tinyxml.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtinyxml_la-tinyxmlerror.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtinyxml_la-tinyxmlparser.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libyoda_tinyxml_la-tinystr.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libyoda_tinyxml_la-tinyxml.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libyoda_tinyxml_la-tinyxmlerror.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libyoda_tinyxml_la-tinyxmlparser.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -408,33 +417,33 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
 
-libtinyxml_la-tinystr.lo: tinystr.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtinyxml_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libtinyxml_la-tinystr.lo -MD -MP -MF $(DEPDIR)/libtinyxml_la-tinystr.Tpo -c -o libtinyxml_la-tinystr.lo `test -f 'tinystr.cpp' || echo '$(srcdir)/'`tinystr.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libtinyxml_la-tinystr.Tpo $(DEPDIR)/libtinyxml_la-tinystr.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='tinystr.cpp' object='libtinyxml_la-tinystr.lo' libtool=yes @AMDEPBACKSLASH@
+libyoda_tinyxml_la-tinystr.lo: tinystr.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libyoda_tinyxml_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libyoda_tinyxml_la-tinystr.lo -MD -MP -MF $(DEPDIR)/libyoda_tinyxml_la-tinystr.Tpo -c -o libyoda_tinyxml_la-tinystr.lo `test -f 'tinystr.cpp' || echo '$(srcdir)/'`tinystr.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libyoda_tinyxml_la-tinystr.Tpo $(DEPDIR)/libyoda_tinyxml_la-tinystr.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='tinystr.cpp' object='libyoda_tinyxml_la-tinystr.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtinyxml_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libtinyxml_la-tinystr.lo `test -f 'tinystr.cpp' || echo '$(srcdir)/'`tinystr.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libyoda_tinyxml_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libyoda_tinyxml_la-tinystr.lo `test -f 'tinystr.cpp' || echo '$(srcdir)/'`tinystr.cpp
 
-libtinyxml_la-tinyxml.lo: tinyxml.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtinyxml_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libtinyxml_la-tinyxml.lo -MD -MP -MF $(DEPDIR)/libtinyxml_la-tinyxml.Tpo -c -o libtinyxml_la-tinyxml.lo `test -f 'tinyxml.cpp' || echo '$(srcdir)/'`tinyxml.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libtinyxml_la-tinyxml.Tpo $(DEPDIR)/libtinyxml_la-tinyxml.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='tinyxml.cpp' object='libtinyxml_la-tinyxml.lo' libtool=yes @AMDEPBACKSLASH@
+libyoda_tinyxml_la-tinyxml.lo: tinyxml.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libyoda_tinyxml_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libyoda_tinyxml_la-tinyxml.lo -MD -MP -MF $(DEPDIR)/libyoda_tinyxml_la-tinyxml.Tpo -c -o libyoda_tinyxml_la-tinyxml.lo `test -f 'tinyxml.cpp' || echo '$(srcdir)/'`tinyxml.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libyoda_tinyxml_la-tinyxml.Tpo $(DEPDIR)/libyoda_tinyxml_la-tinyxml.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='tinyxml.cpp' object='libyoda_tinyxml_la-tinyxml.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtinyxml_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libtinyxml_la-tinyxml.lo `test -f 'tinyxml.cpp' || echo '$(srcdir)/'`tinyxml.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libyoda_tinyxml_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libyoda_tinyxml_la-tinyxml.lo `test -f 'tinyxml.cpp' || echo '$(srcdir)/'`tinyxml.cpp
 
-libtinyxml_la-tinyxmlerror.lo: tinyxmlerror.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtinyxml_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libtinyxml_la-tinyxmlerror.lo -MD -MP -MF $(DEPDIR)/libtinyxml_la-tinyxmlerror.Tpo -c -o libtinyxml_la-tinyxmlerror.lo `test -f 'tinyxmlerror.cpp' || echo '$(srcdir)/'`tinyxmlerror.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libtinyxml_la-tinyxmlerror.Tpo $(DEPDIR)/libtinyxml_la-tinyxmlerror.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='tinyxmlerror.cpp' object='libtinyxml_la-tinyxmlerror.lo' libtool=yes @AMDEPBACKSLASH@
+libyoda_tinyxml_la-tinyxmlerror.lo: tinyxmlerror.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libyoda_tinyxml_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libyoda_tinyxml_la-tinyxmlerror.lo -MD -MP -MF $(DEPDIR)/libyoda_tinyxml_la-tinyxmlerror.Tpo -c -o libyoda_tinyxml_la-tinyxmlerror.lo `test -f 'tinyxmlerror.cpp' || echo '$(srcdir)/'`tinyxmlerror.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libyoda_tinyxml_la-tinyxmlerror.Tpo $(DEPDIR)/libyoda_tinyxml_la-tinyxmlerror.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='tinyxmlerror.cpp' object='libyoda_tinyxml_la-tinyxmlerror.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtinyxml_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libtinyxml_la-tinyxmlerror.lo `test -f 'tinyxmlerror.cpp' || echo '$(srcdir)/'`tinyxmlerror.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libyoda_tinyxml_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libyoda_tinyxml_la-tinyxmlerror.lo `test -f 'tinyxmlerror.cpp' || echo '$(srcdir)/'`tinyxmlerror.cpp
 
-libtinyxml_la-tinyxmlparser.lo: tinyxmlparser.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtinyxml_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libtinyxml_la-tinyxmlparser.lo -MD -MP -MF $(DEPDIR)/libtinyxml_la-tinyxmlparser.Tpo -c -o libtinyxml_la-tinyxmlparser.lo `test -f 'tinyxmlparser.cpp' || echo '$(srcdir)/'`tinyxmlparser.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libtinyxml_la-tinyxmlparser.Tpo $(DEPDIR)/libtinyxml_la-tinyxmlparser.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='tinyxmlparser.cpp' object='libtinyxml_la-tinyxmlparser.lo' libtool=yes @AMDEPBACKSLASH@
+libyoda_tinyxml_la-tinyxmlparser.lo: tinyxmlparser.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libyoda_tinyxml_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libyoda_tinyxml_la-tinyxmlparser.lo -MD -MP -MF $(DEPDIR)/libyoda_tinyxml_la-tinyxmlparser.Tpo -c -o libyoda_tinyxml_la-tinyxmlparser.lo `test -f 'tinyxmlparser.cpp' || echo '$(srcdir)/'`tinyxmlparser.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libyoda_tinyxml_la-tinyxmlparser.Tpo $(DEPDIR)/libyoda_tinyxml_la-tinyxmlparser.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='tinyxmlparser.cpp' object='libyoda_tinyxml_la-tinyxmlparser.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtinyxml_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libtinyxml_la-tinyxmlparser.lo `test -f 'tinyxmlparser.cpp' || echo '$(srcdir)/'`tinyxmlparser.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libyoda_tinyxml_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libyoda_tinyxml_la-tinyxmlparser.lo `test -f 'tinyxmlparser.cpp' || echo '$(srcdir)/'`tinyxmlparser.cpp
 
 mostlyclean-libtool:
 	-rm -f *.lo

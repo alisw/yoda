@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+
+yoda2yoda ${YODA_TESTS_SRC}/rivetexample.yoda y2y_1.yoda -m DELPHI
+yodacnv   ${YODA_TESTS_SRC}/rivetexample.yoda y2y_2.yoda -m DELPHI
+
+yodadiff y2y_1.yoda y2y_2.yoda
+
+rm -f y2y_1.yoda y2y_2.yoda

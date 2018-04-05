@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_HistoBin2D_h
 #define YODA_HistoBin2D_h
@@ -60,25 +60,25 @@ namespace YODA {
     /// @name Modifiers
     //@{
 
-    /// A fill() function accepting coordinates as spearate numbers
+    /// A fill() function accepting coordinates as separate numbers
     ///
     /// @note This should not be used, since it breaks histogram consistency. It will be removed in a future version.
-    void fill(double x, double y, double weight=1.0) {
-      _dbn.fill(x, y, weight);
+    void fill(double x, double y, double weight=1.0, double fraction=1.0) {
+      _dbn.fill(x, y, weight, fraction);
     }
 
     /// A fill() function accepting the coordinates as std::pair
     ///
     /// @note This should not be used, since it breaks histogram consistency. It will be removed in a future version.
-    void fill(std::pair<double,double> coords, double weight=1.0) {
-      fill(coords.first, coords.second, weight);
+    void fill(std::pair<double,double> coords, double weight=1.0, double fraction=1.0) {
+      fill(coords.first, coords.second, weight, fraction);
     }
 
     /// A function that fills this particular bin.
     ///
     /// @note This should not be used, since it breaks histogram consistency. It will be removed in a future version.
-    void fillBin(double weight=1.0) {
-      fill(xyMid(), weight);
+    void fillBin(double weight=1.0, double fraction=1.0) {
+      fill(xyMid(), weight, fraction);
     }
 
     /// A reset function

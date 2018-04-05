@@ -139,13 +139,13 @@ for fa in fileargs:
         except:
             sys.stderr.write("Error processing arg '%s' with file:scale format\n" % fa)
     aos = yoda.read(filename)
-    for aopath, ao in aos.iteritems():
+    for aopath, ao in aos.items():
         ao.setAnnotation("yodamerge_scale", scale)
         analysisobjects_in.setdefault(aopath, []).append(ao)
 
 
 analysisobjects_out = {}
-for p, aos in analysisobjects_in.iteritems():
+for p, aos in analysisobjects_in.items():
 
     ## Identify the canonical aotype being handled from the type of the first entry in aos
     aotype = type(aos[0])
@@ -226,157 +226,57 @@ for p, aos in analysisobjects_in.iteritems():
         ## Make a copy of the first object as the basis for merging (suitable for all Scatter types)
         ao_out = aos[0].clone()
         ao_out.rmAnnotation("yodamerge_scale")
-
-
         ## If there's only one object, there's no need to do any combining
         if len(aos) == 1:
             pass
 
-        # TODO: compress code below by using numerical axis access to axis_index = ao_out.dim
+        elif aotype in (yoda.Scatter1D,yoda.Scatter2D,yoda.Scatter3D):
 
-        elif aotype is yoda.Scatter1D:
+            ## Retrieve dimensionality of the Scatter*D object
+            dim=ao_out.dim
+            SND_MODE=getattr(opts,"S%dD_MODE" % dim)
+            axis=['','x','y','z']
 
             ## Use asymptotic mean+stderr convergence statistics
-            if opts.S1D_MODE in ["assume_mean", "add"]:
+            if SND_MODE in ("assume_mean", "add"):
 
-                msg = "WARNING: Scatter1D %s merge assumes asymptotic statistics and equal run sizes" % p
+                msg = "WARNING: Scatter%dD %s merge assumes asymptotic statistics and equal run sizes" % (dim, p)
                 if any(float(ao.annotation("yodamerge_scale")) != 1.0 for ao in aos):
                     msg += " (+ user scaling)"
                 sys.stderr.write(msg + "\n")
-
                 npoints = len(ao_out.points)
-                for i in xrange(npoints):
-                    val_i = ep_i = em_i = scalesum = 0.0
-                    for ao in aos:
-                        scale = float(ao.annotation("yodamerge_scale"))
-                        # print aos[0].path, scale
-                        scalesum += scale
-                        val_i += scale * ao.points[i].x
-                        ep_i += (scale * ao.points[i].xErrs[0])**2
-                        em_i += (scale * ao.points[i].xErrs[1])**2
-                    if opts.S1D_MODE == "assume_mean":
-                        val_i /= scalesum
-                        ep_i = math.sqrt(ep_i) / scalesum
-                        em_i = math.sqrt(em_i) / scalesum
-                    ao_out.points[i].x = val_i
-                    ao_out.points[i].xErrs = (ep_i, em_i)
-
-            elif opts.S1D_MODE == "add":
-
-                # msg = "WARNING: Scatter1D %s merge assumes asymptotic statistics and equal run sizes" % p
-                # if any(float(ao.annotation("yodamerge_scale")) != 1.0 for ao in aos):
-                #     msg += " (+ user scaling)"
-                # sys.stderr.write(msg + "\n")
-
-                npoints = len(ao_out.points)
-                for i in xrange(npoints):
-                    val_i = ep_i = em_i = 0.0
-                    for ao in aos:
-                        # TODO: skip scaling in stack mode?
-                        scale = float(ao.annotation("yodamerge_scale"))
-                        val_i += scale * ao.points[i].x
-                        ep_i += (scale * ao.points[i].xErrs[0])**2
-                        em_i += (scale * ao.points[i].xErrs[1])**2
-                    ao_out.points[i].x = val_i
-                    ao_out.points[i].xErrs = (ep_i, em_i)
-
-            ## Add more points to the output scatter
-            elif opts.S1D_MODE == "combine":
-                for ao in aos[1:]:
-                    ao_out.combineWith(ao)
-
-            ## Just return the first AO unmodified & unmerged
-            elif opts.S1D_MODE == "first":
-                pass
-
-            else:
-                raise Exception("Unknown Scatter1D merging mode:" + opts.S1D_MODE)
-
-
-        ## Merge for Scatter2D (assuming equal run sizes, and applying user scaling)
-        elif aotype is yoda.Scatter2D:
-
-            ## Use asymptotic mean+stderr convergence statistics
-            if opts.S2D_MODE in ["assume_mean", "add"]:
-
-                msg = "WARNING: Scatter2D %s merge assumes asymptotic statistics and equal run sizes" % p
-                if any(float(ao.annotation("yodamerge_scale")) != 1.0 for ao in aos):
-                    msg += " (+ user scaling)"
-                sys.stderr.write(msg + "\n")
-
-                npoints = len(ao_out.points)
-                for i in xrange(npoints):
+                for i in range(npoints):
                     val_i = ep_i = em_i = scalesum = 0.0
                     for ao in aos:
                         scale = float(ao.annotation("yodamerge_scale"))
                         scalesum += scale
-                        val_i += scale * ao.points[i].y
-                        ep_i += (scale * ao.points[i].yErrs[0])**2
-                        em_i += (scale * ao.points[i].yErrs[1])**2
-                    if opts.S2D_MODE == "assume_mean":
+                        val_i += scale * ao.points[i].val(dim)
+                        ep_i += (scale * ao.points[i].errs(dim)[0])**2
+                        em_i += (scale * ao.points[i].errs(dim)[1])**2
+                    ep_i = math.sqrt(ep_i)
+                    em_i = math.sqrt(em_i)
+                    if SND_MODE == "assume_mean":
                         val_i /= scalesum
-                        ep_i = math.sqrt(ep_i) / scalesum
-                        em_i = math.sqrt(em_i) / scalesum
-                    ao_out.points[i].y = val_i
-                    ao_out.points[i].yErrs = (ep_i, em_i)
+                        ep_i  /= scalesum
+                        em_i  /= scalesum
+                    setattr(ao_out.points[i],'%s' % axis[dim], val_i)
+                    setattr(ao_out.points[i],'%sErrs' % axis[dim], (ep_i, em_i))
 
             ## Add more points to the output scatter
-            elif opts.S2D_MODE == "combine":
+            elif SND_MODE == "combine":
                 for ao in aos[1:]:
                     ao_out.combineWith(ao)
 
             ## Just return the first AO unmodified & unmerged
-            elif opts.S2D_MODE == "first":
+            elif SND_MODE == "first":
                 pass
 
             else:
-                raise Exception("Unknown Scatter2D merging mode:" + opts.S2D_MODE)
-
-
-        ## Merge for Scatter3D (assuming equal run sizes, and applying user scaling)
-        elif aotype is yoda.Scatter3D:
-
-            ## Use asymptotic mean+stderr convergence statistics
-            if opts.S3D_MODE in ["assume_mean", "add"]:
-
-                msg = "WARNING: Scatter3D %s merge assumes asymptotic statistics and equal run sizes" % p
-                if any(float(ao.annotation("yodamerge_scale")) != 1.0 for ao in aos):
-                    msg += " (+ user scaling)"
-                sys.stderr.write(msg + "\n")
-
-                npoints = len(ao_out.points)
-                for i in xrange(npoints):
-                    val_i = ep_i = em_i = scalesum = 0.0
-                    for ao in aos:
-                        scale = float(ao.annotation("yodamerge_scale"))
-                        scalesum += scale
-                        val_i += scale * ao.points[i].z
-                        ep_i += (scale * ao.points[i].zErrs[0])**2
-                        em_i += (scale * ao.points[i].zErrs[1])**2
-                    if opts.S3D_MODE == "assume_mean":
-                        val_i /= scalesum
-                        ep_i = math.sqrt(ep_i) / scalesum
-                        em_i = math.sqrt(em_i) / scalesum
-                    ao_out.points[i].z = val_i
-                    ao_out.points[i].zErrs = (ep_i, em_i)
-
-            ## Add more points to the output scatter
-            elif opts.S3D_MODE == "combine":
-                for ao in aos[1:]:
-                    ao_out.combineWith(ao)
-
-            ## Just return the first AO unmodified & unmerged
-            elif opts.S3D_MODE == "first":
-                pass
-
-            else:
-                raise Exception("Unknown Scatter3D merging mode:" + opts.S3D_MODE)
-
+                raise Exception("Unknown Scatter%dD merging mode:" % dim + opts.SND_MODE)
 
         ## Other data types (just warn, and write out the first object)
         else:
             sys.stderr.write("WARNING: Analysis object %s of type %s cannot be merged\n" % (p, str(aotype)))
-
 
     ## Put the output AO into the output dict
     analysisobjects_out[p] = ao_out

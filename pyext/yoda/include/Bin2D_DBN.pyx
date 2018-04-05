@@ -1,3 +1,4 @@
+cimport util
 # TODO: docstrings
 cdef class Bin2D_${DBN}(Bin):
     """2D Bin class templated on a ${DBN}"""
@@ -110,6 +111,12 @@ cdef class Bin2D_${DBN}(Bin):
     def xyWidths(self):
         """The widths of this bin in the x- and y-dimensions."""
         return util.XY(self.xWidth, self.yWidth)
+
+
+    @property
+    def area(self):
+        """The area of this bin in the x-y plane."""
+        return self.b2ptr().area()
 
 
     @property

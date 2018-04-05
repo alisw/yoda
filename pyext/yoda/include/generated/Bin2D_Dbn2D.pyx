@@ -5,6 +5,7 @@
 # Any changes you make here will get overridden.
 # Instead, make your changes in Bin2D_DBN.pyx
 #################################################
+cimport util
 # TODO: docstrings
 cdef class Bin2D_Dbn2D(Bin):
     """2D Bin class templated on a Dbn2D"""
@@ -117,6 +118,12 @@ cdef class Bin2D_Dbn2D(Bin):
     def xyWidths(self):
         """The widths of this bin in the x- and y-dimensions."""
         return util.XY(self.xWidth, self.yWidth)
+
+
+    @property
+    def area(self):
+        """The area of this bin in the x-y plane."""
+        return self.b2ptr().area()
 
 
     @property

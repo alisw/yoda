@@ -19,7 +19,7 @@ def match_aos(aos, patts, unpatts=None, search=False):
 
     ## Internally we just use the list of AOs, not dict keys
     if type(aos) is dict:
-        aos = aos.values()
+        aos = list(aos.values()) #< TODO: maybe iter would be ok?
 
     ## Normalise the pattern arg inputs
     if patts and type(patts) is str:
@@ -129,8 +129,9 @@ class PointMatcher(object):
 
 if __name__ == "__main__":
 
-    import numpy as np
+    from . import linspace, logspace
     from pprint import pprint
+    import math
 
     class Point(object):
         def __init__(self, path, n, xmin, xmax, value=None):
@@ -144,14 +145,14 @@ if __name__ == "__main__":
             return "Point({} #{:d}  {:.2e}--{:.2e}{})".format(self.path, self.n, self.xmin, self.xmax, val)
 
     POINTS = []
-    xs = np.linspace(0, 10, 5)
-    POINTS += [Point("/foo", i, xs[i], xs[i+1]) for i in xrange(len(xs)-1)]
-    xs = np.linspace(0, 100, 50)
-    POINTS += [Point("/bar", i, xs[i], xs[i+1]) for i in xrange(len(xs)-1)]
-    xs = np.linspace(0, np.pi, 20)
-    POINTS += [Point("/baz/pi", i, xs[i], xs[i+1]) for i in xrange(len(xs)-1)]
-    xs = np.logspace(0.1, 50, 20)
-    POINTS += [Point("/baz/log", i, xs[i], xs[i+1]) for i in xrange(len(xs)-1)]
+    xs = linspace(5, 0, 10)
+    POINTS += [Point("/foo", i, xs[i], xs[i+1]) for i in range(len(xs)-1)]
+    xs = linspace(50, 0, 100)
+    POINTS += [Point("/bar", i, xs[i], xs[i+1]) for i in range(len(xs)-1)]
+    xs = linspace(20, 0, math.pi)
+    POINTS += [Point("/baz/pi", i, xs[i], xs[i+1]) for i in range(len(xs)-1)]
+    xs = logspace(20, 0.1, 50)
+    POINTS += [Point("/baz/log", i, xs[i], xs[i+1]) for i in range(len(xs)-1)]
     pprint(POINTS)
 
     pms = [PointMatcher("/foo   # this bit is a comment"),
@@ -162,6 +163,6 @@ if __name__ == "__main__":
     pprint(pms)
 
     for pm in pms:
-        print
-        print pm.patt, pm.indextype, pm.index
+        print()
+        print(pm.patt, pm.indextype, pm.index)
         pprint( [p for p in POINTS if pm.match_path(p.path) and pm.match_pos(p)] )

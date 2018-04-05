@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Histo2D_h
 #define YODA_Histo2D_h
@@ -14,6 +14,7 @@
 #include "YODA/Exceptions.h"
 
 #include <vector>
+#include <tuple>
 
 namespace YODA {
 
@@ -35,6 +36,10 @@ namespace YODA {
     typedef Axis::Bins Bins;
     typedef HistoBin2D Bin;
     typedef Axis::Outflows Outflows;
+
+    typedef std::tuple<double, double> FillType;
+    typedef FillType BinType;
+    typedef std::shared_ptr<Histo2D> Ptr;
 
 
     /// @name Constructors
@@ -125,10 +130,16 @@ namespace YODA {
     //@{
 
     /// Fill histo with weight at (x,y)
-    void fill(double x, double y, double weight=1.0);
+    virtual void fill(double x, double y, double weight=1.0, double fraction=1.0);
+
+    ///
+    virtual void fill(const FillType & xs, double weight=1.0, double fraction=1.0) {
+        fill(std::get<0>(xs), std::get<1>(xs), weight, fraction);
+    }
+
 
     /// Fill histo x-y bin i with the given weight
-    void fillBin(size_t i, double weight=1.0);
+    virtual void fillBin(size_t i, double weight=1.0, double fraction=1.0);
 
 
     /// @brief Reset the histogram.
@@ -153,7 +164,6 @@ namespace YODA {
     void normalize(double normto=1.0, bool includeoverflows=true) {
       const double oldintegral = integral(includeoverflows);
       if (oldintegral == 0) throw WeightError("Attempted to normalize a histogram with null area");
-      /// @todo Check that this is the desired behaviour
       scaleW(normto / oldintegral);
     }
 
@@ -261,8 +271,12 @@ namespace YODA {
     /// Access a bin index by coordinate
     int binIndexAt(double x, double y) { return _axis.binIndexAt(x, y); }
 
+    int binIndexAt(const BinType& t) { return _axis.binIndexAt(std::get<0>(t), std::get<1>(t)); }
+
     /// Access a bin by coordinate (const version)
     const HistoBin2D& binAt(double x, double y) const { return _axis.binAt(x, y); }
+
+    const HistoBin2D& binAt(const BinType& t) { return _axis.binAt(std::get<0>(t), std::get<1>(t)); }
 
 
     /// Number of bins
@@ -309,8 +323,8 @@ namespace YODA {
     /// Get the total volume of the histogram
     double integral(bool includeoverflows=true) const { return sumW(includeoverflows); }
 
-    /// Get the number of fills
-    unsigned long numEntries(bool includeoverflows=true) const;
+    /// Get the number of fills (fractional fills are possible)
+    double numEntries(bool includeoverflows=true) const;
 
     /// Get the effective number of fills
     double effNumEntries(bool includeoverflows=true) const;
@@ -434,6 +448,10 @@ namespace YODA {
     //@}
 
   };
+
+
+  /// Convenience typedef
+  typedef Histo2D H2D;
 
 
   /// @name Combining histos: global operators

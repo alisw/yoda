@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Dbn1D_h
 #define YODA_Dbn1D_h
@@ -40,7 +40,7 @@ namespace YODA {
     /// @brief Constructor to set a distribution with a pre-filled state.
     ///
     /// Principally designed for internal persistency use.
-    Dbn1D(unsigned long numEntries, double sumW, double sumW2, double sumWX, double sumWX2)
+    Dbn1D(double numEntries, double sumW, double sumW2, double sumWX, double sumWX2)
       : _dbnW(numEntries, sumW, sumW2),
         _sumWX(sumWX),
         _sumWX2(sumWX2)
@@ -74,10 +74,10 @@ namespace YODA {
     //@{
 
     /// @brief Contribute a sample at @a val with weight @a weight.
-    void fill(double val, double weight=1.0) {
-      _dbnW.fill(weight);
-      _sumWX += weight*val;
-      _sumWX2 += weight*val*val;
+    void fill(double val, double weight=1.0, double fraction=1.0) {
+      _dbnW.fill(weight, fraction);
+      _sumWX += fraction*weight*val;
+      _sumWX2 += fraction*weight*val*val;
     }
 
 
@@ -139,7 +139,7 @@ namespace YODA {
     //@{
 
     /// Number of entries (number of times @c fill was called, ignoring weights)
-    unsigned long numEntries() const {
+    double numEntries() const {
       return _dbnW.numEntries();
     }
 

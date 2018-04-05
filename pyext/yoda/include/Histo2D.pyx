@@ -1,3 +1,4 @@
+cimport util
 cdef class Histo2D(AnalysisObject):
     """
     2D histogram.
@@ -32,15 +33,21 @@ cdef class Histo2D(AnalysisObject):
     def __init__(self, *args, **kwargs):
         util.try_loop([self.__init2, self.__init4, self.__init8], *args, **kwargs)
 
-    def __init2(Histo2D self, char *path="", char *title=""):
-        cutil.set_owned_ptr(self, new c.Histo2D(string(path), string(title)))
+    def __init2(Histo2D self, path="", title=""):
+        path  = path.encode('utf-8')
+        title = title.encode('utf-8')
+        cutil.set_owned_ptr(self, new c.Histo2D(<string>path, <string>title))
 
-    def __init4(Histo2D self, xedges,  yedges,  char* path="", char* title=""):
+    def __init4(Histo2D self, xedges,  yedges,  path="", title=""):
+        path  = path.encode('utf-8')
+        title = title.encode('utf-8')
         # TODO: Do some type-checking and allow iterables of HistoBin2D as well?
-        cutil.set_owned_ptr(self, new c.Histo2D(xedges, yedges, string(path), string(title)))
+        cutil.set_owned_ptr(self, new c.Histo2D(xedges, yedges, <string>path, <string>title))
 
-    def __init8(Histo2D self, nxbins, xlow, xhigh,  nybins, ylow, yhigh,  char* path="", char* title=""):
-        cutil.set_owned_ptr(self, new c.Histo2D(nxbins, xlow, xhigh,  nybins, ylow, yhigh,  string(path), string(title)))
+    def __init8(Histo2D self, nxbins, xlow, xhigh,  nybins, ylow, yhigh,  path="", title=""):
+        path  = path.encode('utf-8')
+        title = title.encode('utf-8')
+        cutil.set_owned_ptr(self, new c.Histo2D(nxbins, xlow, xhigh,  nybins, ylow, yhigh,  <string>path, <string>title))
 
 
     def __len__(self):
@@ -68,15 +75,15 @@ cdef class Histo2D(AnalysisObject):
         return cutil.new_owned_cls(Histo2D, self.h2ptr().newclone())
 
 
-    def fill(self, double x, double y, weight=1.0):
+    def fill(self, double x, double y, weight=1.0, fraction=1.0):
         """(x,y,[w]) -> None.
         Fill with given x,y values and optional weight."""
-        self.h2ptr().fill(x, y, weight)
+        self.h2ptr().fill(x, y, weight, fraction)
 
-    def fillBin(self, size_t i, weight=1.0):
+    def fillBin(self, size_t i, weight=1.0, fraction=1.0):
         """(i,[w]) -> None.
         Fill bin i and optional weight."""
-        self.h2ptr().fillBin(i, weight)
+        self.h2ptr().fillBin(i, weight, fraction)
 
 
     @property
@@ -99,7 +106,7 @@ cdef class Histo2D(AnalysisObject):
 
 
     def numEntries(self, includeoverflows=True):
-        """([bool]) -> int
+        """([bool]) -> float
         Number of times this histogram was filled, optionally excluding overflows."""
         return self.h2ptr().numEntries(includeoverflows)
 
@@ -204,7 +211,7 @@ cdef class Histo2D(AnalysisObject):
         Rescale the weights in this histogram by the factor w."""
         self.h2ptr().scaleW(w)
 
-    def normalize(self, double normto, bint includeoverflows=True):
+    def normalize(self, double normto=1.0, bint includeoverflows=True):
         """(float, bool) -> None.
         Normalize the histogram."""
         self.h2ptr().normalize(normto, includeoverflows)
@@ -253,7 +260,7 @@ cdef class Histo2D(AnalysisObject):
     @property
     def bins(self):
         """Access the ordered bins list."""
-        return list(self)
+        return [self.bin(i) for i in xrange( self.h2ptr().numBins())]
 
     def bin(self, i):
         """Get the i'th bin"""
@@ -342,3 +349,9 @@ cdef class Histo2D(AnalysisObject):
 
     def __div__(Histo2D self, Histo2D other):
         return self.divideBy(other)
+
+    def __truediv__(Histo2D self, Histo2D other):
+        return self.divideBy(other)
+
+## Convenience alias
+H2D = Histo2D

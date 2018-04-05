@@ -1,3 +1,4 @@
+cimport util
 # TODO (when there is absolutely nothing else to do) docstrings (but never will
 # it be a user facing class... it's merely there for tests)
 cdef class Axis1D_${BIN1D}_${DBN}(util.Base):

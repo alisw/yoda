@@ -1,3 +1,4 @@
+cimport util
 cdef class Dbn0D(util.Base):
     """
     A zero-dimensional 'counter', used and exposed by Counter.
@@ -34,13 +35,13 @@ cdef class Dbn0D(util.Base):
         self.d0ptr().reset()
 
 
-    def fill(self, weight=1.0):
+    def fill(self, weight=1.0, fraction=1.0):
         """
         (float weight=1.0) -> None
 
         Fills the distribution with the given weight at given x.
         """
-        self.d0ptr().fill(weight)
+        self.d0ptr().fill(weight, fraction)
 
     def scaleW(self, w):
         """
@@ -54,7 +55,7 @@ cdef class Dbn0D(util.Base):
     @property
     def numEntries(self):
         """The number of entries"""
-        return int(self.d0ptr().numEntries())
+        return self.d0ptr().numEntries()
 
     @property
     def effNumEntries(self):

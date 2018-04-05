@@ -1,3 +1,4 @@
+cimport util
 cdef class Scatter2D(AnalysisObject):
     """
     2D scatter plot, i.e. a collection of Point2D objects with positions and errors.
@@ -20,10 +21,12 @@ cdef class Scatter2D(AnalysisObject):
     def __init__(self, *args, **kwargs):
         util.try_loop([self.__init_2, self.__init_3], *args, **kwargs)
 
-    def __init_2(self, char* path="", char* title=""):
-        cutil.set_owned_ptr(self, new c.Scatter2D(string(path), string(title)))
+    def __init_2(self, path="", title=""):
+        path  = path.encode('utf-8')
+        title = title.encode('utf-8')
+        cutil.set_owned_ptr(self, new c.Scatter2D(<string>path, <string>title))
 
-    def __init_3(self, points, char* path="", char* title=""):
+    def __init_3(self, points, path="", title=""):
         self.__init_2(path, title)
         self.addPoints(points)
 
@@ -157,3 +160,51 @@ cdef class Scatter2D(AnalysisObject):
     # # TODO: remove?
     # def __sub__(Scatter2D self, Scatter2D other):
     #     return cutil.new_owned_cls(Scatter2D, c.Scatter2D_sub_Scatter2D(self.s2ptr(), other.s2ptr()))
+
+
+    def xVals(self):
+        return [p.x for p in self.points]
+
+    def xMins(self):
+        """All x low values."""
+        return [p.xMin for p in self.points]
+
+    def xMaxs(self):
+        """All x high values."""
+        return [p.xMax for p in self.points]
+
+    @property
+    def xMin(self):
+        """Lowest x value."""
+        return min(self.xMins())
+
+    @property
+    def xMax(self):
+        """Highest x value."""
+        return max(self.xMaxs())
+
+
+    def yVals(self):
+        return [p.y for p in self.points]
+
+    def yMins(self):
+        """All y low values."""
+        return [p.yMin for p in self.points]
+
+    def yMaxs(self):
+        """All y high values."""
+        return [p.yMax for p in self.points]
+
+    @property
+    def yMin(self):
+        """Lowest x value."""
+        return min(self.yMins())
+
+    @property
+    def yMax(self):
+        """Highest y value."""
+        return max(self.yMaxs())
+
+
+## Convenience alias
+S2D = Scatter2D

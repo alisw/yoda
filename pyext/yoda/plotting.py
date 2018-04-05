@@ -1,150 +1,29 @@
+# -*- python -*-
+
+"""
+Plotting utilities, particularly for interaction with matplotlib and Rivet make-plots
+"""
+
 import yoda
-import numpy as np
 import sys
+import numpy as np
+import matplotlib as mpl
 
 
-# TODO: need a better name... MiniHist, PlotData?
-class NumpyHist(object):
+# TODO: Move to core objects
+#     def same_binning_as(self, other):
+#         if self.dim != other.dim:
+#             return False
+#         if not (other.x == self.x).all() and \
+#                (other.exminus == self.exminus).all() and \
+#                (other.explus == self.explus).all():
+#             return False
+#         if self.dim == 2:
+#             return True
+#         return (other.y == self.y).all() and \
+#                (other.eyminus == self.eyminus).all() and \
+#                (other.eyplus == self.eyplus).all()
 
-    def __init__(self, ao):
-        if not isinstance(ao, yoda.AnalysisObject):
-            raise Exception("ao argument must be a YODA AnalysisObject; this is a %s" % type(ao))
-        ## Get annotations
-        self.path = ao.path
-        #self.annotations = {aname : ao.annotation(aname) for aname in ao.annotations}
-        self.annotations = {}
-        for aname in ao.annotations:
-            self.annotations[aname] = ao.annotation(aname)
-        ## Convert to Scatter and set dimensionality & recarray column names
-        s = ao.mkScatter()
-        names = ['x', 'y', 'exminus', 'explus', 'eyminus', 'eyplus']
-        # TODO: also Scatter1D
-        if type(s) is yoda.Scatter2D:
-            self.dim = 2
-        elif type(s) is yoda.Scatter3D:
-            self.dim = 3
-            names.insert(2, "z")
-            names += ['ezminus', 'ezplus']
-        else:
-            raise RuntimeError("Whoa! If ao doesn't convert to a 2D or 3D scatter, what is it?!")
-        ## Put data points into numpy structure
-        dtype = {"names": names, "formats": ["f4" for _ in names]}
-        self.data = np.zeros(len(s.points), dtype).view(np.recarray)
-        for i, p in enumerate(s.points):
-            self.data.x[i] = p.x
-            self.data.exminus[i] = p.xErrs[0]
-            self.data.explus[i]  = p.xErrs[1]
-            self.data.y[i] = p.y
-            self.data.eyminus[i] = p.yErrs[0]
-            self.data.eyplus[i]  = p.yErrs[1]
-            if self.dim > 2:
-                self.data.z[i] = p.z
-                self.data.ezminus[i] = p.zErrs[0]
-                self.data.ezplus[i]  = p.zErrs[1]
-
-
-    def __len__(self):
-        return len(self.x)
-
-
-    @property
-    def xedges_sgl(self):
-        return np.append(self.xmin, self.xmax[-1])
-
-    @property
-    def xedges_dbl(self):
-        edges = np.empty((2*len(self.x),), dtype=self.x.dtype)
-        edges[0::2] = self.xmin
-        edges[1::2] = self.xmax
-        return edges
-
-
-    @property
-    def xmin(self):
-        return self.x - self.exminus
-
-    @property
-    def xmax(self):
-        return self.x + self.explus
-
-
-    @property
-    def ymin(self):
-        return self.y - self.eyminus
-
-    @property
-    def ymax(self):
-        return self.y + self.eyplus
-
-
-    # TODO: automate more with __get/setattr__?
-
-    @property
-    def x(self):
-        return self.data.x
-
-    @property
-    def exminus(self):
-        return self.data.exminus
-
-    @property
-    def explus(self):
-        return self.data.explus
-
-
-    @property
-    def y(self):
-        return self.data.y
-
-    @property
-    def eyminus(self):
-        return self.data.eyminus
-
-    @property
-    def eyplus(self):
-        return self.data.eyplus
-
-
-    # TODO: don't provide these / throw helpful errors if only 2D
-
-    @property
-    def z(self):
-        return self.data.z
-
-    @property
-    def ezminus(self):
-        return self.data.ezminus
-
-    @property
-    def ezplus(self):
-        return self.data.ezplus
-
-
-    # def __getattr__(self, attr):
-    #     "Fall back to the data array for attributes not defined on NumpyHist"
-    #     return getattr(self.data, attr)
-
-
-    def same_binning_as(self, other):
-        if self.dim != other.dim:
-            return False
-        if not (other.x == self.x).all() and \
-               (other.exminus == self.exminus).all() and \
-               (other.explus == self.explus).all():
-            return False
-        if self.dim == 2:
-            return True
-        return (other.y == self.y).all() and \
-               (other.eyminus == self.eyminus).all() and \
-               (other.eyplus == self.eyplus).all()
-
-
-
-def mk_numpyhist(h):
-    return h if type(h) is NumpyHist else NumpyHist(h)
-
-
-##########
 
 def read_plot_keys(datfile):
     import re
@@ -173,20 +52,16 @@ def read_plot_keys(datfile):
     return plotkeys
 
 
-## Plotting helper functions
-
-import matplotlib as mpl
-
-def setup_mpl(engine="MPL", font="TeX Gyre Pagella", fontsize=17, mfont=None, textfigs=True):
+def mplinit(engine="MPL", font="TeX Gyre Pagella", fontsize=17, mfont=None, textfigs=True):
     """One-liner matplotlib (mpl) setup.
 
-    By default mpl will be configured with the TeX PGF rendering backend, and a
-    Palatino-like font for both text and math contexts, using 'lower-case
-    numerals' if supported. Setting the engine to 'TEX' will use standard mpl
-    rendering, with calls to LaTeX for axis labels and other text; setting it to
-    'MPL' will use the built-in mpl MathText renderer. MPL mode only supports a
-    limited set of LaTeX macros and does not render as well as TeX, but it is
-    faster and can be used to render to an interactive window.
+    By default mpl will be configured with its native MathText rendering
+    backend, and a Palatino-like font for both text and math contexts, using
+    'lower-case numerals' if supported. Setting the engine to 'TEX' will use
+    standard mpl rendering, with calls to LaTeX for axis labels and other text;
+    setting it to 'PGF' will use the TeX PGF renderer: both these modes are much
+    slower than MPL mode, but the latter only supports a limited set of LaTeX
+    macros and does not render as nicely as the TeX backends.
 
     The font and mfont optional arguments can be used to choose a different text
     font and math font respectively; if mfont is None, it defaults to the same
@@ -194,7 +69,6 @@ def setup_mpl(engine="MPL", font="TeX Gyre Pagella", fontsize=17, mfont=None, te
     the lower-case/text/old-style numerals and use 'upper-case' numerals
     everywhere. These options do not currently apply to the MPL rendering engine.
     """
-    # import matplotlib as mpl
     mpl.rcParams.update({
         "text.usetex" : (engine != "MPL"),
         "font.size"   : int(fontsize),
@@ -208,31 +82,41 @@ def setup_mpl(engine="MPL", font="TeX Gyre Pagella", fontsize=17, mfont=None, te
     texpreamble.append( r"\setmainfont{fopts}{{{font}}}".format(fopts=fontopts, font=font) )
     texpreamble.append( r"\setmathsfont(Digits,Latin){fopts}{{{font}}}".format(fopts=mfontopts, font=mfont) )
 
-    if engine == "PGF":
+    if engine.upper() == "PGF":
         mpl.use("pgf")
         mpl.rcParams["pgf.preamble"] = texpreamble
-    elif engine == "TEX":
-        mpl.rcParams["tex.preamble"] = texpreamble
+    # TODO: Fix?
+    # elif engine.upper() == "TEX":
+    #     mpl.rcParams["text.latex.preamble"] = texpreamble
 
-    # TODO: do we need plt?
-    from matplotlib import pyplot as plt
-    return mpl, plt
+    return mpl
+
+## Alias
+initmpl = mplinit
+setup_mpl = mplinit
+
+
+def show():
+    """
+    Convenience call to matplotlib.pyplot.show()
+
+    NOTE: done this way to avoid import of pyplot before mplinit()
+    or mpl.use() has been (optionally) called.
+    """
+    import matplotlib.pyplot as plt
+    plt.show()
 
 
 def mk_figaxes_1d(ratio=True, title=None, figsize=(8,6)):
-    "Make figure and subplot grid layout"
+    "Make a standard main+ratio plot figure and subplot layout"
 
-    if "plt" not in dir():
-        mpl, plt = setup_mpl()
-
-    # TODO: Eliminate plt? Requires manual work to set up the backend-specific
-    # canvas, but would be better for 'more local' memory management
+    ## We need to use pyplot here to set up the backend-specific canvas
+    import matplotlib.pyplot as plt
     fig = plt.figure(figsize=figsize)
-    # fig = mpl.figure.Figure(figsize=figsize, tight_layout=True)
+    #fig = mpl.figure.Figure(figsize=figsize, tight_layout=True)
 
     if title:
         fig.suptitle(title, horizontalalignment="left", x=0.13)
-
 
     ## Make axes. GridSpec may not be available, in which case fall back ~gracefully
     axmain, axratio = None, None
@@ -240,18 +124,18 @@ def mk_figaxes_1d(ratio=True, title=None, figsize=(8,6)):
         try:
             gs = mpl.gridspec.GridSpec(2, 1, height_ratios=[3,1], hspace=0)
             axmain = fig.add_subplot(gs[0])
-            axmain.hold(True)
+            #axmain.hold(True)
             axratio = fig.add_subplot(gs[1], sharex=axmain)
-            axratio.hold(True)
+            #axratio.hold(True)
             axratio.axhline(1.0, color="gray") #< Ratio = 1 marker line
         except:
             sys.stderr.write("matplotlib.gridspec not available: falling back to plotting without a ratio\n")
             ratio = False
     if not ratio:
         axmain = fig.add_subplot(1,1,1)
-        axmain.hold(True)
+        #axmain.hold(True)
 
-    return fig, axmain, axratio
+    return fig, (axmain, axratio)
 
 
 def set_axis_labels_1d(axmain, axratio, xlabel=None, ylabel=None, ratioylabel=None):
@@ -264,21 +148,29 @@ def set_axis_labels_1d(axmain, axratio, xlabel=None, ylabel=None, ratioylabel=No
         axmain.set_xlabel(xlabel, x=1, ha="right", labelpad=None)
 
 
+def mk_lowcase_dict(d):
+    "Convert the keys of a str->obj dict to lower-case"
+    return dict((k.lower(), v) for (k,v) in d.items())
+
+
 # TODO: Needs generalisation for 2D marginal axes)
-def setup_axes_1d(axmain, axratio, plotkeys):
+def setup_axes_1d(axmain, axratio, **plotkeys):
+
+    ## Case-insensitize the plotkeys dict
+    plotkeys = mk_lowcase_dict(plotkeys)
 
     ## Axis labels first
-    xlabel = plotkeys.get("XLabel", "")
-    ylabel = plotkeys.get("YLabel", "")
-    ratioylabel = plotkeys.get("RatioYLabel", "Ratio")
+    xlabel = plotkeys.get("xlabel", "")
+    ylabel = plotkeys.get("xlabel", "")
+    ratioylabel = plotkeys.get("ratioylabel", "ratio")
     set_axis_labels_1d(axmain, axratio, xlabel, ylabel, ratioylabel)
 
     ## log/lin measures
     # TODO: Dynamic default based on data ranges?
     # TODO: take log axes and preference for round numbers into account in setting default axis limits
-    xmeasure = "log" if yoda.util.as_bool(plotkeys.get("LogX", False)) else "linear"
-    ymeasure = "log" if yoda.util.as_bool(plotkeys.get("LogY", False)) else "linear"
-    ratioymeasure = "log" if yoda.util.as_bool(plotkeys.get("RatioLogY", False)) else "linear"
+    xmeasure = "log" if yoda.util.as_bool(plotkeys.get("logX", False)) else "linear"
+    ymeasure = "log" if yoda.util.as_bool(plotkeys.get("logY", False)) else "linear"
+    ratioymeasure = "log" if yoda.util.as_bool(plotkeys.get("ratiology", False)) else "linear"
     axmain.set_xscale(xmeasure)
     axmain.set_yscale(ymeasure)
     if axratio:
@@ -286,90 +178,90 @@ def setup_axes_1d(axmain, axratio, plotkeys):
         axratio.set_yscale(ratioymeasure)
 
     ## Plot range limits
-    if plotkeys.has_key("YMin"):
-        axmain.set_ylim(bottom=float(plotkeys.get("YMin")))
-    if plotkeys.has_key("YMax"):
-        axmain.set_ylim(top=float(plotkeys.get("YMin")))
+    if "ymin" in plotkeys:
+        axmain.set_ylim(bottom=float(plotkeys.get("ymin")))
+    if "ymax" in plotkeys:
+        axmain.set_ylim(top=float(plotkeys.get("ymax")))
     #
-    if plotkeys.has_key("XMin"):
-        axmain.set_xlim(left=float(plotkeys.get("XMin")))
-    if plotkeys.has_key("XMax"):
-        axmain.set_xlim(right=float(plotkeys.get("XMin")))
+    if "xmin" in plotkeys:
+        axmain.set_xlim(left=float(plotkeys.get("xmin")))
+    if "xmax" in plotkeys:
+        axmain.set_xlim(right=float(plotkeys.get("xmax")))
     #
     if axratio:
         # TODO: RatioSymmRange option
         # axratio.set_xlim([xmin-0.001*xdiff, xmax+0.001*xdiff]) # <- TODO: bad on a log scale!
-        if plotkeys.has_key("XMin"):
-            axratio.set_xlim(left=float(plotkeys.get("XMin")))
-        if plotkeys.has_key("XMax"):
-            axratio.set_xlim(right=float(plotkeys.get("XMin")))
-        if plotkeys.has_key("RatioYMin"):
-            axratio.set_ylim(bottom=float(plotkeys.get("RatioYMin")))
-        if plotkeys.has_key("RatioYMax"):
-            axratio.set_ylim(top=float(plotkeys.get("RatioYMax")))
+        if "xmin" in plotkeys:
+            axratio.set_xlim(left=float(plotkeys.get("xmin")))
+        if "xmax" in plotkeys:
+            axratio.set_xlim(right=float(plotkeys.get("xmax")))
+        if "ratioymin" in plotkeys:
+            axratio.set_ylim(bottom=float(plotkeys.get("ratioymin")))
+        if "ratioymax" in plotkeys:
+            axratio.set_ylim(top=float(plotkeys.get("ratioymax")))
 
     # TODO: Ratio plot manual ticks
 
 
-# TODO: rename to be more obviously an ~internal helper
-def plot_hist_on_axes_1d(axmain, axratio, h, href=None, default_color="black", default_linestyle="-"):
-    if "plt" not in dir():
-        mpl, plt = setup_mpl()
+def plot_hist_on_axes_1d(axmain, axratio, h, href=None, default_color="black", default_linestyle="-", **plotkeys):
 
-    h = mk_numpyhist(h)
+    ## Case-insensitize the plotkeys dict
+    hkeys = mk_lowcase_dict(h.annotationsDict)
+    hkeys.update(plotkeys)
+    plotkeys = hkeys
 
     # TODO: Split into different plot styles: line/filled/range, step/diag/smooth, ...?
 
     ## Styles
-    default_color = h.annotations.get("Color", default_color)
-    marker = h.annotations.get("Marker", h.annotations.get("PolyMarker", None)) # <- make-plots translation
+    default_color = plotkeys.get("color", default_color)
+    marker = plotkeys.get("marker", plotkeys.get("polymarker", None)) # <- make-plots translation
     marker = {"*":"o"}.get(marker, marker) # <- make-plots translation
-    mcolor = h.annotations.get("LineColor", default_color)
-    errbar = h.annotations.get("ErrorBars", None)
-    ecolor = h.annotations.get("ErrorBarsColor", default_color)
-    line = h.annotations.get("Line", None)
-    lcolor = h.annotations.get("LineColor", default_color)
-    lstyle = h.annotations.get("LineStyle", default_linestyle)
+    mcolor = plotkeys.get("linecolor", default_color)
+    errbar = plotkeys.get("errorbars", None)
+    ecolor = plotkeys.get("errorbarscolor", default_color)
+    line = plotkeys.get("line", None)
+    lcolor = plotkeys.get("linecolor", default_color)
+    lstyle = plotkeys.get("linestyle", default_linestyle)
     lstyle = {"solid":"-", "dashed":"--", "dotdashed":"-.", "dashdotted":"-.", "dotted":":"}.get(lstyle, lstyle) # <- make-plots translation
     lwidth = 1.4
     msize = 7
 
     ## If no drawing is enabled, default to a step line
-    if not any(h.annotations.get(a) for a in ("Marker", "Line", "ErrorBars")):
+    if not any([marker, line, errbar]):
         line = "step"
 
-    ## Plotting
+    ## MPL plotting
     # TODO: Split this into different functions for each kind of data preparation (and smoothing as an extra function?)
+    # TODO: First convert h to scatter
     artists = None
     if errbar:
-        artists = axmain.errorbar(h.x, h.y, xerr=h.exminus, yerr=h.eyminus, color=ecolor, linestyle="none", linewidth=lwidth, capthick=lwidth) # linestyle="-", marker="o",
+        artists = axmain.errorbar(h.xVals(), h.yVals(), xerr=h.xErrs(), yerr=h.yErrs(), color=ecolor, linestyle="none", linewidth=lwidth, capthick=lwidth) # linestyle="-", marker="o",
     if line == "step":
-        artists = axmain.step(np.append(h.xmin, h.xmax[-1]), np.append(h.y, h.y[-1]), where="post", color=lcolor, linestyle=lstyle, linewidth=lwidth)
+        artists = axmain.step(np.append(h.xMins(), h.xMax), np.append(h.yVals(), h.yVals()[-1]), where="post", color=lcolor, linestyle=lstyle, linewidth=lwidth)
     elif line == "diag":
-        artists = axmain.plot(h.x, h.y, color=lcolor, linestyle=lstyle, linewidth=lwidth)
+        artists = axmain.plot(h.xVals(), h.yVals(), color=lcolor, linestyle=lstyle, linewidth=lwidth)
     elif line == "smooth":
         from scipy.interpolate import spline
-        xnew = np.linspace(h.x.min(), h.x.max(), 3*len(h))
-        ynew = spline(h.x, h.y, xnew)
+        xnew = np.linspace(min(h.xVals()), max(h.xVals()), 3*h.numBins)
+        ynew = spline(h.xVals(), h.yVals(), xnew)
         artists = axmain.plot(xnew, ynew, color=lcolor, linestyle=lstyle, linewidth=lwidth)
     if marker:
-        artists = axmain.plot(h.x, h.y, marker=marker, markersize=msize, linestyle="none", color=mcolor, markeredgecolor=mcolor)
+        artists = axmain.plot(h.xVals(), h.yVals(), marker=marker, markersize=msize, linestyle="none", color=mcolor, markeredgecolor=mcolor)
 
     ## Legend entry
-    label = h.annotations.get("Title", None)
-    if label and artists:
-        artists[0].set_label(label)
+    if h.title and artists:
+        artists[0].set_label(h.title)
 
     ## Ratio
     ratioartists = None
     if href and h is not href:
         # TODO: exclude and specify order via RatioIndex
-        assert h.same_binning_as(href)
+        # assert h.same_binning_as(href)
         # TODO: log ratio or #sigma deviation
-        yratios = h.y/href.y
+        yratios = np.array(h.yVals())/np.array(href.yVals())
         # TODO: Same styling control as for main plot (with Ratio prefix, default to main plot style)
         ## Stepped plot
-        ratioartists = axratio.step(href.xedges_sgl, np.append(yratios, yratios[-1]), where="post", color=lcolor, linestyle=lstyle, linewidth=lwidth)
+        ratioartists = axratio.step(np.append(href.xMins(), href.xMax), np.append(yratios, yratios[-1]), where="post", color=lcolor, linestyle=lstyle, linewidth=lwidth)
         # TODO: Diag plot
         # axratio.plot(href["x"], yratios, color="r", linestyle="--")
         # TODO: Smoothed plot
@@ -377,42 +269,53 @@ def plot_hist_on_axes_1d(axmain, axratio, h, href=None, default_color="black", d
     return artists
 
 
-# TODO: Add arg for MPL setup?
-def plot_hists_1d(hs, outfile=None, ratio=None, plotkeys={}):
-    """Plot the given histograms on a single figure, returning the 3-tuple of
-    (fig, main_axis, ratio_axis), and saving to outfile if it is given."""
+def plot(hs, outfile=None, ratio=True, show=False, axmain=None, axratio=None, **plotkeys):
+    """
+    Plot the given histograms on a single figure, returning (fig, (main_axis,
+    ratio_axis)). Show to screen if the second arg is True, and saving to outfile
+    if it is otherwise non-null.
+    """
 
-    if "plt" not in dir():
-        mpl, plt = setup_mpl()
+    ## Case-insensitize the plotkeys dict
+    plotkeys = mk_lowcase_dict(plotkeys)
 
-    #print hs
-    hs = [mk_numpyhist(h) for h in hs]
+    ## Handle single histo args
+    if isinstance(hs, yoda.AnalysisObject):
+        hs = [hs,]
+        ratio = False
 
     ## Get data ranges (calculated or forced)
-    # TODO: Round up calc'd ymax to nearest round number within 10% of ydiff, to create a top tick label... sensitive to log/lin measure
-    xmin = float(plotkeys.get("XMin", min(min(h.xmin) for h in hs)))
-    xmax = float(plotkeys.get("XMax", max(max(h.xmax) for h in hs)))
+    xmin = float(plotkeys.get("xmin", min(h.xMin for h in hs)))
+    xmax = float(plotkeys.get("xmax", max(h.xMax for h in hs)))
     xdiff = xmax - xmin
     # print xmin, xmax, xdiff
-    ymin = float(plotkeys.get("YMin", min(min(h.ymin) for h in hs)))
-    ymax = float(plotkeys.get("YMax", max(max(h.ymax) for h in hs)))
+    # TODO: Tweak max-padding for top tick label... sensitive to log/lin measure
+    ymin = float(plotkeys.get("ymin", min(min(h.yVals()) for h in hs)))
+    ymax = float(plotkeys.get("ymax", 1.1*max(max(h.yVals()) for h in hs)))
     ydiff = ymax - ymin
     # print ymin, ymax, ydiff
 
     ## Identify reference histo by annotation (unless explicitly disabled)
     href = None
     # TODO: Use ratio to setdefault RatioPlot in plotkeys, then use that to decide whether to look for href
-    if ratio is not False:
+    if ratio:
         for h in hs:
-            if yoda.util.as_bool(h.annotations.get("RatioRef", False)):
+            hkeys = mk_lowcase_dict(h.annotationsDict)
+            if yoda.util.as_bool(hkeys.get("ratioref", False)):
                 if href is None:
                     href = h
                 else:
-                    print "Multiple ratio references set: using first value = {}".format(href.path)
+                    #print "Multiple ratio references set: using first value = {}".format(href.path)
+                    break
+    if href is None: #< no ref found -- maybe all were disabled?
+        ratio = False
 
     ## Make figure and subplot grid layout
-    title = plotkeys.get("Title", "")
-    fig, axmain, axratio = mk_figaxes_1d(href, title)
+    title = plotkeys.get("title", "")
+    if not axmain:
+        fig, (axmain, axratio) = mk_figaxes_1d(ratio and not axratio, title)
+    else:
+        fig = axmain.get_figure()
 
     ## Setup axes appearances
     axmain.set_xlim([xmin, xmax])
@@ -420,22 +323,27 @@ def plot_hists_1d(hs, outfile=None, ratio=None, plotkeys={}):
     if axratio:
         axratio.set_xlim([xmin, xmax])
         axratio.set_ylim(auto=True)
-    setup_axes_1d(axmain, axratio, plotkeys)
+    setup_axes_1d(axmain, axratio, **plotkeys)
 
     # TODO: specify ratio display in log/lin, abs, or #sigma, and as x/r or (x-r)/r
 
     ## Draw ratio error band (do this before looping over cmp lines)
     # TODO: Actually we can call this when we hit the href, and force the zorder into groups: bands, lines, dots, legend, text, frame
     if axratio:
-        ref_ymax_ratios = href.ymax/href.y
-        ref_ymin_ratios = href.ymin/href.y
+        ref_ymax_ratios = np.array(href.yMaxs())/np.array(href.yVals())
+        ref_ymin_ratios = np.array(href.yMins())/np.array(href.yVals())
         # TODO: Diag: (needs -> limit handling at ends)
         # axratio.fill_between(href.x, ref_ymin_ratios, ref_ymax_ratios, edgecolor="none", facecolor=ratioerrcolor, interpolate=False)
         # Stepped:
+        def xedges_dbl(h):
+            edges = np.empty((2*len(h.xVals()),))
+            edges[0::2] = h.xMins()
+            edges[1::2] = h.xMaxs()
+            return edges
         def dbl_array(arr):
             return sum(([x,x] for x in arr), [])
-        ratioerrcolor = plotkeys.get("RatioErrColor", "yellow")
-        axratio.fill_between(href.xedges_dbl, dbl_array(ref_ymin_ratios), dbl_array(ref_ymax_ratios),
+        ratioerrcolor = plotkeys.get("ratioerrcolor", "yellow")
+        axratio.fill_between(xedges_dbl(href), dbl_array(ref_ymin_ratios), dbl_array(ref_ymax_ratios),
                              edgecolor="none", facecolor=ratioerrcolor)
         # TODO: Smoothed: (needs -> limit handling at ends)
         # Redraw ratio = 1 marker line:
@@ -469,79 +377,64 @@ def plot_hists_1d(hs, outfile=None, ratio=None, plotkeys={}):
         #print "Saving to " + outfile
         fig.savefig(outfile)
 
+    ## Show to screen if requested
+    if show:
+        import matplotlib.pyplot as plt
+        plt.show()
+
     ## Return the figure objects
-    return fig, axmain, axratio
+    return fig, (axmain, axratio)
 
 
-# TODO: Add arg for MPL setup?
-# TODO: plotkeys -> kwargs via lower-casing
-def plot_hist_1d(h, outfile=None, plotkeys={}):
-    """Plot the given histogram on a single figure without a ratio plot,
-    returning the 2-tuple of (fig, main_axis).
-
-    TODO:
-     * Return the list of lines
-    """
-    f, ax, _ = plot_hists_1d([h,], outfile=outfile, ratio=False, plotkeys=plotkeys)
-    return f, ax
-
-
-# TODO: plotkeys -> kwargs via lower-casing
-def plot(hs, outfile=None, plotkeys={}, ratio=None):
-    """Plot the given histogram(s) on a single figure, maybe with a ratio plot,
-    and return the 2-tuple of (fig, (main_axis,ratio_axis)). If an outfile is
-    given, it will be saved to before returning the figure objects.
-
-    TODO:
-     * Return the list of lines
-     * Handle 2D plots, too.
-    """
-    #print hs
-    if type(hs) in (list, tuple):
-        f, axm, axr = plot_hists_1d(hs, outfile=outfile, ratio=ratio, plotkeys=plotkeys)
-    else:
-        f, axm, axr = plot_hists_1d([hs,], outfile=outfile, ratio=False, plotkeys=plotkeys)
-    return f, (axm, axr)
+## Aliases
+plot_hists_1d = plot
+plot_hist_1d = plot
 
 
 def _plot1arg(args):
-    "Helper function for mplot, until pool.starmap() is available"
-    # hs, outfile, ratio, plotkeys = args
+    "Helper function for mplot, until Py >= 3.3 multiprocessing.pool.starmap() is available"
     return plot(*args)
 
-def mplot(hs, outfiles=None, plotkeys={}, ratio=None, nproc=None):
-    """Plot the given list of histogram(s) using the Python multiprocessing
-    module to distribute the work on to multiple parallel processes. This is
-    just syntactic sugar for something fairly easily done by the user.
+
+def nplot(hs, outfiles=None, ratio=True, show=False, nproc=1, **plotkeys):
+    """
+    Plot the given list of histogram(s), cf. many calls to plot().
 
     hs must be an iterable, each entry of which will be the content of a single
     plot: the entries can either be single histograms or lists of histograms,
     i.e. either kind of valid first argument to plot().
 
-    The outfiles, plotkeys, and ratio arguments can either be iterables of valid
-    corresponding plot() args, or single instances of such args to be applied to
-    all the plots.
+    Outfiles must be an iterable corresponding to hs, and ratio may either be a
+    bool or such an iterable.
+
+    The return value is a list of the return tuples from each call to plot(), of
+    the same length as the hs arg.
+
+
+    MULTIPROCESSING -- *WARNING* CURRENTLY BROKEN
+
+    The main point of this function, other than convenience, is that the Python
+    multiprocessing module can be used to distribute the work on to multiple
+    parallel processes.
 
     The nproc argument should be the integer number of parallel processes on
     which to distribute the plotting. nproc = None (the default value) will use
     Ncpu-1 or 1 process, whichever is larger. If nproc = 1, multiprocessing will
-    not be used -- this may ease debugging.
-
-    The return value is a list of the return tuples from each call to plot(), of
-    the same length as the hs arg.
+    not be used -- this avoids overhead and eases debugging.
     """
 
     argslist = []
     for i, hs_arg in enumerate(hs):
-        hs_arg = [mk_numpyhist(h) for h in hs_arg] if type(hs_arg) in (list,tuple) else mk_numpyhist(hs_arg)
         outfile_arg = outfiles[i] if outfiles else None
-        plotkeys_arg = plotkeys if type(plotkeys) is dict else plotkeys[i]
         ratio_arg = ratio[i] if hasattr(ratio, "__iter__") else ratio
-        argslist.append( (hs_arg, outfile_arg, plotkeys_arg, ratio_arg) )
+        show_arg = False #< we just do this once, at the end
+        plotkeys_arg = plotkeys if type(plotkeys) is dict else plotkeys[i]
+        argslist.append( (hs_arg, outfile_arg, ratio_arg, show_arg, None, None, plotkeys_arg) )
     #print argslist
 
+    # TODO: make the multiprocessing work
     import multiprocessing
-    nproc = nproc or multiprocessing.cpu_count()-1 or 1
+    nproc = nproc or multiprocessing.cpu_count() or 1
     if nproc > 1:
         pool = multiprocessing.Pool(processes=nproc)
         res = pool.map_async(_plot1arg, argslist)
@@ -549,5 +442,9 @@ def mplot(hs, outfiles=None, plotkeys={}, ratio=None, nproc=None):
     else:
         ## Run this way in the 1 proc case for easier debugging
         rtn = [_plot1arg(args) for args in argslist]
+
+    if show:
+        import matplotlib.pyplot as plt
+        plt.show()
 
     return rtn

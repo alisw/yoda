@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Dbn3D_h
 #define YODA_Dbn3D_h
@@ -28,7 +28,7 @@ namespace YODA {
     /// Constructor to set a distribution with a pre-filled state.
     ///
     /// Principally designed for internal persistency use.
-    Dbn3D(unsigned long numEntries,
+    Dbn3D(double numEntries,
           double sumW, double sumW2,
           double sumWX, double sumWX2,
           double sumWY, double sumWY2,
@@ -74,20 +74,20 @@ namespace YODA {
     //@{
 
     /// Fill, providing the fill coordinates as three different numbers.
-    void fill(double valX, double valY, double valZ, double weight=1.0) {
-      _dbnX.fill(valX, weight);
-      _dbnY.fill(valY, weight);
-      _dbnZ.fill(valZ, weight);
-      _sumWXY += weight*valX*valY;
-      _sumWXZ += weight*valX*valZ;
-      _sumWYZ += weight*valY*valZ;
+    void fill(double valX, double valY, double valZ, double weight=1.0, double fraction=1.0) {
+      _dbnX.fill(valX, weight, fraction);
+      _dbnY.fill(valY, weight, fraction);
+      _dbnZ.fill(valZ, weight, fraction);
+      _sumWXY += fraction*weight*valX*valY;
+      _sumWXZ += fraction*weight*valX*valZ;
+      _sumWYZ += fraction*weight*valY*valZ;
     }
 
 
     /// Fill, providing the fill coordinates as a vector.
-    void fill(std::vector<double> val, double weight=1.0) {
+    void fill(std::vector<double> val, double weight=1.0, double fraction=1.0) {
       assert (val.size() == 3);
-      fill(val[0], val[1], val[2], weight);
+      fill(val[0], val[1], val[2], weight, fraction);
     }
 
 
@@ -231,7 +231,7 @@ namespace YODA {
     //@{
 
     /// Number of entries (number of times @c fill was called, ignoring weights)
-    unsigned long numEntries() const {
+    double numEntries() const {
       return _dbnX.numEntries();
     }
 

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_STRINGUTILS_H
 #define YODA_STRINGUTILS_H
@@ -10,6 +10,7 @@
 #include <sstream>
 #include <algorithm>
 #include <stdexcept>
+//#include <iostream>
 
 namespace YODA {
   namespace Utils {
@@ -75,6 +76,23 @@ namespace YODA {
         }
       }
       return out;
+    }
+
+
+    /// Does the string @a s contain the given substring?
+    inline bool contains(const std::string& s, const std::string& sub) {
+      return s.find(sub) != std::string::npos;
+    }
+
+    /// Does the string @a s start with the given substring?
+    inline bool startswith(const std::string& s, const std::string& sub) {
+      return s.find(sub) == 0;
+    }
+
+    /// Does the string @a s end with the given substring?
+    inline bool endswith(const std::string& s, const std::string& sub) {
+      const size_t pos = s.find(sub);
+      return pos != std::string::npos && pos == (s.size()-sub.size());
     }
 
 

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_ProfileBin2D_h
 #define YODA_ProfileBin2D_h
@@ -65,22 +65,22 @@ namespace YODA {
     /// Fill by x, y, z values and weight
     ///
     /// @note This should not be used, since it breaks histogram consistency. It will be removed in a future version.
-    void fill(double x, double y, double z, double weight=1.0) {
-      _dbn.fill(x, y, z, weight);
+    void fill(double x, double y, double z, double weight=1.0, double fraction=1.0) {
+      _dbn.fill(x, y, z, weight, fraction);
     }
 
     /// A fill() function accepting the x,y coordinates as std::pair
     ///
     /// @note This should not be used, since it breaks histogram consistency. It will be removed in a future version.
-    void fill(std::pair<double,double> coords, double z, double weight=1.0) {
-      fill(coords.first, coords.second, z, weight);
+    void fill(std::pair<double,double> coords, double z, double weight=1.0, double fraction=1.0) {
+      fill(coords.first, coords.second, z, weight, fraction);
     }
 
     /// Fill the bin at the midpoint with a given z value
     ///
     /// @note This should not be used, since it breaks histogram consistency. It will be removed in a future version.
-    void fillBin(double z, double weight=1.0){
-      fill(xyMid(), z, weight);
+    void fillBin(double z, double weight=1.0, double fraction=1.0){
+      fill(xyMid(), z, weight, fraction);
     }
 
     /// A reset function

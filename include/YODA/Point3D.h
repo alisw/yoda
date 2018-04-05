@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_POINT3D_H
 #define YODA_POINT3D_H
@@ -441,9 +441,9 @@ namespace YODA {
     /// Set the point value for direction @a i
     void setVal(size_t i, double val) {
       switch (i) {
-      case 1: setX(val);
-      case 2: setY(val);
-      case 3: setZ(val);
+      case 1: setX(val); break;
+      case 2: setY(val); break;
+      case 3: setZ(val); break;
       default: throw RangeError("Invalid axis int, must be in range 1..dim");
       }
     }
@@ -488,18 +488,18 @@ namespace YODA {
     /// Set negative error for direction @a i
     void setErrMinus(size_t i, double eminus) {
       switch (i) {
-      case 1: setXErrMinus(eminus);
-      case 2: setYErrMinus(eminus);
-      case 3: setZErrMinus(eminus);
+      case 1: setXErrMinus(eminus); break;
+      case 2: setYErrMinus(eminus); break;
+      case 3: setZErrMinus(eminus); break;
       default: throw RangeError("Invalid axis int, must be in range 1..dim");
       }
     }
     /// Set positive error for direction @a i
     void setErrPlus(size_t i, double eplus) {
       switch (i) {
-      case 1: setXErrPlus(eplus);
-      case 2: setYErrPlus(eplus);
-      case 3: setZErrPlus(eplus);
+      case 1: setXErrPlus(eplus); break;
+      case 2: setYErrPlus(eplus); break;
+      case 3: setZErrPlus(eplus); break;
       default: throw RangeError("Invalid axis int, must be in range 1..dim");
       }
     }
@@ -507,27 +507,27 @@ namespace YODA {
     /// Set symmetric error for direction @a i
     void setErr(size_t i, double e) {
       switch (i) {
-      case 1: setXErrs(e);
-      case 2: setYErrs(e);
-      case 3: setZErrs(e);
+      case 1: setXErrs(e); break;
+      case 2: setYErrs(e); break;
+      case 3: setZErrs(e); break;
       default: throw RangeError("Invalid axis int, must be in range 1..dim");
       }
     }
     /// Set asymmetric error for direction @a i
     void setErrs(size_t i, double eminus, double eplus) {
       switch (i) {
-      case 1: setXErrs(eminus, eplus);
-      case 2: setYErrs(eminus, eplus);
-      case 3: setZErrs(eminus, eplus);
+      case 1: setXErrs(eminus, eplus); break;
+      case 2: setYErrs(eminus, eplus); break;
+      case 3: setZErrs(eminus, eplus); break;
       default: throw RangeError("Invalid axis int, must be in range 1..dim");
       }
     }
     /// Set asymmetric error for direction @a i
     void setErrs(size_t i, std::pair<double,double>& e) {
       switch (i) {
-      case 1: setXErrs(e);
-      case 2: setYErrs(e);
-      case 3: setZErrs(e);
+      case 1: setXErrs(e); break;
+      case 2: setYErrs(e); break;
+      case 3: setZErrs(e); break;
       default: throw RangeError("Invalid axis int, must be in range 1..dim");
       }
     }
@@ -535,27 +535,27 @@ namespace YODA {
     /// Set value and symmetric error for direction @a i
     void set(size_t i, double val, double e) {
       switch (i) {
-      case 1: setX(val, e);
-      case 2: setY(val, e);
-      case 3: setZ(val, e);
+      case 1: setX(val, e); break;
+      case 2: setY(val, e); break;
+      case 3: setZ(val, e); break;
       default: throw RangeError("Invalid axis int, must be in range 1..dim");
       }
     }
     /// Set value and asymmetric error for direction @a i
     void set(size_t i, double val, double eminus, double eplus) {
       switch (i) {
-      case 1: setX(val, eminus, eplus);
-      case 2: setY(val, eminus, eplus);
-      case 3: setZ(val, eminus, eplus);
+      case 1: setX(val, eminus, eplus); break;
+      case 2: setY(val, eminus, eplus); break;
+      case 3: setZ(val, eminus, eplus); break;
       default: throw RangeError("Invalid axis int, must be in range 1..dim");
       }
     }
     /// Set value and asymmetric error for direction @a i
     void set(size_t i, double val, std::pair<double,double>& e) {
       switch (i) {
-      case 1: setX(val, e);
-      case 2: setY(val, e);
-      case 3: setZ(val, e);
+      case 1: setX(val, e); break;
+      case 2: setY(val, e); break;
+      case 3: setZ(val, e); break;
       default: throw RangeError("Invalid axis int, must be in range 1..dim");
       }
     }

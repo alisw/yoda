@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2016 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_READERFLAT_H
 #define YODA_READERFLAT_H
@@ -21,11 +21,8 @@ namespace YODA {
   public:
 
     /// Singleton creation function
-    static Reader& create() {
-      static ReaderFLAT _instance;
-      return _instance;
-    }
-
+    static Reader& create();
+    
     void read(std::istream& stream, std::vector<AnalysisObject*>& aos);
 
   private:

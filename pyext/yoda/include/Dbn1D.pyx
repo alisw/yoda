@@ -1,3 +1,4 @@
+cimport util
 cdef class Dbn1D(util.Base):
     """
     A 1D distribution 'counter', used and exposed by 1D histograms and their bins.
@@ -36,13 +37,13 @@ cdef class Dbn1D(util.Base):
         self.d1ptr().reset()
 
 
-    def fill(self, x, weight=1.0):
+    def fill(self, x, weight=1.0, fraction=1.0):
         """
         (float x, float weight=1.0) -> None
 
         Fills the distribution with the given weight at given x.
         """
-        self.d1ptr().fill(x, weight)
+        self.d1ptr().fill(x, weight, fraction)
 
     def scaleW(self, w):
         """
@@ -65,42 +66,31 @@ cdef class Dbn1D(util.Base):
     def xMean(self):
         """Weighted mean of x"""
         return self.d1ptr().xMean()
-    # TODO: remove alias
-    mean = xMean
-
+    
     @property
     def xVariance(self):
         """Weighted variance of x"""
         return self.d1ptr().xVariance()
-    # TODO: remove alias
-    variance = xVariance
 
     @property
     def xStdDev(self):
         """Weighted standard deviation of x"""
         return self.d1ptr().xStdDev()
-    # TODO: remove alias
-    stdDev = xStdDev
 
     @property
     def xStdErr(self):
         """Weighted standard error on <x>"""
         return self.d1ptr().xStdErr()
-    # TODO: remove alias
-    stdErr = xStdErr
 
     @property
     def xRMS(self):
         """Weighted root mean squared (RMS) of x"""
         return self.d1ptr().xRMS()
-    # TODO: remove alias
-    rms = xRMS
-
 
     @property
     def numEntries(self):
         """The number of entries"""
-        return int(self.d1ptr().numEntries())
+        return self.d1ptr().numEntries()
 
     @property
     def effNumEntries(self):

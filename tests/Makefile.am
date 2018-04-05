@@ -1,4 +1,4 @@
-EXTRA_DIST = \
+PYTESTS = \
   pytest-unit \
   pytest-counter \
   pytest-h1d \
@@ -10,10 +10,28 @@ EXTRA_DIST = \
   pytest-div \
   pytest-rebin \
   pytest-iofilter \
-  pytest-operators \
+  pytest-operators
+
+SHTESTS = \
   shtest-yodamerge \
+  shtest-yodahist \
+  shtest-yodals \
+  shtest-yodacmp \
+  shtest-yoda2flat \
+  shtest-yodascale \
+  shtest-yodaplot \
+  shtest-yodacnv \
+  shtest-yoda2yoda
+
+EXTRA_DIST = $(PYTESTS) $(SHTESTS) \
   shtest-yoda2root \
   test1.yoda test2.yoda \
+  iofilter.yoda \
+  rivetexample.yoda \
+  yodals-ref.txt \
+  yodahist-ref.yoda \
+  yodahist-fills.txt \
+  yoda2flat-ref.dat \
   merged12-ref.yoda merged12pi-ref.yoda
 
 check_PROGRAMS = \
@@ -74,9 +92,9 @@ testscatter2Dmodify_SOURCES = Scatter2D/S2DModify.cc
 
 
 TESTS_ENVIRONMENT = \
-  LD_LIBRARY_PATH=$(top_builddir)/src:$(top_builddir)/src/.libs:$(LD_LIBRARY_PATH) \
-  DYLD_LIBRARY_PATH=$(top_builddir)/src:$(top_builddir)/src/.libs:$(DYLD_LIBRARY_PATH) \
-  PYTHONPATH=$(top_builddir)/pyext/build:$(PYTHONPATH) \
+  LD_LIBRARY_PATH=$(top_builddir)/src/.libs:$(LD_LIBRARY_PATH) \
+  DYLD_LIBRARY_PATH=$(top_builddir)/src/.libs:$(DYLD_LIBRARY_PATH) \
+  PYTHONPATH=$(top_builddir)/pyext/build/$(YODA_SETUP_PY_PATH):$(PYTHONPATH) \
   PATH=$(top_builddir)/bin:$(top_srcdir)/bin:$(PATH) \
   YODA_TESTS_SRC=$(srcdir)
 
@@ -101,29 +119,26 @@ TESTS = \
   testprofile1Dmodify \
   testscatter2Dcreate \
   testscatter2Dmodify \
-  testhisto2Dcreate \
-  pytest-unit \
-  pytest-counter \
-  pytest-h1d \
-  pytest-p1d \
-  pytest-h2d \
-  pytest-p2d \
-  pytest-s1d \
-  pytest-s2d \
-  pytest-div \
-  pytest-rebin \
-  pytest-iofilter \
-  pytest-operators \
-  shtest-yodamerge
+  testhisto2Dcreate
+
+### to make distcheck work on macOS, we need a
+### way to prevent the DYLD_LIBRARY_PATH setting
+### from being removed by system integrity protection
+### when /usr/bin/env is called 
+### (same for any other app in /usr/bin)
+###
+if ! WITH_OSX
+TESTS += $(PYTESTS) $(SHTESTS)
+endif
 
 CLEANFILES = \
-  merged12.yoda merged12pi.yoda \
   h1d.yoda h1d.dat \
   p1d.yoda p1d.dat \
   h2d.yoda h2d.dat \
   p2d.yoda p2d.dat \
   s1d.yoda s2d.yoda \
   testwriter1.yoda testwriter2.yoda \
+  foo_bar_baz.dat \
   counter.yoda \
   test.aida
 
