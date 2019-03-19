@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Profile1D_h
 #define YODA_Profile1D_h
@@ -164,6 +164,10 @@ namespace YODA {
       _axis.mergeBins(from, to);
     }
 
+    /// check if binning is the same as different Profile1D
+    bool sameBinning(const Profile1D& p1) {
+      return _axis == p1._axis;
+    }
 
     /// Merge every group of n bins, starting from the LHS
     void rebinBy(unsigned int n, size_t begin=0, size_t end=UINT_MAX) {
@@ -343,7 +347,7 @@ namespace YODA {
   protected:
 
     /// Access a bin by x-coordinate (non-const version)
-    ProfileBin1D& binAt(double x) { return _axis.binAt(x); }
+    ProfileBin1D& _binAt(double x) { return _axis.binAt(x); }
 
 
   private:

@@ -72,7 +72,9 @@ namespace YODA {
     }
 
     /// Constructor accepting a list of bins
-    Axis2D(const Bins& bins) {
+    Axis2D(const Bins& bins)
+      : _locked(false)
+    {
       addBins(bins);
       reset();
     }
@@ -490,7 +492,7 @@ namespace YODA {
     void _checkUnlocked(void) {
       // Ensure that axis is not locked
       if (_locked)
-        throw LockError("Attempting to update a locked axis");
+        throw LockError("Attempting to update a locked 2D axis");
     }
 
 

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_SCATTER2D_H
 #define YODA_SCATTER2D_H
@@ -104,7 +104,11 @@ namespace YODA {
     Scatter2D(const Scatter2D& s2, const std::string& path="")
       : AnalysisObject("Scatter2D", (path.size() == 0) ? s2.path() : path, s2, s2.title()),
         _points(s2._points)
-    {  }
+    {
+      for ( auto &ann : annotations()){
+        setAnnotation(ann, annotation(ann));
+      }
+    }
 
 
     /// Assignment operator
@@ -165,6 +169,8 @@ namespace YODA {
 
     ///////////////////////////////////////////////////
 
+    /// Get the list of variations stored in the points
+    const std::vector<std::string> variations() const;
 
     /// @name Point accessors
     //@{
@@ -252,7 +258,7 @@ namespace YODA {
       //return *this;
     }
 
-    /// @todo Better name? Make this the add operation?
+    /// @todo Better name?
     /// @todo Convert/extend to accept a Range or generic
     void combineWith(const std::vector<Scatter2D>& others) {
       for (const Scatter2D& s : others) combineWith(s);
@@ -271,6 +277,9 @@ namespace YODA {
     bool operator != (const Scatter2D& other) {
       return ! operator == (other);
     }
+
+
+    //////////////////////////////////
 
 
   private:

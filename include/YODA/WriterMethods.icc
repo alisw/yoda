@@ -18,7 +18,12 @@ write(std::ostream& stream, const T& ao) { write(stream, *ao); }
 
 /// Write out object @a ao to file @a filename.
 static void write(const std::string& filename, const AnalysisObject& ao) {
-  create().write(filename, ao);
+  const size_t lastdot = filename.find_last_of(".");
+  std::string fmt = Utils::toLower(lastdot == std::string::npos ? filename : filename.substr(lastdot+1));
+  const bool compress = (fmt == "gz");
+  Writer& w = create();
+  w.useCompression(compress);
+  w.write(filename, ao);
 }
 
 /// Write out pointer-like object @a ao to file @a filename.
@@ -41,7 +46,12 @@ write(std::ostream& stream, const RANGE& aos) {
 template <typename RANGE>
 static typename std::enable_if<CIterable<RANGE>::value>::type
 write(const std::string& filename, const RANGE& aos) {
-  create().write(filename, std::begin(aos), std::end(aos));
+  const size_t lastdot = filename.find_last_of(".");
+  std::string fmt = Utils::toLower(lastdot == std::string::npos ? filename : filename.substr(lastdot+1));
+  const bool compress = (fmt == "gz");
+  Writer& w = create();
+  w.useCompression(compress);
+  w.write(filename, std::begin(aos), std::end(aos));
 }
 
 //@}
@@ -65,7 +75,12 @@ static void write(std::ostream& stream, const AOITER& begin, const AOITER& end) 
 /// @todo Add SFINAE trait checking for AOITER = DerefableToAO
 template <typename AOITER>
 static void write(const std::string& filename, const AOITER& begin, const AOITER& end) {
-  create().write(filename, begin, end);
+  const size_t lastdot = filename.find_last_of(".");
+  std::string fmt = Utils::toLower(lastdot == std::string::npos ? filename : filename.substr(lastdot+1));
+  const bool compress = (fmt == "gz");
+  Writer& w = create();
+  w.useCompression(compress);
+  w.write(filename, begin, end);
 }
 
 //@}

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Profile2D_h
 #define YODA_Profile2D_h
@@ -207,6 +207,11 @@ namespace YODA {
       _axis.addBins(bins);
     }
 
+    /// check if binning is the same as different Profile2D
+    bool sameBinning(const Profile2D& p2) {
+      return _axis == p2._axis;
+    }
+
 
     /// @todo TODO
     // /// @brief Bin addition operator
@@ -385,7 +390,7 @@ namespace YODA {
   protected:
 
     /// Access a bin by coordinate (non-const)
-    ProfileBin2D& binAt(double x, double y) { return _axis.binAt(x, y); }
+    ProfileBin2D& _binAt(double x, double y) { return _axis.binAt(x, y); }
 
 
   private:

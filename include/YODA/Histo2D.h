@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Histo2D_h
 #define YODA_Histo2D_h
@@ -12,7 +12,6 @@
 #include "YODA/Axis2D.h"
 #include "YODA/Scatter3D.h"
 #include "YODA/Exceptions.h"
-
 #include <vector>
 #include <tuple>
 
@@ -256,6 +255,11 @@ namespace YODA {
     double yMax() const { return _axis.yMax(); }
 
 
+    /// check if binning is the same as different Histo2D
+    bool sameBinning(const Histo2D& h2) {
+      return _axis == h2._axis;
+    }
+
     /// Access the bin vector (non-const version)
     std::vector<YODA::HistoBin2D>& bins() { return _axis.bins(); }
     /// Access the bin vector (const version)
@@ -434,7 +438,7 @@ namespace YODA {
   protected:
 
     /// Access a bin by coordinate (non-const version)
-    HistoBin2D& binAt(double x, double y) { return _axis.binAt(x, y); }
+    HistoBin2D& _binAt(double x, double y) { return _axis.binAt(x, y); }
 
 
   private:

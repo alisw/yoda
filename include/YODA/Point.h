@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_POINT_H
 #define YODA_POINT_H
@@ -24,7 +24,9 @@ namespace YODA {
 
     /// Space dimension of the point
     virtual size_t dim() = 0;
-
+    
+    //get the error map for the highest dimension
+    virtual const std::map< std::string, std::pair<double,double>> & errMap() const =0;
 
     /// Get the point value for direction @a i
     virtual double val(size_t i) const = 0;
@@ -32,28 +34,28 @@ namespace YODA {
     virtual void setVal(size_t i, double val) = 0;
 
     /// Get error values for direction @a i
-    virtual const std::pair<double,double>& errs(size_t i) const = 0;
+    virtual const std::pair<double,double>& errs(size_t i, std::string source="") const = 0;
     /// Set symmetric error for direction @a i
-    virtual void setErr(size_t i, double e) = 0;
+    virtual void setErr(size_t i, double e, std::string source="") = 0;
     /// Set symmetric error for direction @a i (alias)
-    virtual void setErrs(size_t i, double e) { return setErr(i,e); }
+    virtual void setErrs(size_t i, double e,  std::string source="") { return setErr(i,e, source); }
     /// Set asymmetric error for direction @a i
-    virtual void setErrs(size_t i, double eminus, double eplus) = 0;
+    virtual void setErrs(size_t i, double eminus, double eplus, std::string source="") = 0;
     /// Set asymmetric error for direction @a i
-    virtual void setErrs(size_t i, std::pair<double,double>& e) = 0;
+    virtual void setErrs(size_t i, std::pair<double,double>& e, std::string source="") = 0;
 
     /// Get negative error value for direction @a i
-    virtual double errMinus(size_t i) const = 0;
+    virtual double errMinus(size_t i, std::string source="") const = 0;
     /// Set negative error for direction @a i
-    virtual void setErrMinus(size_t i, double eminus) = 0;
+    virtual void setErrMinus(size_t i, double eminus, std::string source="") = 0;
 
     /// Get positive error value for direction @a i
-    virtual double errPlus(size_t i) const = 0;
+    virtual double errPlus(size_t i, std::string source="") const = 0;
     /// Set positive error for direction @a i
-    virtual void setErrPlus(size_t i, double eplus) = 0;
+    virtual void setErrPlus(size_t i, double eplus, std::string source="") = 0;
 
     /// Get average error value for direction @a i
-    virtual double errAvg(size_t i) const = 0;
+    virtual double errAvg(size_t i, std::string source="") const = 0;
 
     // /// Get value minus negative error for direction @a i
     // double min(size_t i) const = 0;
@@ -68,11 +70,11 @@ namespace YODA {
     //@{
 
     /// Set value and symmetric error for direction @a i
-    virtual void set(size_t i, double val, double e) = 0;
+    virtual void set(size_t i, double val, double e,  std::string source="") = 0;
     /// Set value and asymmetric error for direction @a i
-    virtual void set(size_t i, double val, double eminus, double eplus) = 0;
+    virtual void set(size_t i, double val, double eminus, double eplus,  std::string source="") = 0;
     /// Set value and asymmetric error for direction @a i
-    virtual void set(size_t i, double val, std::pair<double,double>& e) = 0;
+    virtual void set(size_t i, double val, std::pair<double,double>& e, std::string source="") = 0;
 
     //@}
 

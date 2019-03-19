@@ -668,7 +668,7 @@ struct __pyx_obj_4yoda_4util_Base {
 };
 
 
-/* "yoda/util.pyx":32
+/* "yoda/util.pyx":42
  * 
  * 
  * def _autostr(var, precision=8):             # <<<<<<<<<<<<<<
@@ -681,7 +681,7 @@ struct __pyx_obj_4yoda_4util___pyx_scope_struct___autostr {
 };
 
 
-/* "yoda/util.pyx":39
+/* "yoda/util.pyx":49
  *         return str(var)
  *     else:
  *         return ",".join(_autostr(subval) for subval in var)             # <<<<<<<<<<<<<<
@@ -699,7 +699,7 @@ struct __pyx_obj_4yoda_4util___pyx_scope_struct_1_genexpr {
 
 
 
-/* "yoda/util.pyx":44
+/* "yoda/util.pyx":54
  * 
  * 
  * cdef class Base:             # <<<<<<<<<<<<<<
@@ -1198,7 +1198,7 @@ static const char __pyx_k_read_error_pair[] = "read_error_pair";
 static const char __pyx_k_autostr_locals_genexpr[] = "_autostr.<locals>.genexpr";
 static const char __pyx_k_Null_pointer_referenced_perhaps[] = "Null pointer referenced: perhaps the class is uninitialised.";
 static const char __pyx_k_cannot_be_parsed_as_a_boolean_f[] = "'{}' cannot be parsed as a boolean flag";
-static const char __pyx_k_home_andy_proj_hep_yoda_default[] = "/home/andy/proj/hep/yoda-default/pyext/yoda/util.pyx";
+static const char __pyx_k_home_andy_proj_hep_yoda_17x_pye[] = "/home/andy/proj/hep/yoda-17x/pyext/yoda/util.pyx";
 static PyObject *__pyx_kp_s_;
 static PyObject *__pyx_kp_s_0;
 static PyObject *__pyx_kp_s_0_0;
@@ -1234,7 +1234,7 @@ static PyObject *__pyx_n_s_format;
 static PyObject *__pyx_n_s_fs;
 static PyObject *__pyx_n_s_genexpr;
 static PyObject *__pyx_n_s_high;
-static PyObject *__pyx_kp_s_home_andy_proj_hep_yoda_default;
+static PyObject *__pyx_kp_s_home_andy_proj_hep_yoda_17x_pye;
 static PyObject *__pyx_n_s_import;
 static PyObject *__pyx_n_s_isdigit;
 static PyObject *__pyx_n_s_itemgetter;
@@ -2107,7 +2107,7 @@ static PyObject *__pyx_pf_4yoda_4util_2_autotype(CYTHON_UNUSED PyObject *__pyx_s
   return __pyx_r;
 }
 
-/* "yoda/util.pyx":32
+/* "yoda/util.pyx":42
  * 
  * 
  * def _autostr(var, precision=8):             # <<<<<<<<<<<<<<
@@ -2150,7 +2150,7 @@ static PyObject *__pyx_pw_4yoda_4util_5_autostr(PyObject *__pyx_self, PyObject *
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "_autostr") < 0)) __PYX_ERR(1, 32, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "_autostr") < 0)) __PYX_ERR(1, 42, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -2165,7 +2165,7 @@ static PyObject *__pyx_pw_4yoda_4util_5_autostr(PyObject *__pyx_self, PyObject *
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("_autostr", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 32, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("_autostr", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 42, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("yoda.util._autostr", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -2179,7 +2179,7 @@ static PyObject *__pyx_pw_4yoda_4util_5_autostr(PyObject *__pyx_self, PyObject *
 }
 static PyObject *__pyx_gb_4yoda_4util_8_autostr_2generator(__pyx_CoroutineObject *__pyx_generator, PyObject *__pyx_sent_value); /* proto */
 
-/* "yoda/util.pyx":39
+/* "yoda/util.pyx":49
  *         return str(var)
  *     else:
  *         return ",".join(_autostr(subval) for subval in var)             # <<<<<<<<<<<<<<
@@ -2196,7 +2196,7 @@ static PyObject *__pyx_pf_4yoda_4util_8_autostr_genexpr(PyObject *__pyx_self) {
   if (unlikely(!__pyx_cur_scope)) {
     __pyx_cur_scope = ((struct __pyx_obj_4yoda_4util___pyx_scope_struct_1_genexpr *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(1, 39, __pyx_L1_error)
+    __PYX_ERR(1, 49, __pyx_L1_error)
   } else {
     __Pyx_GOTREF(__pyx_cur_scope);
   }
@@ -2204,7 +2204,7 @@ static PyObject *__pyx_pf_4yoda_4util_8_autostr_genexpr(PyObject *__pyx_self) {
   __Pyx_INCREF(((PyObject *)__pyx_cur_scope->__pyx_outer_scope));
   __Pyx_GIVEREF(__pyx_cur_scope->__pyx_outer_scope);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Generator_New((__pyx_coroutine_body_t) __pyx_gb_4yoda_4util_8_autostr_2generator, (PyObject *) __pyx_cur_scope, __pyx_n_s_genexpr, __pyx_n_s_autostr_locals_genexpr, __pyx_n_s_yoda_util); if (unlikely(!gen)) __PYX_ERR(1, 39, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Generator_New((__pyx_coroutine_body_t) __pyx_gb_4yoda_4util_8_autostr_2generator, (PyObject *) __pyx_cur_scope, __pyx_n_s_genexpr, __pyx_n_s_autostr_locals_genexpr, __pyx_n_s_yoda_util); if (unlikely(!gen)) __PYX_ERR(1, 49, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -2241,32 +2241,32 @@ static PyObject *__pyx_gb_4yoda_4util_8_autostr_2generator(__pyx_CoroutineObject
     return NULL;
   }
   __pyx_L3_first_run:;
-  if (unlikely(!__pyx_sent_value)) __PYX_ERR(1, 39, __pyx_L1_error)
-  if (unlikely(!__pyx_cur_scope->__pyx_outer_scope->__pyx_v_var)) { __Pyx_RaiseClosureNameError("var"); __PYX_ERR(1, 39, __pyx_L1_error) }
+  if (unlikely(!__pyx_sent_value)) __PYX_ERR(1, 49, __pyx_L1_error)
+  if (unlikely(!__pyx_cur_scope->__pyx_outer_scope->__pyx_v_var)) { __Pyx_RaiseClosureNameError("var"); __PYX_ERR(1, 49, __pyx_L1_error) }
   if (likely(PyList_CheckExact(__pyx_cur_scope->__pyx_outer_scope->__pyx_v_var)) || PyTuple_CheckExact(__pyx_cur_scope->__pyx_outer_scope->__pyx_v_var)) {
     __pyx_t_1 = __pyx_cur_scope->__pyx_outer_scope->__pyx_v_var; __Pyx_INCREF(__pyx_t_1); __pyx_t_2 = 0;
     __pyx_t_3 = NULL;
   } else {
-    __pyx_t_2 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_cur_scope->__pyx_outer_scope->__pyx_v_var); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 39, __pyx_L1_error)
+    __pyx_t_2 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_cur_scope->__pyx_outer_scope->__pyx_v_var); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 49, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_3 = Py_TYPE(__pyx_t_1)->tp_iternext; if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 39, __pyx_L1_error)
+    __pyx_t_3 = Py_TYPE(__pyx_t_1)->tp_iternext; if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 49, __pyx_L1_error)
   }
   for (;;) {
     if (likely(!__pyx_t_3)) {
       if (likely(PyList_CheckExact(__pyx_t_1))) {
         if (__pyx_t_2 >= PyList_GET_SIZE(__pyx_t_1)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_4 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_4); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(1, 39, __pyx_L1_error)
+        __pyx_t_4 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_4); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(1, 49, __pyx_L1_error)
         #else
-        __pyx_t_4 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 39, __pyx_L1_error)
+        __pyx_t_4 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 49, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         #endif
       } else {
         if (__pyx_t_2 >= PyTuple_GET_SIZE(__pyx_t_1)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_4 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_4); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(1, 39, __pyx_L1_error)
+        __pyx_t_4 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_4); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(1, 49, __pyx_L1_error)
         #else
-        __pyx_t_4 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 39, __pyx_L1_error)
+        __pyx_t_4 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 49, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         #endif
       }
@@ -2276,7 +2276,7 @@ static PyObject *__pyx_gb_4yoda_4util_8_autostr_2generator(__pyx_CoroutineObject
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(exc_type == PyExc_StopIteration || PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(1, 39, __pyx_L1_error)
+          else __PYX_ERR(1, 49, __pyx_L1_error)
         }
         break;
       }
@@ -2286,7 +2286,7 @@ static PyObject *__pyx_gb_4yoda_4util_8_autostr_2generator(__pyx_CoroutineObject
     __Pyx_XDECREF_SET(__pyx_cur_scope->__pyx_v_subval, __pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_4);
     __pyx_t_4 = 0;
-    __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_autostr); if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 39, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_autostr); if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 49, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __pyx_t_6 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_5))) {
@@ -2299,13 +2299,13 @@ static PyObject *__pyx_gb_4yoda_4util_8_autostr_2generator(__pyx_CoroutineObject
       }
     }
     if (!__pyx_t_6) {
-      __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_cur_scope->__pyx_v_subval); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 39, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_cur_scope->__pyx_v_subval); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 49, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
     } else {
       #if CYTHON_FAST_PYCALL
       if (PyFunction_Check(__pyx_t_5)) {
         PyObject *__pyx_temp[2] = {__pyx_t_6, __pyx_cur_scope->__pyx_v_subval};
-        __pyx_t_4 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 39, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 49, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
         __Pyx_GOTREF(__pyx_t_4);
       } else
@@ -2313,19 +2313,19 @@ static PyObject *__pyx_gb_4yoda_4util_8_autostr_2generator(__pyx_CoroutineObject
       #if CYTHON_FAST_PYCCALL
       if (__Pyx_PyFastCFunction_Check(__pyx_t_5)) {
         PyObject *__pyx_temp[2] = {__pyx_t_6, __pyx_cur_scope->__pyx_v_subval};
-        __pyx_t_4 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 39, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 49, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
         __Pyx_GOTREF(__pyx_t_4);
       } else
       #endif
       {
-        __pyx_t_7 = PyTuple_New(1+1); if (unlikely(!__pyx_t_7)) __PYX_ERR(1, 39, __pyx_L1_error)
+        __pyx_t_7 = PyTuple_New(1+1); if (unlikely(!__pyx_t_7)) __PYX_ERR(1, 49, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_7);
         __Pyx_GIVEREF(__pyx_t_6); PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_6); __pyx_t_6 = NULL;
         __Pyx_INCREF(__pyx_cur_scope->__pyx_v_subval);
         __Pyx_GIVEREF(__pyx_cur_scope->__pyx_v_subval);
         PyTuple_SET_ITEM(__pyx_t_7, 0+1, __pyx_cur_scope->__pyx_v_subval);
-        __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_7, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 39, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_7, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 49, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       }
@@ -2348,7 +2348,7 @@ static PyObject *__pyx_gb_4yoda_4util_8_autostr_2generator(__pyx_CoroutineObject
     __Pyx_XGOTREF(__pyx_t_1);
     __pyx_t_2 = __pyx_cur_scope->__pyx_t_1;
     __pyx_t_3 = __pyx_cur_scope->__pyx_t_2;
-    if (unlikely(!__pyx_sent_value)) __PYX_ERR(1, 39, __pyx_L1_error)
+    if (unlikely(!__pyx_sent_value)) __PYX_ERR(1, 49, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
@@ -2371,7 +2371,7 @@ static PyObject *__pyx_gb_4yoda_4util_8_autostr_2generator(__pyx_CoroutineObject
   return __pyx_r;
 }
 
-/* "yoda/util.pyx":32
+/* "yoda/util.pyx":42
  * 
  * 
  * def _autostr(var, precision=8):             # <<<<<<<<<<<<<<
@@ -2393,7 +2393,7 @@ static PyObject *__pyx_pf_4yoda_4util_4_autostr(CYTHON_UNUSED PyObject *__pyx_se
   if (unlikely(!__pyx_cur_scope)) {
     __pyx_cur_scope = ((struct __pyx_obj_4yoda_4util___pyx_scope_struct___autostr *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(1, 32, __pyx_L1_error)
+    __PYX_ERR(1, 42, __pyx_L1_error)
   } else {
     __Pyx_GOTREF(__pyx_cur_scope);
   }
@@ -2401,7 +2401,7 @@ static PyObject *__pyx_pf_4yoda_4util_4_autostr(CYTHON_UNUSED PyObject *__pyx_se
   __Pyx_INCREF(__pyx_cur_scope->__pyx_v_var);
   __Pyx_GIVEREF(__pyx_cur_scope->__pyx_v_var);
 
-  /* "yoda/util.pyx":34
+  /* "yoda/util.pyx":44
  * def _autostr(var, precision=8):
  *     """Automatically format numerical types as the right sort of string."""
  *     if type(var) is float:             # <<<<<<<<<<<<<<
@@ -2412,7 +2412,7 @@ static PyObject *__pyx_pf_4yoda_4util_4_autostr(CYTHON_UNUSED PyObject *__pyx_se
   __pyx_t_2 = (__pyx_t_1 != 0);
   if (__pyx_t_2) {
 
-    /* "yoda/util.pyx":35
+    /* "yoda/util.pyx":45
  *     """Automatically format numerical types as the right sort of string."""
  *     if type(var) is float:
  *         return ("% ." + str(precision) + "e") % var             # <<<<<<<<<<<<<<
@@ -2420,28 +2420,28 @@ static PyObject *__pyx_pf_4yoda_4util_4_autostr(CYTHON_UNUSED PyObject *__pyx_se
  *         return str(var)
  */
     __Pyx_XDECREF(__pyx_r);
-    __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 35, __pyx_L1_error)
+    __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 45, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_INCREF(__pyx_v_precision);
     __Pyx_GIVEREF(__pyx_v_precision);
     PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_v_precision);
-    __pyx_t_4 = __Pyx_PyObject_Call(((PyObject *)(&PyString_Type)), __pyx_t_3, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 35, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Call(((PyObject *)(&PyString_Type)), __pyx_t_3, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 45, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = PyNumber_Add(__pyx_kp_s__4, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 35, __pyx_L1_error)
+    __pyx_t_3 = PyNumber_Add(__pyx_kp_s__4, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 45, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = PyNumber_Add(__pyx_t_3, __pyx_n_s_e); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 35, __pyx_L1_error)
+    __pyx_t_4 = PyNumber_Add(__pyx_t_3, __pyx_n_s_e); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 45, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = PyNumber_Remainder(__pyx_t_4, __pyx_cur_scope->__pyx_v_var); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 35, __pyx_L1_error)
+    __pyx_t_3 = PyNumber_Remainder(__pyx_t_4, __pyx_cur_scope->__pyx_v_var); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 45, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __pyx_r = __pyx_t_3;
     __pyx_t_3 = 0;
     goto __pyx_L0;
 
-    /* "yoda/util.pyx":34
+    /* "yoda/util.pyx":44
  * def _autostr(var, precision=8):
  *     """Automatically format numerical types as the right sort of string."""
  *     if type(var) is float:             # <<<<<<<<<<<<<<
@@ -2450,7 +2450,7 @@ static PyObject *__pyx_pf_4yoda_4util_4_autostr(CYTHON_UNUSED PyObject *__pyx_se
  */
   }
 
-  /* "yoda/util.pyx":36
+  /* "yoda/util.pyx":46
  *     if type(var) is float:
  *         return ("% ." + str(precision) + "e") % var
  *     elif not isinstance(var, (list,tuple)):             # <<<<<<<<<<<<<<
@@ -2477,7 +2477,7 @@ static PyObject *__pyx_pf_4yoda_4util_4_autostr(CYTHON_UNUSED PyObject *__pyx_se
   __pyx_t_1 = ((!(__pyx_t_2 != 0)) != 0);
   if (__pyx_t_1) {
 
-    /* "yoda/util.pyx":37
+    /* "yoda/util.pyx":47
  *         return ("% ." + str(precision) + "e") % var
  *     elif not isinstance(var, (list,tuple)):
  *         return str(var)             # <<<<<<<<<<<<<<
@@ -2485,19 +2485,19 @@ static PyObject *__pyx_pf_4yoda_4util_4_autostr(CYTHON_UNUSED PyObject *__pyx_se
  *         return ",".join(_autostr(subval) for subval in var)
  */
     __Pyx_XDECREF(__pyx_r);
-    __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 37, __pyx_L1_error)
+    __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 47, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_INCREF(__pyx_cur_scope->__pyx_v_var);
     __Pyx_GIVEREF(__pyx_cur_scope->__pyx_v_var);
     PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_cur_scope->__pyx_v_var);
-    __pyx_t_4 = __Pyx_PyObject_Call(((PyObject *)(&PyString_Type)), __pyx_t_3, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 37, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Call(((PyObject *)(&PyString_Type)), __pyx_t_3, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 47, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __pyx_r = __pyx_t_4;
     __pyx_t_4 = 0;
     goto __pyx_L0;
 
-    /* "yoda/util.pyx":36
+    /* "yoda/util.pyx":46
  *     if type(var) is float:
  *         return ("% ." + str(precision) + "e") % var
  *     elif not isinstance(var, (list,tuple)):             # <<<<<<<<<<<<<<
@@ -2506,7 +2506,7 @@ static PyObject *__pyx_pf_4yoda_4util_4_autostr(CYTHON_UNUSED PyObject *__pyx_se
  */
   }
 
-  /* "yoda/util.pyx":39
+  /* "yoda/util.pyx":49
  *         return str(var)
  *     else:
  *         return ",".join(_autostr(subval) for subval in var)             # <<<<<<<<<<<<<<
@@ -2515,9 +2515,9 @@ static PyObject *__pyx_pf_4yoda_4util_4_autostr(CYTHON_UNUSED PyObject *__pyx_se
  */
   /*else*/ {
     __Pyx_XDECREF(__pyx_r);
-    __pyx_t_4 = __pyx_pf_4yoda_4util_8_autostr_genexpr(((PyObject*)__pyx_cur_scope)); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 39, __pyx_L1_error)
+    __pyx_t_4 = __pyx_pf_4yoda_4util_8_autostr_genexpr(((PyObject*)__pyx_cur_scope)); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 49, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_3 = __Pyx_PyString_Join(__pyx_kp_s__5, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 39, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyString_Join(__pyx_kp_s__5, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 49, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __pyx_r = __pyx_t_3;
@@ -2525,7 +2525,7 @@ static PyObject *__pyx_pf_4yoda_4util_4_autostr(CYTHON_UNUSED PyObject *__pyx_se
     goto __pyx_L0;
   }
 
-  /* "yoda/util.pyx":32
+  /* "yoda/util.pyx":42
  * 
  * 
  * def _autostr(var, precision=8):             # <<<<<<<<<<<<<<
@@ -2546,7 +2546,7 @@ static PyObject *__pyx_pf_4yoda_4util_4_autostr(CYTHON_UNUSED PyObject *__pyx_se
   return __pyx_r;
 }
 
-/* "yoda/util.pyx":48
+/* "yoda/util.pyx":58
  * 
  * 
  * def try_loop(fs, *args, char *_msg='Invalid arguments', **kwargs):             # <<<<<<<<<<<<<<
@@ -2602,7 +2602,7 @@ static PyObject *__pyx_pw_4yoda_4util_7try_loop(PyObject *__pyx_self, PyObject *
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t used_pos_args = (pos_args < 1) ? pos_args : 1;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, __pyx_v_kwargs, values, used_pos_args, "try_loop") < 0)) __PYX_ERR(1, 48, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, __pyx_v_kwargs, values, used_pos_args, "try_loop") < 0)) __PYX_ERR(1, 58, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) < 1) {
       goto __pyx_L5_argtuple_error;
@@ -2611,14 +2611,14 @@ static PyObject *__pyx_pw_4yoda_4util_7try_loop(PyObject *__pyx_self, PyObject *
     }
     __pyx_v_fs = values[0];
     if (values[1]) {
-      __pyx_v__msg = __Pyx_PyObject_AsString(values[1]); if (unlikely((!__pyx_v__msg) && PyErr_Occurred())) __PYX_ERR(1, 48, __pyx_L3_error)
+      __pyx_v__msg = __Pyx_PyObject_AsString(values[1]); if (unlikely((!__pyx_v__msg) && PyErr_Occurred())) __PYX_ERR(1, 58, __pyx_L3_error)
     } else {
       __pyx_v__msg = ((char *)((char *)"Invalid arguments"));
     }
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("try_loop", 0, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 48, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("try_loop", 0, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 58, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_DECREF(__pyx_v_args); __pyx_v_args = 0;
   __Pyx_DECREF(__pyx_v_kwargs); __pyx_v_kwargs = 0;
@@ -2649,7 +2649,7 @@ static PyObject *__pyx_pf_4yoda_4util_6try_loop(CYTHON_UNUSED PyObject *__pyx_se
   int __pyx_t_8;
   __Pyx_RefNannySetupContext("try_loop", 0);
 
-  /* "yoda/util.pyx":49
+  /* "yoda/util.pyx":59
  * 
  * def try_loop(fs, *args, char *_msg='Invalid arguments', **kwargs):
  *     for f in fs:             # <<<<<<<<<<<<<<
@@ -2660,26 +2660,26 @@ static PyObject *__pyx_pf_4yoda_4util_6try_loop(CYTHON_UNUSED PyObject *__pyx_se
     __pyx_t_1 = __pyx_v_fs; __Pyx_INCREF(__pyx_t_1); __pyx_t_2 = 0;
     __pyx_t_3 = NULL;
   } else {
-    __pyx_t_2 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_v_fs); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 49, __pyx_L1_error)
+    __pyx_t_2 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_v_fs); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 59, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_3 = Py_TYPE(__pyx_t_1)->tp_iternext; if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 49, __pyx_L1_error)
+    __pyx_t_3 = Py_TYPE(__pyx_t_1)->tp_iternext; if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 59, __pyx_L1_error)
   }
   for (;;) {
     if (likely(!__pyx_t_3)) {
       if (likely(PyList_CheckExact(__pyx_t_1))) {
         if (__pyx_t_2 >= PyList_GET_SIZE(__pyx_t_1)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_4 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_4); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(1, 49, __pyx_L1_error)
+        __pyx_t_4 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_4); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(1, 59, __pyx_L1_error)
         #else
-        __pyx_t_4 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 49, __pyx_L1_error)
+        __pyx_t_4 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 59, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         #endif
       } else {
         if (__pyx_t_2 >= PyTuple_GET_SIZE(__pyx_t_1)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_4 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_4); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(1, 49, __pyx_L1_error)
+        __pyx_t_4 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_4); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(1, 59, __pyx_L1_error)
         #else
-        __pyx_t_4 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 49, __pyx_L1_error)
+        __pyx_t_4 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 59, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         #endif
       }
@@ -2689,7 +2689,7 @@ static PyObject *__pyx_pf_4yoda_4util_6try_loop(CYTHON_UNUSED PyObject *__pyx_se
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(exc_type == PyExc_StopIteration || PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(1, 49, __pyx_L1_error)
+          else __PYX_ERR(1, 59, __pyx_L1_error)
         }
         break;
       }
@@ -2698,7 +2698,7 @@ static PyObject *__pyx_pf_4yoda_4util_6try_loop(CYTHON_UNUSED PyObject *__pyx_se
     __Pyx_XDECREF_SET(__pyx_v_f, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "yoda/util.pyx":50
+    /* "yoda/util.pyx":60
  * def try_loop(fs, *args, char *_msg='Invalid arguments', **kwargs):
  *     for f in fs:
  *         try:             # <<<<<<<<<<<<<<
@@ -2714,18 +2714,18 @@ static PyObject *__pyx_pf_4yoda_4util_6try_loop(CYTHON_UNUSED PyObject *__pyx_se
       __Pyx_XGOTREF(__pyx_t_7);
       /*try:*/ {
 
-        /* "yoda/util.pyx":51
+        /* "yoda/util.pyx":61
  *     for f in fs:
  *         try:
  *             f(*args, **kwargs)             # <<<<<<<<<<<<<<
  *             return
  *         except (TypeError, AttributeError):
  */
-        __pyx_t_4 = __Pyx_PyObject_Call(__pyx_v_f, __pyx_v_args, __pyx_v_kwargs); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 51, __pyx_L5_error)
+        __pyx_t_4 = __Pyx_PyObject_Call(__pyx_v_f, __pyx_v_args, __pyx_v_kwargs); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 61, __pyx_L5_error)
         __Pyx_GOTREF(__pyx_t_4);
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-        /* "yoda/util.pyx":52
+        /* "yoda/util.pyx":62
  *         try:
  *             f(*args, **kwargs)
  *             return             # <<<<<<<<<<<<<<
@@ -2737,7 +2737,7 @@ static PyObject *__pyx_pf_4yoda_4util_6try_loop(CYTHON_UNUSED PyObject *__pyx_se
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         goto __pyx_L9_try_return;
 
-        /* "yoda/util.pyx":50
+        /* "yoda/util.pyx":60
  * def try_loop(fs, *args, char *_msg='Invalid arguments', **kwargs):
  *     for f in fs:
  *         try:             # <<<<<<<<<<<<<<
@@ -2749,7 +2749,7 @@ static PyObject *__pyx_pf_4yoda_4util_6try_loop(CYTHON_UNUSED PyObject *__pyx_se
       __Pyx_PyThreadState_assign
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-      /* "yoda/util.pyx":53
+      /* "yoda/util.pyx":63
  *             f(*args, **kwargs)
  *             return
  *         except (TypeError, AttributeError):             # <<<<<<<<<<<<<<
@@ -2764,7 +2764,7 @@ static PyObject *__pyx_pf_4yoda_4util_6try_loop(CYTHON_UNUSED PyObject *__pyx_se
       goto __pyx_L7_except_error;
       __pyx_L7_except_error:;
 
-      /* "yoda/util.pyx":50
+      /* "yoda/util.pyx":60
  * def try_loop(fs, *args, char *_msg='Invalid arguments', **kwargs):
  *     for f in fs:
  *         try:             # <<<<<<<<<<<<<<
@@ -2792,7 +2792,7 @@ static PyObject *__pyx_pf_4yoda_4util_6try_loop(CYTHON_UNUSED PyObject *__pyx_se
       __Pyx_ExceptionReset(__pyx_t_5, __pyx_t_6, __pyx_t_7);
     }
 
-    /* "yoda/util.pyx":49
+    /* "yoda/util.pyx":59
  * 
  * def try_loop(fs, *args, char *_msg='Invalid arguments', **kwargs):
  *     for f in fs:             # <<<<<<<<<<<<<<
@@ -2802,28 +2802,28 @@ static PyObject *__pyx_pf_4yoda_4util_6try_loop(CYTHON_UNUSED PyObject *__pyx_se
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "yoda/util.pyx":55
+  /* "yoda/util.pyx":65
  *         except (TypeError, AttributeError):
  *             pass
  *     raise TypeError(_msg)             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __pyx_t_1 = __Pyx_PyBytes_FromString(__pyx_v__msg); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 55, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyBytes_FromString(__pyx_v__msg); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 65, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 55, __pyx_L1_error)
+  __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 65, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_1);
   __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 55, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 65, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_Raise(__pyx_t_1, 0, 0, 0);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __PYX_ERR(1, 55, __pyx_L1_error)
+  __PYX_ERR(1, 65, __pyx_L1_error)
 
-  /* "yoda/util.pyx":48
+  /* "yoda/util.pyx":58
  * 
  * 
  * def try_loop(fs, *args, char *_msg='Invalid arguments', **kwargs):             # <<<<<<<<<<<<<<
@@ -2844,7 +2844,7 @@ static PyObject *__pyx_pf_4yoda_4util_6try_loop(CYTHON_UNUSED PyObject *__pyx_se
   return __pyx_r;
 }
 
-/* "yoda/util.pyx":67
+/* "yoda/util.pyx":77
  * from libcpp.pair cimport pair
  * 
  * def read_edge_pair(pair[double, double] es):             # <<<<<<<<<<<<<<
@@ -2861,7 +2861,7 @@ static PyObject *__pyx_pw_4yoda_4util_9read_edge_pair(PyObject *__pyx_self, PyOb
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("read_edge_pair (wrapper)", 0);
   assert(__pyx_arg_es); {
-    __pyx_v_es = __pyx_convert_pair_from_py_double__and_double(__pyx_arg_es); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 67, __pyx_L3_error)
+    __pyx_v_es = __pyx_convert_pair_from_py_double__and_double(__pyx_arg_es); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 77, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -2888,7 +2888,7 @@ static PyObject *__pyx_pf_4yoda_4util_8read_edge_pair(CYTHON_UNUSED PyObject *__
   PyObject *__pyx_t_7 = NULL;
   __Pyx_RefNannySetupContext("read_edge_pair", 0);
 
-  /* "yoda/util.pyx":68
+  /* "yoda/util.pyx":78
  * 
  * def read_edge_pair(pair[double, double] es):
  *     return EdgePair(es.first, es.second)             # <<<<<<<<<<<<<<
@@ -2896,11 +2896,11 @@ static PyObject *__pyx_pf_4yoda_4util_8read_edge_pair(CYTHON_UNUSED PyObject *__
  * def read_error_pair(pair[double, double] es):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_EdgePair); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 68, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_EdgePair); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 78, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_es.first); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 68, __pyx_L1_error)
+  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_es.first); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 78, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_es.second); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 68, __pyx_L1_error)
+  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_es.second); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 78, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   __pyx_t_6 = 0;
@@ -2917,7 +2917,7 @@ static PyObject *__pyx_pf_4yoda_4util_8read_edge_pair(CYTHON_UNUSED PyObject *__
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_t_3, __pyx_t_4};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 68, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 78, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -2927,7 +2927,7 @@ static PyObject *__pyx_pf_4yoda_4util_8read_edge_pair(CYTHON_UNUSED PyObject *__
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_t_3, __pyx_t_4};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 68, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 78, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -2935,7 +2935,7 @@ static PyObject *__pyx_pf_4yoda_4util_8read_edge_pair(CYTHON_UNUSED PyObject *__
   } else
   #endif
   {
-    __pyx_t_7 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(1, 68, __pyx_L1_error)
+    __pyx_t_7 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(1, 78, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     if (__pyx_t_5) {
       __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_5); __pyx_t_5 = NULL;
@@ -2946,7 +2946,7 @@ static PyObject *__pyx_pf_4yoda_4util_8read_edge_pair(CYTHON_UNUSED PyObject *__
     PyTuple_SET_ITEM(__pyx_t_7, 1+__pyx_t_6, __pyx_t_4);
     __pyx_t_3 = 0;
     __pyx_t_4 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_7, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 68, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_7, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 78, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   }
@@ -2955,7 +2955,7 @@ static PyObject *__pyx_pf_4yoda_4util_8read_edge_pair(CYTHON_UNUSED PyObject *__
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "yoda/util.pyx":67
+  /* "yoda/util.pyx":77
  * from libcpp.pair cimport pair
  * 
  * def read_edge_pair(pair[double, double] es):             # <<<<<<<<<<<<<<
@@ -2979,7 +2979,7 @@ static PyObject *__pyx_pf_4yoda_4util_8read_edge_pair(CYTHON_UNUSED PyObject *__
   return __pyx_r;
 }
 
-/* "yoda/util.pyx":70
+/* "yoda/util.pyx":80
  *     return EdgePair(es.first, es.second)
  * 
  * def read_error_pair(pair[double, double] es):             # <<<<<<<<<<<<<<
@@ -2996,7 +2996,7 @@ static PyObject *__pyx_pw_4yoda_4util_11read_error_pair(PyObject *__pyx_self, Py
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("read_error_pair (wrapper)", 0);
   assert(__pyx_arg_es); {
-    __pyx_v_es = __pyx_convert_pair_from_py_double__and_double(__pyx_arg_es); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 70, __pyx_L3_error)
+    __pyx_v_es = __pyx_convert_pair_from_py_double__and_double(__pyx_arg_es); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 80, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -3023,7 +3023,7 @@ static PyObject *__pyx_pf_4yoda_4util_10read_error_pair(CYTHON_UNUSED PyObject *
   PyObject *__pyx_t_7 = NULL;
   __Pyx_RefNannySetupContext("read_error_pair", 0);
 
-  /* "yoda/util.pyx":71
+  /* "yoda/util.pyx":81
  * 
  * def read_error_pair(pair[double, double] es):
  *     return ErrorPair(es.first, es.second)             # <<<<<<<<<<<<<<
@@ -3031,11 +3031,11 @@ static PyObject *__pyx_pf_4yoda_4util_10read_error_pair(CYTHON_UNUSED PyObject *
  * def read_symmetric(val):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_ErrorPair); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 71, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_ErrorPair); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 81, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_es.first); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 71, __pyx_L1_error)
+  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_es.first); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 81, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_es.second); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 71, __pyx_L1_error)
+  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_es.second); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 81, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   __pyx_t_6 = 0;
@@ -3052,7 +3052,7 @@ static PyObject *__pyx_pf_4yoda_4util_10read_error_pair(CYTHON_UNUSED PyObject *
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_t_3, __pyx_t_4};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 71, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 81, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -3062,7 +3062,7 @@ static PyObject *__pyx_pf_4yoda_4util_10read_error_pair(CYTHON_UNUSED PyObject *
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_t_3, __pyx_t_4};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 71, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 81, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -3070,7 +3070,7 @@ static PyObject *__pyx_pf_4yoda_4util_10read_error_pair(CYTHON_UNUSED PyObject *
   } else
   #endif
   {
-    __pyx_t_7 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(1, 71, __pyx_L1_error)
+    __pyx_t_7 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(1, 81, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     if (__pyx_t_5) {
       __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_5); __pyx_t_5 = NULL;
@@ -3081,7 +3081,7 @@ static PyObject *__pyx_pf_4yoda_4util_10read_error_pair(CYTHON_UNUSED PyObject *
     PyTuple_SET_ITEM(__pyx_t_7, 1+__pyx_t_6, __pyx_t_4);
     __pyx_t_3 = 0;
     __pyx_t_4 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_7, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 71, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_7, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 81, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   }
@@ -3090,7 +3090,7 @@ static PyObject *__pyx_pf_4yoda_4util_10read_error_pair(CYTHON_UNUSED PyObject *
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "yoda/util.pyx":70
+  /* "yoda/util.pyx":80
  *     return EdgePair(es.first, es.second)
  * 
  * def read_error_pair(pair[double, double] es):             # <<<<<<<<<<<<<<
@@ -3114,7 +3114,7 @@ static PyObject *__pyx_pf_4yoda_4util_10read_error_pair(CYTHON_UNUSED PyObject *
   return __pyx_r;
 }
 
-/* "yoda/util.pyx":73
+/* "yoda/util.pyx":83
  *     return ErrorPair(es.first, es.second)
  * 
  * def read_symmetric(val):             # <<<<<<<<<<<<<<
@@ -3154,7 +3154,7 @@ static PyObject *__pyx_pf_4yoda_4util_12read_symmetric(CYTHON_UNUSED PyObject *_
   std::pair<double,double>  __pyx_t_11;
   __Pyx_RefNannySetupContext("read_symmetric", 0);
 
-  /* "yoda/util.pyx":74
+  /* "yoda/util.pyx":84
  * 
  * def read_symmetric(val):
  *     try:             # <<<<<<<<<<<<<<
@@ -3170,7 +3170,7 @@ static PyObject *__pyx_pf_4yoda_4util_12read_symmetric(CYTHON_UNUSED PyObject *_
     __Pyx_XGOTREF(__pyx_t_3);
     /*try:*/ {
 
-      /* "yoda/util.pyx":75
+      /* "yoda/util.pyx":85
  * def read_symmetric(val):
  *     try:
  *         a, b = val             # <<<<<<<<<<<<<<
@@ -3187,7 +3187,7 @@ static PyObject *__pyx_pf_4yoda_4util_12read_symmetric(CYTHON_UNUSED PyObject *_
         if (unlikely(size != 2)) {
           if (size > 2) __Pyx_RaiseTooManyValuesError(2);
           else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-          __PYX_ERR(1, 75, __pyx_L3_error)
+          __PYX_ERR(1, 85, __pyx_L3_error)
         }
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
         if (likely(PyTuple_CheckExact(sequence))) {
@@ -3200,21 +3200,21 @@ static PyObject *__pyx_pf_4yoda_4util_12read_symmetric(CYTHON_UNUSED PyObject *_
         __Pyx_INCREF(__pyx_t_4);
         __Pyx_INCREF(__pyx_t_5);
         #else
-        __pyx_t_4 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 75, __pyx_L3_error)
+        __pyx_t_4 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 85, __pyx_L3_error)
         __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_5 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 75, __pyx_L3_error)
+        __pyx_t_5 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 85, __pyx_L3_error)
         __Pyx_GOTREF(__pyx_t_5);
         #endif
       } else {
         Py_ssize_t index = -1;
-        __pyx_t_6 = PyObject_GetIter(__pyx_v_val); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 75, __pyx_L3_error)
+        __pyx_t_6 = PyObject_GetIter(__pyx_v_val); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 85, __pyx_L3_error)
         __Pyx_GOTREF(__pyx_t_6);
         __pyx_t_7 = Py_TYPE(__pyx_t_6)->tp_iternext;
         index = 0; __pyx_t_4 = __pyx_t_7(__pyx_t_6); if (unlikely(!__pyx_t_4)) goto __pyx_L11_unpacking_failed;
         __Pyx_GOTREF(__pyx_t_4);
         index = 1; __pyx_t_5 = __pyx_t_7(__pyx_t_6); if (unlikely(!__pyx_t_5)) goto __pyx_L11_unpacking_failed;
         __Pyx_GOTREF(__pyx_t_5);
-        if (__Pyx_IternextUnpackEndCheck(__pyx_t_7(__pyx_t_6), 2) < 0) __PYX_ERR(1, 75, __pyx_L3_error)
+        if (__Pyx_IternextUnpackEndCheck(__pyx_t_7(__pyx_t_6), 2) < 0) __PYX_ERR(1, 85, __pyx_L3_error)
         __pyx_t_7 = NULL;
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
         goto __pyx_L12_unpacking_done;
@@ -3222,7 +3222,7 @@ static PyObject *__pyx_pf_4yoda_4util_12read_symmetric(CYTHON_UNUSED PyObject *_
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
         __pyx_t_7 = NULL;
         if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
-        __PYX_ERR(1, 75, __pyx_L3_error)
+        __PYX_ERR(1, 85, __pyx_L3_error)
         __pyx_L12_unpacking_done:;
       }
       __pyx_v_a = __pyx_t_4;
@@ -3230,7 +3230,7 @@ static PyObject *__pyx_pf_4yoda_4util_12read_symmetric(CYTHON_UNUSED PyObject *_
       __pyx_v_b = __pyx_t_5;
       __pyx_t_5 = 0;
 
-      /* "yoda/util.pyx":74
+      /* "yoda/util.pyx":84
  * 
  * def read_symmetric(val):
  *     try:             # <<<<<<<<<<<<<<
@@ -3248,7 +3248,7 @@ static PyObject *__pyx_pf_4yoda_4util_12read_symmetric(CYTHON_UNUSED PyObject *_
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-    /* "yoda/util.pyx":76
+    /* "yoda/util.pyx":86
  *     try:
  *         a, b = val
  *     except TypeError:             # <<<<<<<<<<<<<<
@@ -3258,12 +3258,12 @@ static PyObject *__pyx_pf_4yoda_4util_12read_symmetric(CYTHON_UNUSED PyObject *_
     __pyx_t_8 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_TypeError);
     if (__pyx_t_8) {
       __Pyx_AddTraceback("yoda.util.read_symmetric", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_5, &__pyx_t_4, &__pyx_t_6) < 0) __PYX_ERR(1, 76, __pyx_L5_except_error)
+      if (__Pyx_GetException(&__pyx_t_5, &__pyx_t_4, &__pyx_t_6) < 0) __PYX_ERR(1, 86, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GOTREF(__pyx_t_6);
 
-      /* "yoda/util.pyx":77
+      /* "yoda/util.pyx":87
  *         a, b = val
  *     except TypeError:
  *         a = b = val             # <<<<<<<<<<<<<<
@@ -3281,7 +3281,7 @@ static PyObject *__pyx_pf_4yoda_4util_12read_symmetric(CYTHON_UNUSED PyObject *_
     goto __pyx_L5_except_error;
     __pyx_L5_except_error:;
 
-    /* "yoda/util.pyx":74
+    /* "yoda/util.pyx":84
  * 
  * def read_symmetric(val):
  *     try:             # <<<<<<<<<<<<<<
@@ -3303,27 +3303,27 @@ static PyObject *__pyx_pf_4yoda_4util_12read_symmetric(CYTHON_UNUSED PyObject *_
     __pyx_L10_try_end:;
   }
 
-  /* "yoda/util.pyx":78
+  /* "yoda/util.pyx":88
  *     except TypeError:
  *         a = b = val
  *     return pair[double, double](a, b)             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_9 = __pyx_PyFloat_AsDouble(__pyx_v_a); if (unlikely((__pyx_t_9 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 78, __pyx_L1_error)
-  __pyx_t_10 = __pyx_PyFloat_AsDouble(__pyx_v_b); if (unlikely((__pyx_t_10 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 78, __pyx_L1_error)
+  __pyx_t_9 = __pyx_PyFloat_AsDouble(__pyx_v_a); if (unlikely((__pyx_t_9 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 88, __pyx_L1_error)
+  __pyx_t_10 = __pyx_PyFloat_AsDouble(__pyx_v_b); if (unlikely((__pyx_t_10 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 88, __pyx_L1_error)
   try {
     __pyx_t_11 = std::pair<double,double> (__pyx_t_9, __pyx_t_10);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 78, __pyx_L1_error)
+    __PYX_ERR(1, 88, __pyx_L1_error)
   }
-  __pyx_t_6 = __pyx_convert_pair_to_py_double____double(__pyx_t_11); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 78, __pyx_L1_error)
+  __pyx_t_6 = __pyx_convert_pair_to_py_double____double(__pyx_t_11); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 88, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_r = __pyx_t_6;
   __pyx_t_6 = 0;
   goto __pyx_L0;
 
-  /* "yoda/util.pyx":73
+  /* "yoda/util.pyx":83
  *     return ErrorPair(es.first, es.second)
  * 
  * def read_symmetric(val):             # <<<<<<<<<<<<<<
@@ -4430,7 +4430,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_fs, __pyx_k_fs, sizeof(__pyx_k_fs), 0, 0, 1, 1},
   {&__pyx_n_s_genexpr, __pyx_k_genexpr, sizeof(__pyx_k_genexpr), 0, 0, 1, 1},
   {&__pyx_n_s_high, __pyx_k_high, sizeof(__pyx_k_high), 0, 0, 1, 1},
-  {&__pyx_kp_s_home_andy_proj_hep_yoda_default, __pyx_k_home_andy_proj_hep_yoda_default, sizeof(__pyx_k_home_andy_proj_hep_yoda_default), 0, 0, 1, 0},
+  {&__pyx_kp_s_home_andy_proj_hep_yoda_17x_pye, __pyx_k_home_andy_proj_hep_yoda_17x_pye, sizeof(__pyx_k_home_andy_proj_hep_yoda_17x_pye), 0, 0, 1, 0},
   {&__pyx_n_s_import, __pyx_k_import, sizeof(__pyx_k_import), 0, 0, 1, 1},
   {&__pyx_n_s_isdigit, __pyx_k_isdigit, sizeof(__pyx_k_isdigit), 0, 0, 1, 1},
   {&__pyx_n_s_itemgetter, __pyx_k_itemgetter, sizeof(__pyx_k_itemgetter), 0, 0, 1, 1},
@@ -4472,8 +4472,8 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
 static int __Pyx_InitCachedBuiltins(void) {
   __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(0, 9, __pyx_L1_error)
   __pyx_builtin_IndexError = __Pyx_GetBuiltinName(__pyx_n_s_IndexError); if (!__pyx_builtin_IndexError) __PYX_ERR(0, 55, __pyx_L1_error)
-  __pyx_builtin_TypeError = __Pyx_GetBuiltinName(__pyx_n_s_TypeError); if (!__pyx_builtin_TypeError) __PYX_ERR(1, 53, __pyx_L1_error)
-  __pyx_builtin_AttributeError = __Pyx_GetBuiltinName(__pyx_n_s_AttributeError); if (!__pyx_builtin_AttributeError) __PYX_ERR(1, 53, __pyx_L1_error)
+  __pyx_builtin_TypeError = __Pyx_GetBuiltinName(__pyx_n_s_TypeError); if (!__pyx_builtin_TypeError) __PYX_ERR(1, 63, __pyx_L1_error)
+  __pyx_builtin_AttributeError = __Pyx_GetBuiltinName(__pyx_n_s_AttributeError); if (!__pyx_builtin_AttributeError) __PYX_ERR(1, 63, __pyx_L1_error)
   return 0;
   __pyx_L1_error:;
   return -1;
@@ -4518,7 +4518,7 @@ static int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__7 = PyTuple_Pack(2, __pyx_n_s_x, __pyx_n_s_s); if (unlikely(!__pyx_tuple__7)) __PYX_ERR(1, 5, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__7);
   __Pyx_GIVEREF(__pyx_tuple__7);
-  __pyx_codeobj__8 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__7, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_andy_proj_hep_yoda_default, __pyx_n_s_as_bool, 5, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__8)) __PYX_ERR(1, 5, __pyx_L1_error)
+  __pyx_codeobj__8 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__7, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_andy_proj_hep_yoda_17x_pye, __pyx_n_s_as_bool, 5, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__8)) __PYX_ERR(1, 5, __pyx_L1_error)
 
   /* "yoda/util.pyx":16
  * 
@@ -4530,123 +4530,123 @@ static int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__9 = PyTuple_Pack(2, __pyx_n_s_var, __pyx_n_s_autobool); if (unlikely(!__pyx_tuple__9)) __PYX_ERR(1, 16, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__9);
   __Pyx_GIVEREF(__pyx_tuple__9);
-  __pyx_codeobj__10 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__9, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_andy_proj_hep_yoda_default, __pyx_n_s_autotype, 16, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__10)) __PYX_ERR(1, 16, __pyx_L1_error)
+  __pyx_codeobj__10 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__9, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_andy_proj_hep_yoda_17x_pye, __pyx_n_s_autotype, 16, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__10)) __PYX_ERR(1, 16, __pyx_L1_error)
 
-  /* "yoda/util.pyx":32
+  /* "yoda/util.pyx":42
  * 
  * 
  * def _autostr(var, precision=8):             # <<<<<<<<<<<<<<
  *     """Automatically format numerical types as the right sort of string."""
  *     if type(var) is float:
  */
-  __pyx_tuple__11 = PyTuple_Pack(4, __pyx_n_s_var, __pyx_n_s_precision, __pyx_n_s_genexpr, __pyx_n_s_genexpr); if (unlikely(!__pyx_tuple__11)) __PYX_ERR(1, 32, __pyx_L1_error)
+  __pyx_tuple__11 = PyTuple_Pack(4, __pyx_n_s_var, __pyx_n_s_precision, __pyx_n_s_genexpr, __pyx_n_s_genexpr); if (unlikely(!__pyx_tuple__11)) __PYX_ERR(1, 42, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__11);
   __Pyx_GIVEREF(__pyx_tuple__11);
-  __pyx_codeobj__12 = (PyObject*)__Pyx_PyCode_New(2, 0, 4, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__11, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_andy_proj_hep_yoda_default, __pyx_n_s_autostr, 32, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__12)) __PYX_ERR(1, 32, __pyx_L1_error)
+  __pyx_codeobj__12 = (PyObject*)__Pyx_PyCode_New(2, 0, 4, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__11, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_andy_proj_hep_yoda_17x_pye, __pyx_n_s_autostr, 42, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__12)) __PYX_ERR(1, 42, __pyx_L1_error)
 
-  /* "yoda/util.pyx":48
+  /* "yoda/util.pyx":58
  * 
  * 
  * def try_loop(fs, *args, char *_msg='Invalid arguments', **kwargs):             # <<<<<<<<<<<<<<
  *     for f in fs:
  *         try:
  */
-  __pyx_tuple__13 = PyTuple_Pack(5, __pyx_n_s_fs, __pyx_n_s_msg, __pyx_n_s_args, __pyx_n_s_kwargs, __pyx_n_s_f); if (unlikely(!__pyx_tuple__13)) __PYX_ERR(1, 48, __pyx_L1_error)
+  __pyx_tuple__13 = PyTuple_Pack(5, __pyx_n_s_fs, __pyx_n_s_msg, __pyx_n_s_args, __pyx_n_s_kwargs, __pyx_n_s_f); if (unlikely(!__pyx_tuple__13)) __PYX_ERR(1, 58, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__13);
   __Pyx_GIVEREF(__pyx_tuple__13);
-  __pyx_codeobj__14 = (PyObject*)__Pyx_PyCode_New(1, 1, 5, 0, CO_VARARGS|CO_VARKEYWORDS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__13, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_andy_proj_hep_yoda_default, __pyx_n_s_try_loop, 48, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__14)) __PYX_ERR(1, 48, __pyx_L1_error)
+  __pyx_codeobj__14 = (PyObject*)__Pyx_PyCode_New(1, 1, 5, 0, CO_VARARGS|CO_VARKEYWORDS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__13, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_andy_proj_hep_yoda_17x_pye, __pyx_n_s_try_loop, 58, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__14)) __PYX_ERR(1, 58, __pyx_L1_error)
 
-  /* "yoda/util.pyx":58
+  /* "yoda/util.pyx":68
  * 
  * 
  * XY = namedtuple('XY', ('x', 'y'))             # <<<<<<<<<<<<<<
  * XYZ = namedtuple('XYZ', ('x', 'y', 'z'))
  * EdgePair = namedtuple('EdgePair', ('low', 'high'))
  */
-  __pyx_tuple__15 = PyTuple_Pack(2, __pyx_n_s_x, __pyx_n_s_y); if (unlikely(!__pyx_tuple__15)) __PYX_ERR(1, 58, __pyx_L1_error)
+  __pyx_tuple__15 = PyTuple_Pack(2, __pyx_n_s_x, __pyx_n_s_y); if (unlikely(!__pyx_tuple__15)) __PYX_ERR(1, 68, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__15);
   __Pyx_GIVEREF(__pyx_tuple__15);
-  __pyx_tuple__16 = PyTuple_Pack(2, __pyx_n_s_XY, __pyx_tuple__15); if (unlikely(!__pyx_tuple__16)) __PYX_ERR(1, 58, __pyx_L1_error)
+  __pyx_tuple__16 = PyTuple_Pack(2, __pyx_n_s_XY, __pyx_tuple__15); if (unlikely(!__pyx_tuple__16)) __PYX_ERR(1, 68, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__16);
   __Pyx_GIVEREF(__pyx_tuple__16);
 
-  /* "yoda/util.pyx":59
+  /* "yoda/util.pyx":69
  * 
  * XY = namedtuple('XY', ('x', 'y'))
  * XYZ = namedtuple('XYZ', ('x', 'y', 'z'))             # <<<<<<<<<<<<<<
  * EdgePair = namedtuple('EdgePair', ('low', 'high'))
  * ErrorPair = namedtuple('ErrorPair', ('minus', 'plus'))
  */
-  __pyx_tuple__17 = PyTuple_Pack(3, __pyx_n_s_x, __pyx_n_s_y, __pyx_n_s_z); if (unlikely(!__pyx_tuple__17)) __PYX_ERR(1, 59, __pyx_L1_error)
+  __pyx_tuple__17 = PyTuple_Pack(3, __pyx_n_s_x, __pyx_n_s_y, __pyx_n_s_z); if (unlikely(!__pyx_tuple__17)) __PYX_ERR(1, 69, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__17);
   __Pyx_GIVEREF(__pyx_tuple__17);
-  __pyx_tuple__18 = PyTuple_Pack(2, __pyx_n_s_XYZ, __pyx_tuple__17); if (unlikely(!__pyx_tuple__18)) __PYX_ERR(1, 59, __pyx_L1_error)
+  __pyx_tuple__18 = PyTuple_Pack(2, __pyx_n_s_XYZ, __pyx_tuple__17); if (unlikely(!__pyx_tuple__18)) __PYX_ERR(1, 69, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__18);
   __Pyx_GIVEREF(__pyx_tuple__18);
 
-  /* "yoda/util.pyx":60
+  /* "yoda/util.pyx":70
  * XY = namedtuple('XY', ('x', 'y'))
  * XYZ = namedtuple('XYZ', ('x', 'y', 'z'))
  * EdgePair = namedtuple('EdgePair', ('low', 'high'))             # <<<<<<<<<<<<<<
  * ErrorPair = namedtuple('ErrorPair', ('minus', 'plus'))
  * 
  */
-  __pyx_tuple__19 = PyTuple_Pack(2, __pyx_n_s_low, __pyx_n_s_high); if (unlikely(!__pyx_tuple__19)) __PYX_ERR(1, 60, __pyx_L1_error)
+  __pyx_tuple__19 = PyTuple_Pack(2, __pyx_n_s_low, __pyx_n_s_high); if (unlikely(!__pyx_tuple__19)) __PYX_ERR(1, 70, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__19);
   __Pyx_GIVEREF(__pyx_tuple__19);
-  __pyx_tuple__20 = PyTuple_Pack(2, __pyx_n_s_EdgePair, __pyx_tuple__19); if (unlikely(!__pyx_tuple__20)) __PYX_ERR(1, 60, __pyx_L1_error)
+  __pyx_tuple__20 = PyTuple_Pack(2, __pyx_n_s_EdgePair, __pyx_tuple__19); if (unlikely(!__pyx_tuple__20)) __PYX_ERR(1, 70, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__20);
   __Pyx_GIVEREF(__pyx_tuple__20);
 
-  /* "yoda/util.pyx":61
+  /* "yoda/util.pyx":71
  * XYZ = namedtuple('XYZ', ('x', 'y', 'z'))
  * EdgePair = namedtuple('EdgePair', ('low', 'high'))
  * ErrorPair = namedtuple('ErrorPair', ('minus', 'plus'))             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __pyx_tuple__21 = PyTuple_Pack(2, __pyx_n_s_minus, __pyx_n_s_plus); if (unlikely(!__pyx_tuple__21)) __PYX_ERR(1, 61, __pyx_L1_error)
+  __pyx_tuple__21 = PyTuple_Pack(2, __pyx_n_s_minus, __pyx_n_s_plus); if (unlikely(!__pyx_tuple__21)) __PYX_ERR(1, 71, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__21);
   __Pyx_GIVEREF(__pyx_tuple__21);
-  __pyx_tuple__22 = PyTuple_Pack(2, __pyx_n_s_ErrorPair, __pyx_tuple__21); if (unlikely(!__pyx_tuple__22)) __PYX_ERR(1, 61, __pyx_L1_error)
+  __pyx_tuple__22 = PyTuple_Pack(2, __pyx_n_s_ErrorPair, __pyx_tuple__21); if (unlikely(!__pyx_tuple__22)) __PYX_ERR(1, 71, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__22);
   __Pyx_GIVEREF(__pyx_tuple__22);
 
-  /* "yoda/util.pyx":67
+  /* "yoda/util.pyx":77
  * from libcpp.pair cimport pair
  * 
  * def read_edge_pair(pair[double, double] es):             # <<<<<<<<<<<<<<
  *     return EdgePair(es.first, es.second)
  * 
  */
-  __pyx_tuple__23 = PyTuple_Pack(2, __pyx_n_s_es, __pyx_n_s_es); if (unlikely(!__pyx_tuple__23)) __PYX_ERR(1, 67, __pyx_L1_error)
+  __pyx_tuple__23 = PyTuple_Pack(2, __pyx_n_s_es, __pyx_n_s_es); if (unlikely(!__pyx_tuple__23)) __PYX_ERR(1, 77, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__23);
   __Pyx_GIVEREF(__pyx_tuple__23);
-  __pyx_codeobj__24 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__23, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_andy_proj_hep_yoda_default, __pyx_n_s_read_edge_pair, 67, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__24)) __PYX_ERR(1, 67, __pyx_L1_error)
+  __pyx_codeobj__24 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__23, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_andy_proj_hep_yoda_17x_pye, __pyx_n_s_read_edge_pair, 77, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__24)) __PYX_ERR(1, 77, __pyx_L1_error)
 
-  /* "yoda/util.pyx":70
+  /* "yoda/util.pyx":80
  *     return EdgePair(es.first, es.second)
  * 
  * def read_error_pair(pair[double, double] es):             # <<<<<<<<<<<<<<
  *     return ErrorPair(es.first, es.second)
  * 
  */
-  __pyx_tuple__25 = PyTuple_Pack(2, __pyx_n_s_es, __pyx_n_s_es); if (unlikely(!__pyx_tuple__25)) __PYX_ERR(1, 70, __pyx_L1_error)
+  __pyx_tuple__25 = PyTuple_Pack(2, __pyx_n_s_es, __pyx_n_s_es); if (unlikely(!__pyx_tuple__25)) __PYX_ERR(1, 80, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__25);
   __Pyx_GIVEREF(__pyx_tuple__25);
-  __pyx_codeobj__26 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__25, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_andy_proj_hep_yoda_default, __pyx_n_s_read_error_pair, 70, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__26)) __PYX_ERR(1, 70, __pyx_L1_error)
+  __pyx_codeobj__26 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__25, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_andy_proj_hep_yoda_17x_pye, __pyx_n_s_read_error_pair, 80, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__26)) __PYX_ERR(1, 80, __pyx_L1_error)
 
-  /* "yoda/util.pyx":73
+  /* "yoda/util.pyx":83
  *     return ErrorPair(es.first, es.second)
  * 
  * def read_symmetric(val):             # <<<<<<<<<<<<<<
  *     try:
  *         a, b = val
  */
-  __pyx_tuple__27 = PyTuple_Pack(3, __pyx_n_s_val, __pyx_n_s_a, __pyx_n_s_b); if (unlikely(!__pyx_tuple__27)) __PYX_ERR(1, 73, __pyx_L1_error)
+  __pyx_tuple__27 = PyTuple_Pack(3, __pyx_n_s_val, __pyx_n_s_a, __pyx_n_s_b); if (unlikely(!__pyx_tuple__27)) __PYX_ERR(1, 83, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__27);
   __Pyx_GIVEREF(__pyx_tuple__27);
-  __pyx_codeobj__28 = (PyObject*)__Pyx_PyCode_New(1, 0, 3, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__27, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_andy_proj_hep_yoda_default, __pyx_n_s_read_symmetric, 73, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__28)) __PYX_ERR(1, 73, __pyx_L1_error)
+  __pyx_codeobj__28 = (PyObject*)__Pyx_PyCode_New(1, 0, 3, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__27, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_andy_proj_hep_yoda_17x_pye, __pyx_n_s_read_symmetric, 83, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__28)) __PYX_ERR(1, 83, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -4750,15 +4750,15 @@ PyMODINIT_FUNC PyInit_util(void)
   /*--- Type init code ---*/
   __pyx_vtabptr_4yoda_4util_Base = &__pyx_vtable_4yoda_4util_Base;
   __pyx_vtable_4yoda_4util_Base.ptr = (void *(*)(struct __pyx_obj_4yoda_4util_Base *))__pyx_f_4yoda_4util_4Base_ptr;
-  if (PyType_Ready(&__pyx_type_4yoda_4util_Base) < 0) __PYX_ERR(1, 44, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_4yoda_4util_Base) < 0) __PYX_ERR(1, 54, __pyx_L1_error)
   __pyx_type_4yoda_4util_Base.tp_print = 0;
-  if (__Pyx_SetVtable(__pyx_type_4yoda_4util_Base.tp_dict, __pyx_vtabptr_4yoda_4util_Base) < 0) __PYX_ERR(1, 44, __pyx_L1_error)
-  if (PyObject_SetAttrString(__pyx_m, "Base", (PyObject *)&__pyx_type_4yoda_4util_Base) < 0) __PYX_ERR(1, 44, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_type_4yoda_4util_Base.tp_dict, __pyx_vtabptr_4yoda_4util_Base) < 0) __PYX_ERR(1, 54, __pyx_L1_error)
+  if (PyObject_SetAttrString(__pyx_m, "Base", (PyObject *)&__pyx_type_4yoda_4util_Base) < 0) __PYX_ERR(1, 54, __pyx_L1_error)
   __pyx_ptype_4yoda_4util_Base = &__pyx_type_4yoda_4util_Base;
-  if (PyType_Ready(&__pyx_type_4yoda_4util___pyx_scope_struct___autostr) < 0) __PYX_ERR(1, 32, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_4yoda_4util___pyx_scope_struct___autostr) < 0) __PYX_ERR(1, 42, __pyx_L1_error)
   __pyx_type_4yoda_4util___pyx_scope_struct___autostr.tp_print = 0;
   __pyx_ptype_4yoda_4util___pyx_scope_struct___autostr = &__pyx_type_4yoda_4util___pyx_scope_struct___autostr;
-  if (PyType_Ready(&__pyx_type_4yoda_4util___pyx_scope_struct_1_genexpr) < 0) __PYX_ERR(1, 39, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_4yoda_4util___pyx_scope_struct_1_genexpr) < 0) __PYX_ERR(1, 49, __pyx_L1_error)
   __pyx_type_4yoda_4util___pyx_scope_struct_1_genexpr.tp_print = 0;
   __pyx_ptype_4yoda_4util___pyx_scope_struct_1_genexpr = &__pyx_type_4yoda_4util___pyx_scope_struct_1_genexpr;
   /*--- Type import code ---*/
@@ -4832,124 +4832,124 @@ PyMODINIT_FUNC PyInit_util(void)
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_autotype, __pyx_t_1) < 0) __PYX_ERR(1, 16, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "yoda/util.pyx":32
+  /* "yoda/util.pyx":42
  * 
  * 
  * def _autostr(var, precision=8):             # <<<<<<<<<<<<<<
  *     """Automatically format numerical types as the right sort of string."""
  *     if type(var) is float:
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_4yoda_4util_5_autostr, NULL, __pyx_n_s_yoda_util); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 32, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_4yoda_4util_5_autostr, NULL, __pyx_n_s_yoda_util); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 42, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_autostr, __pyx_t_1) < 0) __PYX_ERR(1, 32, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_autostr, __pyx_t_1) < 0) __PYX_ERR(1, 42, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "yoda/util.pyx":48
+  /* "yoda/util.pyx":58
  * 
  * 
  * def try_loop(fs, *args, char *_msg='Invalid arguments', **kwargs):             # <<<<<<<<<<<<<<
  *     for f in fs:
  *         try:
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_4yoda_4util_7try_loop, NULL, __pyx_n_s_yoda_util); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 48, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_4yoda_4util_7try_loop, NULL, __pyx_n_s_yoda_util); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 58, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_try_loop, __pyx_t_1) < 0) __PYX_ERR(1, 48, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_try_loop, __pyx_t_1) < 0) __PYX_ERR(1, 58, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "yoda/util.pyx":58
+  /* "yoda/util.pyx":68
  * 
  * 
  * XY = namedtuple('XY', ('x', 'y'))             # <<<<<<<<<<<<<<
  * XYZ = namedtuple('XYZ', ('x', 'y', 'z'))
  * EdgePair = namedtuple('EdgePair', ('low', 'high'))
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_namedtuple); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 58, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_namedtuple); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 68, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_tuple__16, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 58, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_tuple__16, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 68, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_XY, __pyx_t_2) < 0) __PYX_ERR(1, 58, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_XY, __pyx_t_2) < 0) __PYX_ERR(1, 68, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "yoda/util.pyx":59
+  /* "yoda/util.pyx":69
  * 
  * XY = namedtuple('XY', ('x', 'y'))
  * XYZ = namedtuple('XYZ', ('x', 'y', 'z'))             # <<<<<<<<<<<<<<
  * EdgePair = namedtuple('EdgePair', ('low', 'high'))
  * ErrorPair = namedtuple('ErrorPair', ('minus', 'plus'))
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_namedtuple); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 59, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_namedtuple); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 69, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_tuple__18, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 59, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_tuple__18, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 69, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_XYZ, __pyx_t_1) < 0) __PYX_ERR(1, 59, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_XYZ, __pyx_t_1) < 0) __PYX_ERR(1, 69, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "yoda/util.pyx":60
+  /* "yoda/util.pyx":70
  * XY = namedtuple('XY', ('x', 'y'))
  * XYZ = namedtuple('XYZ', ('x', 'y', 'z'))
  * EdgePair = namedtuple('EdgePair', ('low', 'high'))             # <<<<<<<<<<<<<<
  * ErrorPair = namedtuple('ErrorPair', ('minus', 'plus'))
  * 
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_namedtuple); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 60, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_namedtuple); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 70, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_tuple__20, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 60, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_tuple__20, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 70, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_EdgePair, __pyx_t_2) < 0) __PYX_ERR(1, 60, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_EdgePair, __pyx_t_2) < 0) __PYX_ERR(1, 70, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "yoda/util.pyx":61
+  /* "yoda/util.pyx":71
  * XYZ = namedtuple('XYZ', ('x', 'y', 'z'))
  * EdgePair = namedtuple('EdgePair', ('low', 'high'))
  * ErrorPair = namedtuple('ErrorPair', ('minus', 'plus'))             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_namedtuple); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 61, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_namedtuple); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 71, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_tuple__22, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 61, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_tuple__22, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 71, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_ErrorPair, __pyx_t_1) < 0) __PYX_ERR(1, 61, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_ErrorPair, __pyx_t_1) < 0) __PYX_ERR(1, 71, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "yoda/util.pyx":67
+  /* "yoda/util.pyx":77
  * from libcpp.pair cimport pair
  * 
  * def read_edge_pair(pair[double, double] es):             # <<<<<<<<<<<<<<
  *     return EdgePair(es.first, es.second)
  * 
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_4yoda_4util_9read_edge_pair, NULL, __pyx_n_s_yoda_util); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 67, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_4yoda_4util_9read_edge_pair, NULL, __pyx_n_s_yoda_util); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 77, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_read_edge_pair, __pyx_t_1) < 0) __PYX_ERR(1, 67, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_read_edge_pair, __pyx_t_1) < 0) __PYX_ERR(1, 77, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "yoda/util.pyx":70
+  /* "yoda/util.pyx":80
  *     return EdgePair(es.first, es.second)
  * 
  * def read_error_pair(pair[double, double] es):             # <<<<<<<<<<<<<<
  *     return ErrorPair(es.first, es.second)
  * 
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_4yoda_4util_11read_error_pair, NULL, __pyx_n_s_yoda_util); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 70, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_4yoda_4util_11read_error_pair, NULL, __pyx_n_s_yoda_util); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 80, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_read_error_pair, __pyx_t_1) < 0) __PYX_ERR(1, 70, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_read_error_pair, __pyx_t_1) < 0) __PYX_ERR(1, 80, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "yoda/util.pyx":73
+  /* "yoda/util.pyx":83
  *     return ErrorPair(es.first, es.second)
  * 
  * def read_symmetric(val):             # <<<<<<<<<<<<<<
  *     try:
  *         a, b = val
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_4yoda_4util_13read_symmetric, NULL, __pyx_n_s_yoda_util); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 73, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_4yoda_4util_13read_symmetric, NULL, __pyx_n_s_yoda_util); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 83, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_read_symmetric, __pyx_t_1) < 0) __PYX_ERR(1, 73, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_read_symmetric, __pyx_t_1) < 0) __PYX_ERR(1, 83, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "yoda/util.pyx":1

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
 //
 #include "YODA/Profile2D.h"
 #include "YODA/Scatter3D.h"
@@ -25,7 +25,7 @@ namespace YODA {
     if (inRange(x, _axis.xMin(), _axis.xMax()) && inRange(y, _axis.yMin(), _axis.yMax())) {
       try {
         /// @todo Replace try block with a check that there is a bin at x, y
-        binAt(x, y).fill(x, y, z, weight, fraction);
+        _binAt(x, y).fill(x, y, z, weight, fraction);
       } catch (const RangeError& re) {    }
     }
     /// @todo Reinstate! With outflow axis bin lookup

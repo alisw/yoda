@@ -1,6 +1,7 @@
 #include "YODA/Scatter2D.h"
 #include "YODA/Histo1D.h"
 #include "YODA/Profile1D.h"
+#include <sstream>
 
 namespace YODA {
 
@@ -67,6 +68,18 @@ namespace YODA {
     assert(p.numBins() == rtn.numPoints());
     return rtn;
   }
-
+  
+  const std::vector<std::string> Scatter2D::variations() const  {
+    std::vector<std::string> vecvariations;
+    for (auto &point : this->_points){
+      for (auto &it : point.errMap()){
+        //if the variation is not already in the vector, add it !
+        if (std::find(vecvariations.begin(), vecvariations.end(), it.first) == vecvariations.end()){
+          vecvariations.push_back(it.first);
+        }
+      }
+    }
+    return vecvariations;
+  }
 
 }

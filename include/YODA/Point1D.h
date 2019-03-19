@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_POINT1D_H
 #define YODA_POINT1D_H
@@ -26,25 +26,27 @@ namespace YODA {
 
 
     /// Constructor from values with optional symmetric errors
-    Point1D(double x, double ex=0.0)
+    Point1D(double x, double ex=0.0, std::string source="")
       : _x(x)
     {
-      _ex = std::make_pair(ex, ex);
+      _ex[source] = std::make_pair(ex, ex);
     }
 
 
     /// Constructor from values with explicit asymmetric errors
-    Point1D(double x, double exminus, double explus)
+    Point1D(double x, double exminus, double explus, std::string source="")
       : _x(x)
     {
-      _ex = std::make_pair(exminus, explus);
+      _ex[source] = std::make_pair(exminus, explus);
     }
 
 
     /// Constructor from values with asymmetric errors
-    Point1D(double x, const std::pair<double,double>& ex)
-      : _x(x), _ex(ex)
-    {  }
+    Point1D(double x, const std::pair<double,double>& ex,  std::string source="")
+      : _x(x)
+    {
+      _ex[source] = ex;
+    }
 
 
     /// Copy constructor
@@ -87,94 +89,97 @@ namespace YODA {
     //@{
 
     /// Get x-error values
-    const std::pair<double,double>& xErrs() const {
-      return _ex;
+    const std::pair<double,double>& xErrs(  std::string source="") const {
+      if (!_ex.count(source)) throw RangeError("xErrs has no such key: "+source);
+      return _ex.at(source);
     }
 
     /// Get negative x-error value
-    double xErrMinus() const {
-      return _ex.first;
+    double xErrMinus( std::string source="") const {
+      if (!_ex.count(source)) throw RangeError("xErrs has no such key: "+source);
+      return _ex.at(source).first;
     }
 
     /// Get positive x-error value
-    double xErrPlus() const {
-      return _ex.second;
+    double xErrPlus( std::string source="") const {
+      if (!_ex.count(source)) throw RangeError("xErrs has no such key: "+source);
+      return _ex.at(source).second;
     }
 
     /// Get average x-error value
-    double xErrAvg() const {
-      return (_ex.first + _ex.second)/2.0;
+    double xErrAvg( std::string source="") const {
+      if (!_ex.count(source)) throw RangeError("xErrs has no such key: "+source);
+      return (_ex.at(source).first + _ex.at(source).second)/2.0;
     }
 
     /// Set negative x error
-    void setXErrMinus(double exminus) {
-      _ex.first = exminus;
+    void setXErrMinus(double exminus,  std::string source="") {
+      if (!_ex.count(source)) _ex[source] = std::make_pair(0.,0.);
+      _ex.at(source).first = exminus;
     }
 
     /// Set positive x error
-    void setXErrPlus(double explus) {
-      _ex.second = explus;
+    void setXErrPlus(double explus,  std::string source="") {
+      if (!_ex.count(source)) _ex[source] = std::make_pair(0.,0.);
+      _ex.at(source).second = explus;
     }
 
     /// Set symmetric x error
-    void setXErr(double ex) {
-      setXErrMinus(ex);
-      setXErrPlus(ex);
+    void setXErr(double ex,  std::string source="") {
+      setXErrMinus(ex, source);
+      setXErrPlus(ex, source);
     }
 
     /// Set symmetric x error (alias)
-    void setXErrs(double ex) {
-      setXErr(ex);
+    void setXErrs(double ex,  std::string source="") {
+      setXErr(ex, source);
     }
 
     /// Set asymmetric x error
-    void setXErrs(double exminus, double explus) {
-      setXErrMinus(exminus);
-      setXErrPlus(explus);
+    void setXErrs(double exminus, double explus,  std::string source="") {
+      setXErrMinus(exminus, source);
+      setXErrPlus(explus, source);
     }
 
     /// Set asymmetric x error
-    void setXErrs(const std::pair<double,double>& ex) {
-      _ex = ex;
+    void setXErrs(const std::pair<double,double>& ex,  std::string source="") {
+      _ex[source] = ex;
     }
 
     /// Get value minus negative x-error
-    /// @todo Remove (or extend) when multiple errors are supported
-    double xMin() const {
-      return _x - _ex.first;
+    double xMin(std::string source="") const {
+      if (!_ex.count(source)) throw RangeError("xErrs has no such key: "+source);
+      return _x - _ex.at(source).first;
     }
 
     /// Get value plus positive x-error
-    /// @todo Remove (or extend) when multiple errors are supported
-    double xMax() const {
-      return _x + _ex.second;
+    double xMax(std::string source="") const {
+      if (!_ex.count(source)) throw RangeError("xErrs has no such key: "+source);
+      return _x + _ex.at(source).second;
     }
 
     //@}
-
-
-    /// @todo Support multiple errors
 
 
     /// @name Combined x value and error setters
     //@{
 
     /// Set x value and symmetric error
-    void setX(double x, double ex) {
+    void setX(double x, double ex, std::string source="") {
       setX(x);
-      setXErr(ex);
+      setXErr(ex, source);
     }
 
     /// Set x value and asymmetric error
-    void setX(double x, double exminus, double explus) {
+    void setX(double x, double exminus, double explus, std::string source="") {
       setX(x);
-      setXErrs(exminus, explus);
+      setXErrs(exminus, explus, source);
     }
 
     /// Set x value and asymmetric error
-    void setX(double x, std::pair<double,double>& ex) {
+    void setX(double x, std::pair<double,double>& ex, std::string source="") {
       setX(x);
-      setXErrs(ex);
+      setXErrs(ex, source);
     }
 
     //@}
@@ -186,7 +191,9 @@ namespace YODA {
     /// Scaling of x axis
     void scaleX(double scalex) {
       setX(x()*scalex);
-      setXErrs(xErrMinus()*scalex, xErrPlus()*scalex);
+      for (const auto   &source : _ex){
+        setXErrs(xErrMinus()*scalex, xErrPlus()*scalex, source.first);
+      }
     }
 
     //@}
@@ -206,68 +213,73 @@ namespace YODA {
       setX(val);
     }
 
+    /// Get error map for direction @a i
+    const std::map< std::string, std::pair<double,double>> & errMap() const {
+      return _ex;
+    }
+
     /// Get error values for direction @a i
-    const std::pair<double,double>& errs(size_t i) const {
+    const std::pair<double,double>& errs(size_t i, std::string source="") const {
       if (i != 1) throw RangeError("Invalid axis int, must be in range 1..dim");
-      return xErrs();
+      return xErrs(source);
     }
     /// Get negative error value for direction @a i
-    double errMinus(size_t i) const {
+    double errMinus(size_t i, std::string source="") const {
       if (i != 1) throw RangeError("Invalid axis int, must be in range 1..dim");
-      return xErrMinus();
+      return xErrMinus(source);
     }
     /// Get positive error value for direction @a i
-    double errPlus(size_t i) const {
+    double errPlus(size_t i,  std::string source="") const {
       if (i != 1) throw RangeError("Invalid axis int, must be in range 1..dim");
-      return xErrPlus();
+      return xErrPlus(source);
     }
     /// Get average error value for direction @a i
-    double errAvg(size_t i) const {
+    double errAvg(size_t i, std::string source="") const {
       if (i != 1) throw RangeError("Invalid axis int, must be in range 1..dim");
-      return xErrAvg();
+      return xErrAvg(source);
     }
 
     /// Set negative error for direction @a i
-    void setErrMinus(size_t i, double eminus) {
+    void setErrMinus(size_t i, double eminus,  std::string source="") {
       if (i != 1) throw RangeError("Invalid axis int, must be in range 1..dim");
-      setXErrMinus(eminus);
+      setXErrMinus(eminus, source);
     }
     /// Set positive error for direction @a i
-    void setErrPlus(size_t i, double eplus) {
+    void setErrPlus(size_t i, double eplus,  std::string source="") {
       if (i != 1) throw RangeError("Invalid axis int, must be in range 1..dim");
-      setXErrPlus(eplus);
+      setXErrPlus(eplus, source);
     }
 
     /// Set symmetric error for direction @a i
-    void setErr(size_t i, double e) {
+    void setErr(size_t i, double e, std::string source="") {
       if (i != 1) throw RangeError("Invalid axis int, must be in range 1..dim");
-      setXErr(e);
+      setXErr(e, source);
     }
     /// Set asymmetric error for direction @a i
-    void setErrs(size_t i, double eminus, double eplus) {
+    void setErrs(size_t i, double eminus, double eplus,  std::string source="") {
       if (i != 1) throw RangeError("Invalid axis int, must be in range 1..dim");
-      setXErrs(eminus, eplus);
+      setXErrs(eminus, eplus, source);
     }
     /// Set asymmetric error for direction @a i
-    void setErrs(size_t i, std::pair<double,double>& e) {
+    void setErrs(size_t i, std::pair<double,double>& e, std::string source="") {
       if (i != 1) throw RangeError("Invalid axis int, must be in range 1..dim");
-      setXErrs(e);
+      setXErrs(e, source);
     }
 
     /// Set value and symmetric error for direction @a i
-    void set(size_t i, double val, double e) {
+    void set(size_t i, double val, double e,  std::string source="") {
       if (i != 1) throw RangeError("Invalid axis int, must be in range 1..dim");
-      setX(val, e);
+      setX(val, e, source);
     }
     /// Set value and asymmetric error for direction @a i
-    void set(size_t i, double val, double eminus, double eplus) {
+    void set(size_t i, double val, double eminus, double eplus,  std::string source="") {
       if (i != 1) throw RangeError("Invalid axis int, must be in range 1..dim");
-      setX(val, eminus, eplus);
+      setX(val, eminus, eplus, source);
     }
     /// Set value and asymmetric error for direction @a i
-    void set(size_t i, double val, std::pair<double,double>& e) {
+    void set(size_t i, double val, std::pair<double,double>& e,  std::string source="") {
       if (i != 1) throw RangeError("Invalid axis int, must be in range 1..dim");
-      setX(val, e);
+      setX(val, e, source);
     }
 
     //@}
@@ -279,8 +291,9 @@ namespace YODA {
     //@{
 
     double _x;
-    std::pair<double,double> _ex;
-    //std::vector<std::pair<double,double> > _ex;
+    // a map of the errors for each source. Nominal stored under ""
+    // to ensure backward compatibility
+    std::map< std::string, std::pair<double,double> > _ex;
 
     //@}
 
@@ -292,11 +305,12 @@ namespace YODA {
   //@{
 
   /// Equality test of x characteristics only
+  /// @todo Base on a named fuzzyEquals(a,b,tol=1e-3) unbound function
   inline bool operator==(const YODA::Point1D& a, const YODA::Point1D& b) {
-    const bool same_val = YODA::fuzzyEquals(a.x(), b.x());
-    const bool same_eminus = YODA::fuzzyEquals(a.xErrMinus(), b.xErrMinus());
-    const bool same_eplus = YODA::fuzzyEquals(a.xErrPlus(), b.xErrPlus());
-    return same_val && same_eminus && same_eplus;
+    if (!YODA::fuzzyEquals(a.x(), b.x()) ||
+        !YODA::fuzzyEquals(a.xErrMinus(), b.xErrMinus()) ||
+        !YODA::fuzzyEquals(a.xErrPlus(),  b.xErrPlus()) ) return false;
+    return true;
   }
 
   /// Equality test of x characteristics only

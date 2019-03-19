@@ -1,3 +1,100 @@
+2018-12-10  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Release 1.7.4
+
+2018-11-16 Christian Gutschow <chris.g@cern.ch>
+
+	* Roll out sameBinning methods for Profile1D and Profile2D.
+
+2018-11-08 Christian Gutschow <chris.g@cern.ch>
+
+	* Add sameBinning methods for Histo1D and Histo2D.
+
+2018-11-08  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Remove debug couts from single-AO Writer::write() function.
+
+	* Add --ignore-missing and --ignore-new flags to yodadiff.
+
+	* Tidy up point-comparison output of yodadiff.
+
+2018-10-13 Christian Gutschow <chris.g@cern.ch>
+
+	* Fix additional weighting in yodamerge
+
+2018-09-24  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Release 1.7.3
+
+2018-09-12 Louie Corpe  <lcorpe@cern.ch>
+
+	* Fix bug in multi-err point reader which was not parsing Variations correctly,
+	and a minor typo where the err- was duplicated for the additional columns.
+
+2018-09-06  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Fix missing y and z components of Point2D and Point3D equality testing.
+
+2018-09-04  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add array accessors of x,y,zMins/Mids/Maxs/Vals/Errs, etc. to
+	Python Histo2D and Profile2D.
+
+2018-08-30  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Update embedded yaml-cpp to v0.6.0.
+
+	* Convert xyzMin/Max properties to functions in the Python interfaces.
+
+	* Return numpy arrays if possible in Python interface array methods.
+
+2018-08-23  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Release 1.7.2
+
+	* Add missing bin(i) method to Python Profile1D interface.
+
+2018-08-22  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Avoid const-overloading clash for binAt functions.
+
+2018-08-14  Chris Gutschow  <chris.g@cern.ch>
+
+	* Merge Graeme Watt's modifications to yodadiff.
+
+2018-08-14  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Release 1.7.1
+
+2018-08-08  Andy Buckley  <andy.buckley@cern.ch>
+
+	* yodadiff now supports quiet (-q) and list (-l) modes.
+
+2018-06-01  Louie Corpe  <lcorpe@cern.ch>
+
+	* Point1,2,3D now support multiple error sources for the highest dimension.
+
+	* Scatter1,2,3D now read in/out with additional columns for the extra error
+	sources, with a variations() method to check with sources are available
+
+2018-05-02  Andy Buckley  <andy.buckley@cern.ch>
+
+	* StringUtils.h: Replace std::ptr_fun (removed in C++17) with a lambda function. Thanks to Stefan Richter.
+
+2018-04-30  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add "-" = stdin/stdout recognition to C++ IO functions.
+
+	* Convert remaining Python read/write methods to use the C++ IO functions.
+
+	* Convert Python read/write methods with filename arguments to use the gzip-aware IO functions.
+
+2018-04-27  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Fix missing lock=false flag initialisation in Histo2D constructor from a Bins vector.
+
+	* Improve axis locking error messages.
+
 2017-12-21  Andy Buckley  <andy.buckley@cern.ch>
 
 	* Version 1.7.0 release

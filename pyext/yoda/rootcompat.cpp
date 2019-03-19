@@ -484,6 +484,7 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include "YODA/Profile1D.h"
 #include "YODA/Profile2D.h"
 #include <sstream>
+#include "YODA/IO.h"
 #include "YODA/Reader.h"
 #include "YODA/ReaderYODA.h"
 #include "YODA/ReaderFLAT.h"
@@ -711,7 +712,7 @@ struct __pyx_obj_4yoda_4util_Base;
  * 
  * ctypedef map[string, string] Annotations             # <<<<<<<<<<<<<<
  * ctypedef double (*dbl_dbl_fptr) (double)
- * 
+ * ctypedef map[string, pair[double,double]] errMap
  */
 typedef std::map<std::string,std::string>  __pyx_t_4yoda_12declarations_Annotations;
 
@@ -719,12 +720,21 @@ typedef std::map<std::string,std::string>  __pyx_t_4yoda_12declarations_Annotati
  * 
  * ctypedef map[string, string] Annotations
  * ctypedef double (*dbl_dbl_fptr) (double)             # <<<<<<<<<<<<<<
- * 
+ * ctypedef map[string, pair[double,double]] errMap
  * 
  */
 typedef double (*__pyx_t_4yoda_12declarations_dbl_dbl_fptr)(double);
 
-/* "yoda/declarations.pxd":427
+/* "yoda/declarations.pxd":19
+ * ctypedef map[string, string] Annotations
+ * ctypedef double (*dbl_dbl_fptr) (double)
+ * ctypedef map[string, pair[double,double]] errMap             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+typedef std::map<std::string,std::pair<double,double> >  __pyx_t_4yoda_12declarations_errMap;
+
+/* "yoda/declarations.pxd":462
  *         Bin1D operator - (Bin1D&)
  * 
  * ctypedef Bin1D[Dbn1D] Bin1D_Dbn1D             # <<<<<<<<<<<<<<
@@ -733,7 +743,7 @@ typedef double (*__pyx_t_4yoda_12declarations_dbl_dbl_fptr)(double);
  */
 typedef YODA::Bin1D<YODA::Dbn1D>  __pyx_t_4yoda_12declarations_Bin1D_Dbn1D;
 
-/* "yoda/declarations.pxd":428
+/* "yoda/declarations.pxd":463
  * 
  * ctypedef Bin1D[Dbn1D] Bin1D_Dbn1D
  * ctypedef Bin1D[Dbn2D] Bin1D_Dbn2D             # <<<<<<<<<<<<<<
@@ -742,7 +752,7 @@ typedef YODA::Bin1D<YODA::Dbn1D>  __pyx_t_4yoda_12declarations_Bin1D_Dbn1D;
  */
 typedef YODA::Bin1D<YODA::Dbn2D>  __pyx_t_4yoda_12declarations_Bin1D_Dbn2D;
 
-/* "yoda/declarations.pxd":429
+/* "yoda/declarations.pxd":464
  * ctypedef Bin1D[Dbn1D] Bin1D_Dbn1D
  * ctypedef Bin1D[Dbn2D] Bin1D_Dbn2D
  * ctypedef Bin1D[Dbn3D] Bin1D_Dbn3D             # <<<<<<<<<<<<<<
@@ -751,7 +761,7 @@ typedef YODA::Bin1D<YODA::Dbn2D>  __pyx_t_4yoda_12declarations_Bin1D_Dbn2D;
  */
 typedef YODA::Bin1D<YODA::Dbn3D>  __pyx_t_4yoda_12declarations_Bin1D_Dbn3D;
 
-/* "yoda/declarations.pxd":492
+/* "yoda/declarations.pxd":527
  *         int adjacentTo(Bin2D) except +yodaerr
  * 
  * ctypedef Bin2D[Dbn2D] Bin2D_Dbn2D             # <<<<<<<<<<<<<<
@@ -760,7 +770,7 @@ typedef YODA::Bin1D<YODA::Dbn3D>  __pyx_t_4yoda_12declarations_Bin1D_Dbn3D;
  */
 typedef YODA::Bin2D<YODA::Dbn2D>  __pyx_t_4yoda_12declarations_Bin2D_Dbn2D;
 
-/* "yoda/declarations.pxd":493
+/* "yoda/declarations.pxd":528
  * 
  * ctypedef Bin2D[Dbn2D] Bin2D_Dbn2D
  * ctypedef Bin2D[Dbn3D] Bin2D_Dbn3D             # <<<<<<<<<<<<<<
@@ -1161,7 +1171,7 @@ static const char __pyx_k_MemoryError[] = "MemoryError";
 static const char __pyx_k_yoda_rootcompat[] = "yoda.rootcompat";
 static const char __pyx_k_TGraphAsymmErrors[] = "TGraphAsymmErrors";
 static const char __pyx_k_Null_pointer_referenced_perhaps[] = "Null pointer referenced: perhaps the class is uninitialised.";
-static const char __pyx_k_home_andy_proj_hep_yoda_default[] = "/home/andy/proj/hep/yoda-default/pyext/yoda/rootcompat.pyx";
+static const char __pyx_k_home_andy_proj_hep_yoda_17x_pye[] = "/home/andy/proj/hep/yoda-17x/pyext/yoda/rootcompat.pyx";
 static PyObject *__pyx_n_s_Histo1D;
 static PyObject *__pyx_n_s_Histo2D;
 static PyObject *__pyx_n_s_IndexError;
@@ -1176,7 +1186,7 @@ static PyObject *__pyx_n_s_TH1D;
 static PyObject *__pyx_n_s_TH2D;
 static PyObject *__pyx_n_s_TProfile;
 static PyObject *__pyx_n_s_asgraph;
-static PyObject *__pyx_kp_s_home_andy_proj_hep_yoda_default;
+static PyObject *__pyx_kp_s_home_andy_proj_hep_yoda_17x_pye;
 static PyObject *__pyx_n_s_import;
 static PyObject *__pyx_n_s_main;
 static PyObject *__pyx_n_s_new;
@@ -3179,7 +3189,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_TH2D, __pyx_k_TH2D, sizeof(__pyx_k_TH2D), 0, 0, 1, 1},
   {&__pyx_n_s_TProfile, __pyx_k_TProfile, sizeof(__pyx_k_TProfile), 0, 0, 1, 1},
   {&__pyx_n_s_asgraph, __pyx_k_asgraph, sizeof(__pyx_k_asgraph), 0, 0, 1, 1},
-  {&__pyx_kp_s_home_andy_proj_hep_yoda_default, __pyx_k_home_andy_proj_hep_yoda_default, sizeof(__pyx_k_home_andy_proj_hep_yoda_default), 0, 0, 1, 0},
+  {&__pyx_kp_s_home_andy_proj_hep_yoda_17x_pye, __pyx_k_home_andy_proj_hep_yoda_17x_pye, sizeof(__pyx_k_home_andy_proj_hep_yoda_17x_pye), 0, 0, 1, 0},
   {&__pyx_n_s_import, __pyx_k_import, sizeof(__pyx_k_import), 0, 0, 1, 1},
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
   {&__pyx_n_s_new, __pyx_k_new, sizeof(__pyx_k_new), 0, 0, 1, 1},
@@ -3228,7 +3238,7 @@ static int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__2 = PyTuple_Pack(3, __pyx_n_s_root_obj, __pyx_n_s_widthscale, __pyx_n_s_ptr); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 40, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__2);
   __Pyx_GIVEREF(__pyx_tuple__2);
-  __pyx_codeobj__3 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__2, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_andy_proj_hep_yoda_default, __pyx_n_s_to_yoda, 40, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__3)) __PYX_ERR(0, 40, __pyx_L1_error)
+  __pyx_codeobj__3 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__2, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_andy_proj_hep_yoda_17x_pye, __pyx_n_s_to_yoda, 40, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__3)) __PYX_ERR(0, 40, __pyx_L1_error)
 
   /* "yoda/rootcompat.pyx":91
  * 
@@ -3240,7 +3250,7 @@ static int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__4 = PyTuple_Pack(3, __pyx_n_s_yoda_obj, __pyx_n_s_asgraph, __pyx_n_s_ptr); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 91, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__4);
   __Pyx_GIVEREF(__pyx_tuple__4);
-  __pyx_codeobj__5 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__4, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_andy_proj_hep_yoda_default, __pyx_n_s_to_root, 91, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__5)) __PYX_ERR(0, 91, __pyx_L1_error)
+  __pyx_codeobj__5 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__4, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_andy_proj_hep_yoda_17x_pye, __pyx_n_s_to_root, 91, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__5)) __PYX_ERR(0, 91, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;

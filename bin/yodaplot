@@ -20,7 +20,7 @@ TODO:
 
 from __future__ import print_function
 
-import os, optparse
+import sys, os, optparse
 op = optparse.OptionParser(usage=__doc__)
 op.add_option("-f", "--format", dest="FORMAT", default="PDF",
               help="output format string consisting of desired output formats separated by commas [default=%default]")
@@ -51,7 +51,11 @@ if opts.QUIET:
 
 
 import yoda
-mpl = yoda.mplinit(opts.ENGINE)
+try:
+    mpl = yoda.mplinit(opts.ENGINE)
+except AttributeError:
+    sys.stderr.write('YODA plotting not available. Is matplotlib installed?\n')
+    sys.exit(1)
 
 import matplotlib
 matplotlib.use('Agg')

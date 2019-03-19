@@ -344,5 +344,124 @@ cdef class Profile2D(AnalysisObject):
     def __truediv__(Profile2D self, Profile2D other):
         return self.divideBy(other)
 
+
+    # def sumWs(self):
+    #     """All sumWs of the histo."""
+    #     return [b.sumW for b in self.bins]
+
+    def _mknp(self, xs):
+        try:
+            import numpy
+            return numpy.array(xs)
+        except ImportError:
+            return xs
+
+    def xMins(self):
+        """All x low edges of the histo."""
+        return self._mknp([b.xMin for b in self.bins])
+
+    def xMaxs(self):
+        """All x high edges of the histo."""
+        return self._mknp([b.xMax for b in self.bins])
+
+    def xMids(self):
+        """All x bin midpoints of the histo."""
+        return self._mknp([b.xMid for b in self.bins])
+
+    def xFoci(self):
+        """All x bin foci of the histo."""
+        return self._mknp([b.xFocus for b in self.bins])
+
+    def xVals(self, foci=False):
+        return self.xFoci() if foci else self.xMids()
+
+    def xErrs(self, foci=False):
+        if foci:
+            return [(b.xFocus-b.xMin, b.xMax-b.xFocus) for b in self.bins]
+        else:
+            return [(b.xMid-b.xMin, b.xMax-b.xMid) for b in self.bins]
+
+    # def xMin(self):
+    #     """Lowest x value."""
+    #     return min(self.xMins())
+
+    # def xMax(self):
+    #     """Highest x value."""
+    #     return max(self.xMaxs())
+
+
+    def yMins(self):
+        """All y low edges of the histo."""
+        return self._mknp([b.yMin for b in self.bins])
+
+    def yMaxs(self):
+        """All y high edges of the histo."""
+        return self._mknp([b.yMax for b in self.bins])
+
+    def yMids(self):
+        """All y bin midpoints of the histo."""
+        return self._mknp([b.yMid for b in self.bins])
+
+    def yFoci(self):
+        """All y bin foci of the histo."""
+        return self._mknp([b.yFocus for b in self.bins])
+
+    def yVals(self, foci=False):
+        return self.yFoci() if foci else self.yMids()
+
+    def yErrs(self, foci=False):
+        if foci:
+            return [(b.yFocus-b.yMin, b.yMax-b.yFocus) for b in self.bins]
+        else:
+            return [(b.yMid-b.yMin, b.yMax-b.yMid) for b in self.bins]
+
+    # def yMin(self):
+    #     """Lowest y value."""
+    #     return min(self.yMins())
+
+    # def yMax(self):
+    #     """Highest y value."""
+    #     return max(self.yMaxs())
+
+
+    def zMeans(self):
+        """All y heights of the histo."""
+        return self._mknp([b.height for b in self.bins])
+
+    def zVals(self):
+        return self.zMeans()
+
+
+    def zStdErrs(self):
+        """All standard errors on the z means."""
+        return self._mknp([b.zStdErr for b in self.bins])
+
+    def zStdDevs(self):
+        """All standard deviations on the z means."""
+        return self._mknp([b.zStdDev for b in self.bins])
+
+    def zErrs(self, sd=False):
+        return self.zStdDevs() if sd else self.zStdErrs()
+
+
+    def zMins(self, sd=False):
+        zs = self.zVals()
+        es = self.zErrs(sd)
+        return self._mknp([z-e for (z,e) in zip(zs,es)])
+
+    def zMaxs(self, sd=False):
+        zs = self.zVals()
+        es = self.zErrs(sd)
+        return self._mknp([z+e for (z,e) in zip(zs,es)])
+
+    def zMin(self, sd=False):
+        """Lowest z value."""
+        return min(self.zMins(sd))
+
+    def zMax(self, sd=False):
+        """Highest z value."""
+        return max(self.zMaxs(sd))
+
+
 ## Convenience alias
 P2D = Profile2D

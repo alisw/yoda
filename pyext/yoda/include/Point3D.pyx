@@ -8,16 +8,21 @@ cdef class Point3D(Point):
         return <c.Point3D*> self.ptr()
 
 
-    def __init__(self, x=0, y=0, z=0, xerrs=0, yerrs=0, zerrs=0):
+    def __init__(self, x=0, y=0, z=0, xerrs=0, yerrs=0, zerrs=0, source=""):
+        if source==None: source=""
         cutil.set_owned_ptr(self, new c.Point3D())
         self.xyz = x, y, z
         self.xErrs = xerrs
         self.yErrs = yerrs
-        self.zErrs = zerrs
+        self.setZErrs(zerrs,source)
 
     def copy(self):
         return cutil.new_owned_cls(Point3D, new c.Point3D(deref(self.p3ptr())))
 
+    
+    def setZErrs(self, val, source):
+        if source==None: source=""
+        self.p3ptr().setZErrs(util.read_symmetric(val))
 
     property x:
         """x coordinate"""
@@ -48,6 +53,7 @@ cdef class Point3D(Point):
 
 
     # TODO: How does this fit into the multi-error API? Still useful, but just reports first errs... how to get _all_ +- err pairs?
+    # LC: This is fine because preserntly only the highest dimension supports multi-errors
     property xErrs:
         def __get__(self):
             return util.read_error_pair(self.p3ptr().xErrs())
@@ -55,6 +61,7 @@ cdef class Point3D(Point):
             self.p3ptr().setXErrs(util.read_symmetric(val))
 
     # TODO: How does this fit into the multi-error API? Still useful, but just reports first errs... how to get _all_ +- err pairs?
+    # LC: This is fine because preserntly only the highest dimension supports multi-errors
     property yErrs:
         def __get__(self):
             return util.read_error_pair(self.p3ptr().yErrs())
@@ -62,6 +69,8 @@ cdef class Point3D(Point):
             self.p3ptr().setYErrs(util.read_symmetric(val))
 
     # TODO: How does this fit into the multi-error API? Still useful, but just reports first errs... how to get _all_ +- err pairs?
+    # LC: I think it's Ok to leave this like this, for most users the nominal is what they want anyway,
+    # and for those who want multi-errs, they can set using a method eg setErrs(dim,(ed,eu),source) and access using errs(dim,(ed,eu),source) 
     property zErrs:
         def __get__(self):
             return util.read_error_pair(self.p3ptr().zErrs())

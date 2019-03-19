@@ -84,7 +84,10 @@ cdef class Scatter1D(AnalysisObject):
     def addPoints(self, iterable):
         """Add several new points."""
         for row in iterable:
+          try:
             self.addPoint(*row)
+          except TypeError:
+            self.addPoint(row)
 
     def combineWith(self, others):
         """Try to add points from other Scatter1Ds into this one."""
@@ -125,6 +128,11 @@ cdef class Scatter1D(AnalysisObject):
         fptr = (<c.dbl_dbl_fptr*><size_t>ctypes.addressof(callback))[0]
         c.Scatter1D_transformX(deref(self.s1ptr()), fptr)
 
+    def variations(self):
+        """None -> vector[string]
+        Get the list of variations stored in the poins of the Scatter"""
+        return self.s1ptr().variations()
+
 
     # # TODO: remove?
     # def __add__(Scatter1D self, Scatter1D other):
@@ -135,23 +143,30 @@ cdef class Scatter1D(AnalysisObject):
     #     return cutil.new_owned_cls(Scatter1D, c.Scatter1D_sub_Scatter1D(self.s1ptr(), other.s1ptr()))
 
 
+    def _mknp(self, xs):
+        try:
+            import numpy
+            return numpy.array(xs)
+        except ImportError:
+            return xs
+
     def xVals(self):
-        return [p.x for p in self.points]
+        return self._mknp([p.x for p in self.points])
 
     def xMins(self):
         """All x low values."""
-        return [p.xMin for p in self.points]
+        return self._mknp([p.xMin for p in self.points])
 
     def xMaxs(self):
         """All x high values."""
-        return [p.xMax for p in self.points]
+        return self._mknp([p.xMax for p in self.points])
 
-    @property
+    # TODO: xErrs
+
     def xMin(self):
         """Lowest x value."""
         return min(self.xMins())
 
-    @property
     def xMax(self):
         """Highest x value."""
         return max(self.xMaxs())

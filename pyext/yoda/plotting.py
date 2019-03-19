@@ -237,7 +237,7 @@ def plot_hist_on_axes_1d(axmain, axratio, h, href=None, default_color="black", d
     if errbar:
         artists = axmain.errorbar(h.xVals(), h.yVals(), xerr=h.xErrs(), yerr=h.yErrs(), color=ecolor, linestyle="none", linewidth=lwidth, capthick=lwidth) # linestyle="-", marker="o",
     if line == "step":
-        artists = axmain.step(np.append(h.xMins(), h.xMax), np.append(h.yVals(), h.yVals()[-1]), where="post", color=lcolor, linestyle=lstyle, linewidth=lwidth)
+        artists = axmain.step(np.append(h.xMins(), h.xMax()), np.append(h.yVals(), h.yVals()[-1]), where="post", color=lcolor, linestyle=lstyle, linewidth=lwidth)
     elif line == "diag":
         artists = axmain.plot(h.xVals(), h.yVals(), color=lcolor, linestyle=lstyle, linewidth=lwidth)
     elif line == "smooth":
@@ -261,7 +261,7 @@ def plot_hist_on_axes_1d(axmain, axratio, h, href=None, default_color="black", d
         yratios = np.array(h.yVals())/np.array(href.yVals())
         # TODO: Same styling control as for main plot (with Ratio prefix, default to main plot style)
         ## Stepped plot
-        ratioartists = axratio.step(np.append(href.xMins(), href.xMax), np.append(yratios, yratios[-1]), where="post", color=lcolor, linestyle=lstyle, linewidth=lwidth)
+        ratioartists = axratio.step(np.append(href.xMins(), href.xMax()), np.append(yratios, yratios[-1]), where="post", color=lcolor, linestyle=lstyle, linewidth=lwidth)
         # TODO: Diag plot
         # axratio.plot(href["x"], yratios, color="r", linestyle="--")
         # TODO: Smoothed plot
@@ -285,8 +285,8 @@ def plot(hs, outfile=None, ratio=True, show=False, axmain=None, axratio=None, **
         ratio = False
 
     ## Get data ranges (calculated or forced)
-    xmin = float(plotkeys.get("xmin", min(h.xMin for h in hs)))
-    xmax = float(plotkeys.get("xmax", max(h.xMax for h in hs)))
+    xmin = float(plotkeys.get("xmin", min(h.xMin() for h in hs)))
+    xmax = float(plotkeys.get("xmax", max(h.xMax() for h in hs)))
     xdiff = xmax - xmin
     # print xmin, xmax, xdiff
     # TODO: Tweak max-padding for top tick label... sensitive to log/lin measure

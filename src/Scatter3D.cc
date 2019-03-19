@@ -2,6 +2,7 @@
 #include "YODA/Histo2D.h"
 #include "YODA/Profile2D.h"
 #include "YODA/Exceptions.h"
+#include <sstream>
 
 namespace YODA {
 
@@ -103,6 +104,19 @@ namespace YODA {
 
     return rtn;
   }
-
+  
+  
+  const std::vector<std::string> Scatter3D::variations() const  {
+    std::vector<std::string> vecvariations;
+    for (auto &point : this->_points){
+      for (auto &it : point.errMap()){
+        //if the variation is not already in the vector, add it !
+        if (std::find(vecvariations.begin(), vecvariations.end(), it.first) == vecvariations.end()){
+          vecvariations.push_back(it.first);
+        }
+      }
+    }
+    return vecvariations;
+  }
 
 }

@@ -13,7 +13,7 @@
 #include "yaml-cpp/conversion.h"
 #include "yaml-cpp/iterator.h"
 #include "yaml-cpp/ltnode.h"
-#include <iostream>
+
 #include <map>
 #include <memory>
 #include <string>

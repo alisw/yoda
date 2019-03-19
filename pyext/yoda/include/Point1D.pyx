@@ -8,16 +8,20 @@ cdef class Point1D(Point):
         return <c.Point1D*> self.ptr()
 
 
-    def __init__(self, x=0, xerrs=0):
+    def __init__(self, x=0, xerrs=0, source=""):
+        if source==None: source=""
         cutil.set_owned_ptr(self, new c.Point1D())
         self.x = x
-        self.xErrs = xerrs
+        self.setXErrs(xerrs,source)
 
     def copy(self):
         return cutil.new_owned_cls(Point1D, new c.Point1D(deref(self.p1ptr())))
 
     # TODO: add clone() as mapping to (not yet existing) C++ newclone()?
-
+    
+    def setXErrs(self, val, source):
+        if source==None: source=""
+        self.p1ptr().setXErrs(util.read_symmetric(val))
 
     property x:
         """x coordinate"""
@@ -26,7 +30,6 @@ cdef class Point1D(Point):
         def __set__(self, x):
             self.p1ptr().setX(x)
 
-    # TODO: How does this fit into the multi-error API? Still useful, but just reports first errs... how to get _all_ +- err pairs?
     property xErrs:
         """The x errors"""
         def __get__(self):

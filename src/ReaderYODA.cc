@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
 //
 #include "YODA/ReaderYODA.h"
 #include "YODA/Utils/StringUtils.h"
@@ -131,6 +131,7 @@ namespace YODA {
     Scatter1D* s1curr = NULL;
     Scatter2D* s2curr = NULL;
     Scatter3D* s3curr = NULL;
+    std::vector<std::string> variationscurr;
     string annscurr;
 
     // Loop over all lines of the input file
@@ -281,19 +282,19 @@ namespace YODA {
 
           // Set all annotations
           try {
-            // YAML::Node anns = YAML::Load(annscurr);
-            istringstream iss(annscurr);
-            YAML::Parser parser(iss);
-            YAML::Node anns;
-            parser.GetNextDocument(anns);
-            for (YAML::Iterator it = anns.begin(); it != anns.end(); ++it) {
-              string key, val;
-              it.first() >> key;
+            YAML::Node anns = YAML::Load(annscurr);
+            // for (YAML::const_iterator it = anns.begin(); it != anns.end(); ++it) {
+            for (const auto& it : anns) {
+              const string key = it.first.as<string>();
+              // const string val = it.second.as<string>();
               YAML::Emitter em;
-              em << it.second();
-              val = em.c_str();
-              // cout << "@@@ '" << key << "', '" << val << "'" << endl;
-              aocurr->setAnnotation(key, val);
+              em << YAML::Flow << it.second; //< use single-line formatting, for lists & maps
+              const string val = em.c_str();
+              //
+              // The Variations annotation is just a placeholder to help collect the right columns
+              // Don't want to be saving it to the actual AO, since the method variations()
+              // provides the info that's needed without needing to keep the annotation up to date
+              if (!(key.find("Variations") != string::npos)) aocurr->setAnnotation(key, val);
             }
           } catch (...) {
             /// @todo Is there a case for just giving up on these annotations, printing the error msg, and keep going? As an option?
@@ -302,6 +303,7 @@ namespace YODA {
             throw ReadError(err);
           }
           annscurr.clear();
+          variationscurr.clear();
           in_anns = false;
 
           // Put this AO in the completed stack
@@ -323,6 +325,13 @@ namespace YODA {
           // First convert to one-key-per-line YAML syntax
           const size_t ieq = s.find("=");
           if (ieq != string::npos) s.replace(ieq, 1, ": ");
+          // Special-case treatment for syntax clashes
+          const size_t icost = s.find(": *");
+          if (icost != string::npos) {
+            s.replace(icost, 1, ": '*");
+            s += "'";
+          }
+          // Store reformatted annotation
           const size_t ico = s.find(":");
           if (ico != string::npos) {
             annscurr += (annscurr.empty() ? "" : "\n") + s;
@@ -333,6 +342,20 @@ namespace YODA {
             in_anns = false;
           } else {
             annscurr += (annscurr.empty() ? "" : "\n") + s;
+            // In order to handle multi-error points in scatters, we need to know which variations are stored, if any
+            // can't wait until we process the annotations at the end, since need to know when filling points.
+            // This is a little inelegant though...
+            if (s.find("Variations") != string::npos) {
+              YAML::Node anns = YAML::Load(s);
+              for (const auto& it : anns) {
+                assert(it.second.IsSequence());
+                for (const auto& it2 : it.second) {
+                  const string val = it2.as<string>();
+                  //const string val="";
+                  variationscurr.push_back(val);
+                }
+              }
+            }
           }
           continue;
         }
@@ -454,28 +477,59 @@ namespace YODA {
           {
             double x(0), exm(0), exp(0);
             aiss >> x >> exm >> exp;
-            // s1curr->addPoint(Point1D(x, exm, exp));
-            pt1scurr.push_back(Point1D(x, exm, exp));
+            // set nominal point
+            Point1D thispoint=Point1D(x, exm, exp);
+            // check if we stored variations of this point
+            if (variationscurr.size()>0){
+              // for each variation, store the alt errors.
+              // start at 1 since we have already filled nominal !
+              for (unsigned int ivar=1; ivar<variationscurr.size(); ivar++){
+                 std::string thisvariation=variationscurr[ivar];
+                 aiss >> exm >> exp;
+                 thispoint.setXErrs(exm,exp,thisvariation);
+              }
+            }
+            pt1scurr.push_back(thispoint);
           }
           break;
 
         case SCATTER2D:
           {
             double x(0), y(0), exm(0), exp(0), eym(0), eyp(0);
-            /// @todo Need to improve this format for multi-err points
             aiss >> x >> exm >> exp >> y >> eym >> eyp;
-            // s2curr->addPoint(Point2D(x, y, exm, exp, eym, eyp));
-            pt2scurr.push_back(Point2D(x, y, exm, exp, eym, eyp));
+            // set nominal point
+            Point2D thispoint=Point2D(x, y, exm, exp, eym, eyp);
+            // check if we stored variations of this point
+            if (variationscurr.size()>0){
+              // for each variation, store the alt errors.
+              // start at 1 since we have already filled nominal !
+              for (unsigned int ivar=1; ivar<variationscurr.size(); ivar++){
+                 std::string thisvariation=variationscurr[ivar];
+                 aiss >> eym >> eyp;
+                 thispoint.setYErrs(eym,eyp,thisvariation);
+              }
+            }
+            pt2scurr.push_back(thispoint);
           }
           break;
 
         case SCATTER3D:
           {
             double x(0), y(0), z(0), exm(0), exp(0), eym(0), eyp(0), ezm(0), ezp(0);
-            /// @todo Need to improve this format for multi-err points
             aiss >> x >> exm >> exp >> y >> eym >> eyp >> z >> ezm >> ezp;
-            // s3curr->addPoint(Point3D(x, y, z, exm, exp, eym, eyp, ezm, ezp));
-            pt3scurr.push_back(Point3D(x, y, z, exm, exp, eym, eyp, ezm, ezp));
+            // set nominal point
+            Point3D thispoint=Point3D(x, y, z, exm, exp, eym, eyp, ezm, ezp);
+            // check if we stored variations of this point
+            if (variationscurr.size()>0){
+              // for each variation, store the alt errors.
+              // start at 1 since we have already filled nominal !
+              for (unsigned int ivar=1; ivar<variationscurr.size(); ivar++){
+                 std::string thisvariation=variationscurr[ivar];
+                 aiss >> ezm >> ezp;
+                 thispoint.setZErrs(ezm,ezp,thisvariation);
+              }
+            }
+            pt3scurr.push_back(thispoint);
           }
           break;
 

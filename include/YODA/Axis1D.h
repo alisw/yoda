@@ -526,7 +526,7 @@ namespace YODA {
     void _updateAxis(Bins& bins) {
       // Ensure that axis is not locked
       if (_locked) {
-        throw LockError("Attempting to update a locked axis");
+        throw LockError("Attempting to update a locked 1D axis");
       }
 
       // Get the new cuts and indexes (throws if overlaps), and set them on the searcher

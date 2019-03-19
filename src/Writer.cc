@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
 //
 #include "YODA/Writer.h"
 #include "YODA/WriterYODA.h"
@@ -27,6 +27,7 @@ namespace YODA {
     const size_t lastdot = name.find_last_of(".");
     string fmt = Utils::toLower(lastdot == string::npos ? name : name.substr(lastdot+1));
     const bool compress = (fmt == "gz");
+    //cout << "***" << compress << endl;
     if (compress) {
       #ifndef HAVE_LIBZ
       throw UserError("YODA was compiled without zlib support: can't write " + name);
@@ -45,10 +46,11 @@ namespace YODA {
     return *w;
   }
 
-    void Writer::write(const std::string& filename, const AnalysisObject& ao) {
-      std::vector<const AnalysisObject*> vec{&ao};
-      write(filename, vec);
-    }
+
+  void Writer::write(const std::string& filename, const AnalysisObject& ao) {
+    std::vector<const AnalysisObject*> vec{&ao};
+    write(filename, vec);
+  }
 
   // Canonical writer function, including compression handling
   void Writer::write(ostream& stream, const vector<const AnalysisObject*>& aos) {
@@ -105,7 +107,7 @@ namespace YODA {
     } else if (aotype == "Profile2D") {
       writeProfile2D(stream, dynamic_cast<const Profile2D&>(ao));
     } else if (aotype == "Scatter1D") {
-      writeScatter1D(stream, dynamic_cast<const Scatter1D&>(ao));
+			writeScatter1D(stream, dynamic_cast<const Scatter1D&>(ao));
     } else if (aotype == "Scatter2D") {
       writeScatter2D(stream, dynamic_cast<const Scatter2D&>(ao));
     } else if (aotype == "Scatter3D") {

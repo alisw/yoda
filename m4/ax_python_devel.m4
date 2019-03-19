@@ -119,10 +119,12 @@ to something else than an empty string.
         cat << EOF > ax_python_devel_vpy.py
 class VPy:
     def vtup(self, s):
-        return map(int, s.strip().split("."))
+        return tuple(map(int, s.strip().replace("rc", ".").split(".")))
     def __init__(self):
-        import platform
-        self.vpy = self.vtup(platform.python_version())
+        #import platform
+        #self.vpy = self.vtup(platform.python_version())
+        import sys
+        self.vpy = tuple(sys.version_info)
     def __eq__(self, s):
         return self.vpy == self.vtup(s)
     def __ne__(self, s):
@@ -139,7 +141,7 @@ EOF
 		ac_supports_python_ver=`$PYTHON -c "import ax_python_devel_vpy; \
             ver = ax_python_devel_vpy.VPy(); \
 			print (ver $1)"`
-        rm -rf ax_python_devel_vpy.py*
+        rm -rf ax_python_devel_vpy*.py* __pycache__/ax_python_devel_vpy*.py*
 		if test "$ac_supports_python_ver" = "True"; then
 		   AC_MSG_RESULT([yes])
 		else

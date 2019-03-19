@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-from __future__ import print_function
+
 """\
 Usage: %prog <yodafile1> [<yodafile2> ...] -r <yodareffile_or_dir> [-r ...]
 
@@ -54,6 +54,8 @@ TODO:
  * y-scaling of profile histograms (requires scaleY & scaleZ etc. methods)
  * add overflow inclusion in normalization for binned types
 """
+
+from __future__ import print_function
 
 
 ## Parse command line args

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Writer_h
 #define YODA_Writer_h
@@ -41,11 +41,8 @@ namespace YODA {
     /// Write out object @a ao to output stream @a stream.
     void write(std::ostream& stream, const AnalysisObject& ao) {
       // std::vector<const AnalysisObject*> vec{&ao};
-      std::vector<const AnalysisObject*> vec;
-      vec.push_back(&ao);
-      std::cout << std::endl;
+      std::vector<const AnalysisObject*> vec{&ao};
       write(stream, vec);
-      std::cout << std::endl;
     }
 
     /// Write out pointer-like object @a ao to output stream @a stream.
@@ -123,14 +120,28 @@ namespace YODA {
       // vec.reserve(std::distance(begin, end));
       for (AOITER ipao = begin; ipao != end; ++ipao)  vec.push_back(&(**ipao));
 
-      std::ofstream stream;
-      stream.exceptions(std::ofstream::failbit | std::ofstream::badbit);
-      try {
-        stream.open(filename.c_str());
-        write(stream, vec);
-      } catch (std::ofstream::failure& e) {
-        throw WriteError("Writing to filename " + filename + " failed: " + e.what());
+      if (filename != "-") {
+        try {
+          const size_t lastdot = filename.find_last_of(".");
+          std::string fmt = Utils::toLower(lastdot == std::string::npos ? filename : filename.substr(lastdot+1));
+          const bool compress = (fmt == "gz");
+          useCompression(compress);
+          //
+          std::ofstream stream;
+          stream.exceptions(std::ofstream::failbit | std::ofstream::badbit);
+          stream.open(filename.c_str());
+          write(stream, vec);
+        } catch (std::ofstream::failure& e) {
+          throw WriteError("Writing to filename " + filename + " failed: " + e.what());
+        }
+      } else {
+        try {
+          write(std::cout, vec);
+        } catch (std::runtime_error& e) {
+          throw WriteError("Writing to stdout failed: " + std::string(e.what()));
+        }
       }
+
     }
 
     //@}

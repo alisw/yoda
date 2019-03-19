@@ -17,12 +17,14 @@ parser.add_option("-M", "--unmatch", dest="UNMATCH", metavar="PATT", default=Non
                   help="exclude histograms whose path matches this regex")
 parser.add_option("--as-scatters", dest="AS_SCATTERS", action="store_true", default=False,
                   help="convert all input analysis objects to Scatter types")
+# -z/--gzip option?
 
 opts, args = parser.parse_args()
-in_out = parse_x2y_args(args, ".yoda", ".yoda")
+in_out = parse_x2y_args(args, [".yoda", ".yoda.gz"], [".yoda", ".yoda.gz"])
 if not in_out:
     sys.stderr.write("You must specify the YODA input and output file names\n")
     sys.exit(1)
+# print in_out
 
 for i, o in in_out:
     analysisobjects = yoda.readYODA(i)

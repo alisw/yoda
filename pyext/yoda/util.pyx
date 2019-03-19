@@ -29,6 +29,16 @@ def _autotype(var, autobool=True):
     return var
 
 
+# def _autonp(var):
+#     """Automatically return lists as numpy arrays if numpy is imported"""
+#     if "numpy" in dir():
+#         return numpy.array(var)
+#     elif "np" in dir():
+#         return np.array(var)
+#     else:
+#         return var
+
+
 def _autostr(var, precision=8):
     """Automatically format numerical types as the right sort of string."""
     if type(var) is float:

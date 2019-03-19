@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_SCATTER3D_H
 #define YODA_SCATTER3D_H
@@ -36,7 +36,7 @@ namespace YODA {
     /// Empty constructor
     Scatter3D(const std::string& path="", const std::string& title="")
       : AnalysisObject("Scatter3D", path, title)
-    {  }
+    { }
 
 
     /// Constructor from a set of points
@@ -51,10 +51,10 @@ namespace YODA {
 
     /// Constructor from vectors of values with no errors
     Scatter3D(const std::vector<double>& x,
-	      const std::vector<double>& y,
-	      const std::vector<double>& z,
+        const std::vector<double>& y,
+        const std::vector<double>& z,
               const std::string& path="",
-	      const std::string& title="")
+        const std::string& title="")
       : AnalysisObject("Scatter3D", path, title)
     {
       if (x.size() != y.size() || y.size() != z.size()) {
@@ -117,7 +117,11 @@ namespace YODA {
     Scatter3D(const Scatter3D& s3, const std::string& path="")
       : AnalysisObject("Scatter3D", (path.size() == 0) ? s3.path() : path, s3, s3.title()),
         _points(s3._points)
-    {  }
+    { 
+      for ( auto &ann : annotations()){
+        setAnnotation(ann, annotation(ann));
+      }
+    }
 
     /// Assignment operator
     Scatter3D& operator = (const Scatter3D& s3) {
@@ -178,6 +182,11 @@ namespace YODA {
     }
 
     //@}
+
+    ///////////////////////////////////////////////////
+
+    /// Get the list of variations stored in the points 
+    const std::vector<std::string> variations() const;
 
 
     /// @name Point accessors
@@ -282,6 +291,10 @@ namespace YODA {
       return ! operator == (other);
     }
 
+  
+    //////////////////////////////////
+  
+  
 
   private:
 

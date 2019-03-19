@@ -40,6 +40,7 @@ check_PROGRAMS = \
   testweights \
   testbinsearcher \
   testwriter \
+  testreader \
   testhisto1Da testhisto1Db \
   testhisto2Da \
   testprofile1Da \
@@ -67,6 +68,7 @@ testannotations_SOURCES = TestAnnotations.cc
 testweights_SOURCES = TestWeights.cc
 testbinsearcher_SOURCES = TestBinSearcher.cc
 testwriter_SOURCES = TestWriter.cc
+testreader_SOURCES = TestReader.cc
 testhisto1Da_SOURCES = TestHisto1Da.cc
 testhisto1Db_SOURCES = TestHisto1Db.cc
 testprofile1Da_SOURCES = TestProfile1Da.cc
@@ -105,6 +107,7 @@ TESTS = \
   testweights \
   testbinsearcher \
   testwriter \
+  testreader \
   testhisto1Da \
   testhisto1Db \
   testhisto2Da \
@@ -124,7 +127,7 @@ TESTS = \
 ### to make distcheck work on macOS, we need a
 ### way to prevent the DYLD_LIBRARY_PATH setting
 ### from being removed by system integrity protection
-### when /usr/bin/env is called 
+### when /usr/bin/env is called
 ### (same for any other app in /usr/bin)
 ###
 if ! WITH_OSX
@@ -137,7 +140,7 @@ CLEANFILES = \
   h2d.yoda h2d.dat \
   p2d.yoda p2d.dat \
   s1d.yoda s2d.yoda \
-  testwriter1.yoda testwriter2.yoda \
+  testwriter1.yoda testwriter2.yoda testwriter2.yoda.gz \
   foo_bar_baz.dat \
   counter.yoda \
   test.aida

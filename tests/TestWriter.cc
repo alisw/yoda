@@ -28,6 +28,7 @@ int main() {
   vector< shared_ptr<AnalysisObject> > aos;
   aos.push_back( static_pointer_cast<AnalysisObject>(h) );
   WriterYODA::write("testwriter2.yoda", aos);
+  WriterYODA::write("testwriter2.yoda.gz", aos);
 
   return EXIT_SUCCESS;
 }

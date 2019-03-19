@@ -39,71 +39,94 @@ cdef class Point(util.Base):
         self.pptr().setVal(i, val)
 
 
-    def errs(self, i):
+    def errs(self, i, source=""):
         """int -> float
         Errors on axis i"""
-        return util.read_error_pair(self.pptr().errs(i))
+        if source==None: source=""
+        return util.read_error_pair(self.pptr().errs(i,source))
 
-    def setErr(self, i, e):
+    def setErr(self, i, e, source=""):
         """(int, float) -> None
         Set symmetric errors on axis i"""
-        self.pptr().setErr(i, e)
+        if source==None: source=""
+        print "LC DEBUG setErr ", e, source
+        self.pptr().setErr(i, e, source)
 
     def setErrs(self, i, *es):
         """(int, float) -> None
            (int, [float, float]) -> None
            (int, float, float) -> None
         Set asymmetric errors on axis i"""
+        source=None
+        es=list(es)
+        if type(es[-1]) is str:
+          source=es[-1]
+          es=es[:-1]
+        else:
+          pass
         errs = es
-        if len(es) == 1:
-            if not hasattr(es[0], "__iter__"):
-                self.setErr(es[0])
-            errs = es[0]
+        if source==None: source=""
+        if len(errs) == 1:
+            if not hasattr(errs[0], "__iter__"):
+                self.setErr(i,errs[0], source)
+                return
+            errs=errs[0]
         # assert len(errs) == 2:
-        self.pptr().setErrs(i, errs)
+        self.pptr().setErrs(i, tuple(errs), source)
 
 
-    def errMinus(self, i):
+    def errMinus(self, i, source=""):
         """int -> float
         Minus error on axis i"""
-        return self.pptr().errMinus(i)
+        if source==None: source=""
+        return self.pptr().errMinus(i ,source)
 
-    def setErrMinus(self, i, e):
+    def setErrMinus(self, i, e, source=""):
         """(int, float) -> None
         Set minus error on axis i"""
-        self.pptr().setErrMinus(i, e)
+        if source==None: source=""
+        self.pptr().setErrMinus(i, e, source)
 
 
-    def errPlus(self, i):
+    def errPlus(self, i, source=""):
         """int -> float
         Plus error on axis i"""
-        return self.pptr().errPlus(i)
+        if source==None: source=""
+        return self.pptr().errPlus(i, source)
 
-    def setErrPlus(self, i, e):
+    def setErrPlus(self, i, e, source=""):
         """(int, float) -> None
         Set plus error on axis i"""
-        self.pptr().setErrPlus(i, e)
+        if source==None: source=""
+        self.pptr().setErrPlus(i, e, source)
 
 
-    def errAvg(self, i):
+    def errAvg(self, i, source=""):
         """int -> float
         Average error on axis i"""
-        return self.pptr().errAvg(i)
+        if source==None: source=""
+        return self.pptr().errAvg(i, source)
 
 
-    def set(self, i, val, *es):
+    def set(self, i, val, *es, source=""):
         """(int, float, float) -> None
            (int, float, [float, float]) -> None
            (int, float, float, float) -> None
         Set value and errors on axis i"""
         errs = es
+        if source==None: source=""
         if len(es) == 1:
             if hasattr(es[0], "__iter__"):
                 errs = [es[0], es[0]]
             else:
                 errs = es[0]
         # assert len(errs) == 2:
-        self.pptr().set(i, val, errs)
+        self.pptr().set(i, val, errs, source)
+    
+    def errMap(self):
+        """None -> {string: [float,float]} 
+        error map of this point"""
+        return self.pptr().errMap()
 
 
     # def __repr__(self):

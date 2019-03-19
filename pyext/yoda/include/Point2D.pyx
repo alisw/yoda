@@ -8,18 +8,22 @@ cdef class Point2D(Point):
         return <c.Point2D*> self.ptr()
 
 
-    def __init__(self, x=0, y=0, xerrs=0, yerrs=0):
+    def __init__(self, x=0, y=0, xerrs=0, yerrs=0, source=""):
+        if source==None: source=""
         cutil.set_owned_ptr(self, new c.Point2D())
         self.x = x
         self.y = y
         self.xErrs = xerrs
-        self.yErrs = yerrs
+        self.setYErrs(yerrs,source)
 
     def copy(self):
         return cutil.new_owned_cls(Point2D, new c.Point2D(deref(self.p2ptr())))
 
     # TODO: add clone() as mapping to (not yet existing) C++ newclone()?
 
+    def setYErrs(self, val, source):
+        if source==None: source=""
+        self.p2ptr().setYErrs(util.read_symmetric(val))
 
     property x:
         """x coordinate"""
@@ -44,6 +48,7 @@ cdef class Point2D(Point):
 
 
     # TODO: How does this fit into the multi-error API? Still useful, but just reports first errs... how to get _all_ +- err pairs?
+    # LC: This is fine because preserntly only the highest dimension supports multi-errors
     property xErrs:
         """The x errors"""
         def __get__(self):
@@ -52,6 +57,8 @@ cdef class Point2D(Point):
             self.p2ptr().setXErrs(util.read_symmetric(val))
 
     # TODO: How does this fit into the multi-error API? Still useful, but just reports first errs... how to get _all_ +- err pairs?
+    # LC: I think it's Ok to leave this like this, for most users the nominal is what they want anyway,
+    # and for those who want multi-errs, they can set using a method eg setErrs(dim,(ed,eu),source) and access using errs(dim,(ed,eu),source) 
     property yErrs:
         """The y errors"""
         def __get__(self):

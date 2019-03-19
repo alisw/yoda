@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Histo1D_h
 #define YODA_Histo1D_h
@@ -200,6 +200,11 @@ namespace YODA {
     /// High edge of this histo's axis
     double xMax() const { return _axis.xMax(); }
 
+    /// check if binning is the same as different Histo1D
+    bool sameBinning(const Histo1D& h1) {
+      return _axis == h1._axis;
+    }
+
     /// All bin edges on this histo's axis
     ///
     /// @note This only returns the finite edges, i.e. -inf and +inf are removed
@@ -397,7 +402,7 @@ namespace YODA {
   protected:
 
     /// Access a bin by coordinate (non-const version)
-    HistoBin1D& binAt(double x) { return _axis.binAt(x); }
+    HistoBin1D& _binAt(double x) { return _axis.binAt(x); }
 
 
   private:

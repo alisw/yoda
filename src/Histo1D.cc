@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2017 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
 //
 #include "YODA/Histo1D.h"
 #include "YODA/Profile1D.h"
@@ -24,7 +24,7 @@ namespace YODA {
     if (inRange(x, _axis.xMin(), _axis.xMax())) {
       try {
         /// @todo Replace try block with a check that there is a bin at x
-        binAt(x).fill(x, weight, fraction);
+        _binAt(x).fill(x, weight, fraction);
       } catch (const RangeError& re) {    }
     } else if (x < _axis.xMin()) {
       _axis.underflow().fill(x, weight, fraction);

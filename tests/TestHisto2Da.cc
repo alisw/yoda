@@ -1,4 +1,3 @@
-
 #include "YODA/Histo2D.h"
 #include "YODA/Scatter3D.h"
 #include "YODA/WriterYODA.h"
@@ -58,6 +57,10 @@ int main() {
 
     // cout << "Division crashes!" << endl;
     // Scatter3D divided(first/second);
+
+    //const HistoBin2D& x =
+    // static_cast<const Histo2D>(added).binAt(50,50);
+    added.binAt(50,50);
 
     cout << "Done!" << endl;
     printStats(added);
