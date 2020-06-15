@@ -11,112 +11,162 @@ cdef class Point3D(Point):
     def __init__(self, x=0, y=0, z=0, xerrs=0, yerrs=0, zerrs=0, source=""):
         if source==None: source=""
         cutil.set_owned_ptr(self, new c.Point3D())
-        self.xyz = x, y, z
-        self.xErrs = xerrs
-        self.yErrs = yerrs
-        self.setZErrs(zerrs,source)
+        # TODO: need shortcuts
+        self.setX(x)
+        self.setY(y)
+        self.setZ(z)
+        self.setXErrs(xerrs)
+        self.setYErrs(yerrs)
+        self.setZErrs(zerrs, source)
 
     def copy(self):
         return cutil.new_owned_cls(Point3D, new c.Point3D(deref(self.p3ptr())))
 
-    
-    def setZErrs(self, val, source):
-        if source==None: source=""
-        self.p3ptr().setZErrs(util.read_symmetric(val))
-
-    property x:
-        """x coordinate"""
-        def __get__(self):
-            return self.p3ptr().x()
-        def __set__(self, x):
-            self.p3ptr().setX(x)
-
-    property y:
-        """y coordinate"""
-        def __get__(self):
-            return self.p3ptr().y()
-        def __set__(self, y):
-            self.p3ptr().setY(y)
-
-    property z:
-        """y coordinate"""
-        def __get__(self):
-            return self.p3ptr().z()
-        def __set__(self, z):
-            self.p3ptr().setZ(z)
-
-    property xyz:
-        def __get__(self):
-            return util.XYZ(self.x, self.y, self.z)
-        def __set__(self, val):
-            self.x, self.y, self.z = val
 
 
-    # TODO: How does this fit into the multi-error API? Still useful, but just reports first errs... how to get _all_ +- err pairs?
-    # LC: This is fine because preserntly only the highest dimension supports multi-errors
-    property xErrs:
-        def __get__(self):
-            return util.read_error_pair(self.p3ptr().xErrs())
-        def __set__(self, val):
-            self.p3ptr().setXErrs(util.read_symmetric(val))
+    def x(self):
+        """The x value"""
+        return self.p3ptr().x()
+    def setX(self, x):
+        """Set the x value"""
+        self.p3ptr().setX(x)
 
-    # TODO: How does this fit into the multi-error API? Still useful, but just reports first errs... how to get _all_ +- err pairs?
-    # LC: This is fine because preserntly only the highest dimension supports multi-errors
-    property yErrs:
-        def __get__(self):
-            return util.read_error_pair(self.p3ptr().yErrs())
-        def __set__(self, val):
-            self.p3ptr().setYErrs(util.read_symmetric(val))
+    def xErrs(self):
+        """The x errors"""
+        return util.read_error_pair(self.p3ptr().xErrs())
 
-    # TODO: How does this fit into the multi-error API? Still useful, but just reports first errs... how to get _all_ +- err pairs?
-    # LC: I think it's Ok to leave this like this, for most users the nominal is what they want anyway,
-    # and for those who want multi-errs, they can set using a method eg setErrs(dim,(ed,eu),source) and access using errs(dim,(ed,eu),source) 
-    property zErrs:
-        def __get__(self):
-            return util.read_error_pair(self.p3ptr().zErrs())
-        def __set__(self, val):
-            self.p3ptr().setZErrs(util.read_symmetric(val))
+    def setXErrs(self, val):
+        """Set the x errors"""
+        self.p3ptr().setXErrs(util.read_symmetric(val))
 
-
-    @property
     def xMin(self):
         """The minimum x position, i.e. lowest error"""
         return self.p3ptr().xMin()
-    @property
     def xMax(self):
         """The maximum x position, i.e. highest error"""
         return self.p3ptr().xMax()
 
-    @property
+    def xErrAvg(self):
+        return self.p3ptr().xErrAvg()
+
+
+    def y(self):
+        """The y value"""
+        return self.p3ptr().y()
+    def setY(self, y):
+        """Set the y value"""
+        self.p3ptr().setY(y)
+
+    def yErrs(self):
+        """The y errors"""
+        return util.read_error_pair(self.p3ptr().yErrs())
+
+    def setYErrs(self, val):
+        """Set the y errors"""
+        self.p3ptr().setYErrs(util.read_symmetric(val))
+
     def yMin(self):
         """The minimum y position, i.e. lowest error"""
         return self.p3ptr().yMin()
-    @property
     def yMax(self):
         """The maximum y position, i.e. highest error"""
         return self.p3ptr().yMax()
 
-    @property
+    def yErrAvg(self):
+        return self.p3ptr().yErrAvg()
+
+
+    def z(self):
+        """The z value"""
+        return self.p3ptr().z()
+    def setZ(self, z):
+        """Set the z value"""
+        self.p3ptr().setZ(z)
+
+    def zErrs(self):
+        """The z errors"""
+        return util.read_error_pair(self.p3ptr().zErrs())
+    
+    def zErrsFromSource(self, source):
+        """The z errors"""
+        if isinstance(source, str):
+           source = source.encode('utf-8')
+        return util.read_error_pair(self.p3ptr().zErrs(source))
+    # def setZErrs(self, val):
+    #     """Set the z errors"""
+    #     self.p3ptr().setZErrs(util.read_symmetric(val))
+    def setZErrs(self, *es):
+        """(int, float) -> None
+           (int, [float, float]) -> None
+           (int, float, float) -> None
+        Set asymmetric errors on axis i"""
+        source = None
+        es = list(es)
+        if type(es[-1]) is str:
+            source = es[-1]
+            es = es[:-1]
+        else:
+            pass
+        errs = es
+        if source is None:
+            source = ""
+        if len(errs) == 1:
+            if not hasattr(errs[0], "__iter__"):
+                self.setErr(3,errs[0], source)
+                return
+            errs = errs[0]
+        # assert len(errs) == 2:
+        if isinstance(source, str):
+           source = source.encode('utf-8')
+        self.pptr().setErrs(3, tuple(errs), source)
+    def setZErrs(self, val, source):
+        if source is None:
+            source = ""
+        self.p3ptr().setZErrs(util.read_symmetric(val))
+
     def zMin(self):
         """The minimum z position, i.e. lowest error"""
         return self.p3ptr().zMin()
-    @property
     def zMax(self):
         """The maximum z position, i.e. highest error"""
         return self.p3ptr().zMax()
 
+    def zErrAvg(self):
+        return self.p3ptr().zErrAvg()
 
-    property xErrAvg:
-        def __get__(self):
-            return self.p3ptr().xErrAvg()
 
-    property yErrAvg:
-        def __get__(self):
-            return self.p3ptr().yErrAvg()
+    # property xyz:
+    #     def __get__(self):
+    #         return util.XYZ(self.x, self.y, self.z)
+    #     def __set__(self, val):
+    #         self.x, self.y, self.z = val
 
-    property zErrAvg:
-        def __get__(self):
-            return self.p3ptr().zErrAvg()
+
+    # # TODO: How does this fit into the multi-error API? Still useful, but just reports first errs... how to get _all_ +- err pairs?
+    # # LC: This is fine because preserntly only the highest dimension supports multi-errors
+    # property xErrs:
+    #     def __get__(self):
+    #         return util.read_error_pair(self.p3ptr().xErrs())
+    #     def __set__(self, val):
+    #         self.p3ptr().setXErrs(util.read_symmetric(val))
+
+    # # TODO: How does this fit into the multi-error API? Still useful, but just reports first errs... how to get _all_ +- err pairs?
+    # # LC: This is fine because preserntly only the highest dimension supports multi-errors
+    # property yErrs:
+    #     def __get__(self):
+    #         return util.read_error_pair(self.p3ptr().yErrs())
+    #     def __set__(self, val):
+    #         self.p3ptr().setYErrs(util.read_symmetric(val))
+
+    # # TODO: How does this fit into the multi-error API? Still useful, but just reports first errs... how to get _all_ +- err pairs?
+    # # LC: I think it's Ok to leave this like this, for most users the nominal is what they want anyway,
+    # # and for those who want multi-errs, they can set using a method eg setErrs(dim,(ed,eu),source) and access using errs(dim,(ed,eu),source)
+    # property zErrs:
+    #     def __get__(self):
+    #         return util.read_error_pair(self.p3ptr().zErrs())
+    #     def __set__(self, val):
+    #         self.p3ptr().setZErrs(util.read_symmetric(val))
+
 
 
     def scaleX(self, ax):
@@ -161,7 +211,7 @@ cdef class Point3D(Point):
 
 
     def __repr__(self):
-        return '<Point3D(x=%g, y=%g, z=%g)>' % (self.x, self.y, self.z)
+        return '<Point3D(x=%g, y=%g, z=%g)>' % (self.x(), self.y(), self.z())
 
     def __richcmp__(Point3D self, Point3D other, int op):
         if op == 0:

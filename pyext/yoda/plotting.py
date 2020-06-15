@@ -161,7 +161,7 @@ def setup_axes_1d(axmain, axratio, **plotkeys):
 
     ## Axis labels first
     xlabel = plotkeys.get("xlabel", "")
-    ylabel = plotkeys.get("xlabel", "")
+    ylabel = plotkeys.get("ylabel", "")
     ratioylabel = plotkeys.get("ratioylabel", "ratio")
     set_axis_labels_1d(axmain, axratio, xlabel, ylabel, ratioylabel)
 
@@ -206,7 +206,7 @@ def setup_axes_1d(axmain, axratio, **plotkeys):
 def plot_hist_on_axes_1d(axmain, axratio, h, href=None, default_color="black", default_linestyle="-", **plotkeys):
 
     ## Case-insensitize the plotkeys dict
-    hkeys = mk_lowcase_dict(h.annotationsDict)
+    hkeys = mk_lowcase_dict(h.annotationsDict())
     hkeys.update(plotkeys)
     plotkeys = hkeys
 
@@ -249,8 +249,8 @@ def plot_hist_on_axes_1d(axmain, axratio, h, href=None, default_color="black", d
         artists = axmain.plot(h.xVals(), h.yVals(), marker=marker, markersize=msize, linestyle="none", color=mcolor, markeredgecolor=mcolor)
 
     ## Legend entry
-    if h.title and artists:
-        artists[0].set_label(h.title)
+    if h.annotation("Title") and artists:
+        artists[0].set_label(h.annotation("Title"))
 
     ## Ratio
     ratioartists = None
@@ -290,8 +290,11 @@ def plot(hs, outfile=None, ratio=True, show=False, axmain=None, axratio=None, **
     xdiff = xmax - xmin
     # print xmin, xmax, xdiff
     # TODO: Tweak max-padding for top tick label... sensitive to log/lin measure
-    ymin = float(plotkeys.get("ymin", min(min(h.yVals()) for h in hs)))
-    ymax = float(plotkeys.get("ymax", 1.1*max(max(h.yVals()) for h in hs)))
+    ymin = plotkeys.get("ymin", min(min(h.yVals()) for h in hs))
+    #print( max(max(h.yVals()) for h in hs) )
+    ymax = plotkeys.get("ymax", 1.1*max(max(h.yVals()) for h in hs))
+    ymin = float(ymin)
+    ymax = float(ymax)
     ydiff = ymax - ymin
     # print ymin, ymax, ydiff
 
@@ -300,7 +303,7 @@ def plot(hs, outfile=None, ratio=True, show=False, axmain=None, axratio=None, **
     # TODO: Use ratio to setdefault RatioPlot in plotkeys, then use that to decide whether to look for href
     if ratio:
         for h in hs:
-            hkeys = mk_lowcase_dict(h.annotationsDict)
+            hkeys = mk_lowcase_dict(h.annotationsDict())
             if yoda.util.as_bool(hkeys.get("ratioref", False)):
                 if href is None:
                     href = h

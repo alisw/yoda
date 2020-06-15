@@ -529,6 +529,8 @@ uninstall-am:
 
 .PRECIOUS: Makefile
 
+.NOTPARALLEL:
+	@true
 
 @WITH_CYTHON_TRUE@core.cpp core.h: $(CYTHON_SRC) .made_pyx_templates
 @WITH_CYTHON_TRUE@	cython $(srcdir)/core.pyx --cplus \

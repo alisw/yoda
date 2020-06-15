@@ -191,8 +191,11 @@ namespace YODA {
     /// @name Bin accessors
     //@{
 
-    /// Number of bins on this axis (not counting under/overflow)
+    /// Number of bins (not counting under/overflow)
     size_t numBins() const { return bins().size(); }
+
+    /// Number of bins on the x (only) axis (not counting under/overflow)
+    size_t numBinsX() const { return numBins(); }
 
     /// Low edge of this histo's axis
     double xMin() const { return _axis.xMin(); }
@@ -303,7 +306,7 @@ namespace YODA {
       if (binindex1 >= numBins()) throw RangeError("binindex1 is out of range");
       if (binindex2 >= numBins()) throw RangeError("binindex2 is out of range");
       double rtn = 0;
-      for (size_t i = binindex1; i < binindex2; ++i) {
+      for (size_t i = binindex1; i <= binindex2; ++i) {
         rtn += bin(i).sumW();
       }
       return rtn;

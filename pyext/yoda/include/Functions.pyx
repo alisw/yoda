@@ -42,18 +42,48 @@ def divide(ao1, ao2):
 #     raise ValueError("TODO: Only division of Histo1D and Profile1D supported so far... please contact the developers!")
 
 
-def linspace(nbins, start, end):
+def linspace(nbins, xmin, xmax):
     """(int, float, float) -> list[float]
-    Make a list of n+1 bin edges linearly spaced between start and end, with the first and
+    Make a list of n+1 bin edges linearly spaced between xmin and xmax, with the first and
     last edges on those boundaries."""
-    return c.linspace(nbins, start, end)
+    return c.linspace(nbins, xmin, xmax)
 
 
-def logspace(nbins, start, end):
+def logspace(nbins, xmin, xmax):
     """(int, float, float) -> list[float]
-    Make a list of n+1 bin edges linearly spaced on the interval log(start..end), with
+    Make a list of n+1 bin edges linearly spaced on the interval log(xmin..xmax), with
     the first and last edges on those boundaries."""
-    return c.logspace(nbins, start, end)
+    return c.logspace(nbins, xmin, xmax)
+
+
+def pdfspace(nbins, xmin, xmax, fn, nsample=10000):
+    """(int, float, float, [int]) -> list[float]
+    Make a list of n+1 bin edges spaced with density proportional to fn(x) between
+    xmin and xmax, with the first and last edges on those boundaries.
+
+    The density is manually integrated by the Trapezium Rule, using nsample linspace points.
+
+    Note: manually implemented in Python here rather than mapping the C++ version, since that
+    requires some awkward Cython shim work:
+    https://stackoverflow.com/questions/39044063/pass-a-closure-from-cython-to-c
+    https://github.com/cython/cython/tree/master/Demos/callback
+    """
+    dx = (xmax-xmin)/float(nsample)
+    xs = linspace(xmin, xmax, nsample+1)
+    ys = [max(fn(x), 0) for x in xs]
+    areas = [(ys[i] + ys[i+1])*dx/2. for i in range(nsample)]
+    #areas = (ys[:-1] + ys[1:])*dx/2
+    da = sum(areas)/nbins
+    asum = 0
+    xedges = [xmin]
+    for i in range(nsample-1):
+        asum += areas[i]
+        if asum > da:
+            asum = 0
+            xedges.append(xs[i+1])
+    xedges.append(xmax)
+    assert(len(xedges) == nbins+1)
+    return xedges
 
 
 def index_between(x, binedges):

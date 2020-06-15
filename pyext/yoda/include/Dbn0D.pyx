@@ -52,34 +52,34 @@ cdef class Dbn0D(util.Base):
         self.d0ptr().scaleW(w)
 
 
-    @property
+    #@property
     def numEntries(self):
         """The number of entries"""
         return self.d0ptr().numEntries()
 
-    @property
+    #@property
     def effNumEntries(self):
         """Effective number of entries (for weighted events)"""
         return self.d0ptr().effNumEntries()
 
 
-    @property
+    #@property
     def errW(self):
         """Error on sumW"""
         return self.d0ptr().errW()
 
-    @property
+    #@property
     def relErrW(self):
         """Relative error on sumW"""
         return self.d0ptr().relErrW()
 
 
-    @property
+    #@property
     def sumW(self):
         """sum(weights)"""
         return self.d0ptr().sumW()
 
-    @property
+    #@property
     def sumW2(self):
         """sum(weights * weights)"""
         return self.d0ptr().sumW2()

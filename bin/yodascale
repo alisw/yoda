@@ -1,18 +1,18 @@
 #! /usr/bin/env python
 
 """\
-Usage: %prog <yodafile1> [<yodafile2> ...] -r <yodareffile_or_dir> [-r ...]
+%(prog)s <yodafile1> [<yodafile2> ...] -r <yodareffile_or_dir> [-r ...]
 
 Rescale YODA histograms by constant factors or to match (partial) normalizations
 of histos in a reference file.
 
 Examples:
 
-%prog run1.yoda run2.yoda -r refdir/ -r reffile.yoda
+%(prog)s run1.yoda run2.yoda -r refdir/ -r reffile.yoda
   Rescales histograms in run1 and run2 to their namesakes in the given ref files
   (including all .yoda found in refdir). Writes out to run{1,2}-scaled.yoda
 
-%prog -c '.* 0.123x' foo.yoda
+%(prog)s -c '.* 0.123x' foo.yoda
   Rescales all histograms in foo.yoda by the factor 0.123.
 
 This latter example is a demonstration of the general scaling specification
@@ -59,25 +59,27 @@ from __future__ import print_function
 
 
 ## Parse command line args
-import optparse
-op = optparse.OptionParser(usage=__doc__)
+import argparse
+parser = argparse.ArgumentParser(usage=__doc__)
 # TODO: how to look up ref histos?
-op.add_option("-r", "--ref", dest="REFS", action="append", default=[],
-              help="file or folder with reference histos")
-op.add_option("--ref-prefix", dest="REF_PREFIX", metavar="NAME", default="REF",
-              help="treat /NAME/foo as a reference plot for /foo, and don't rescale /NAME histos")
-op.add_option("-c", "--spec", dest="SPECS", metavar="SPECSTR", action="append", default=[],
-              help="provide a single scaling specification on the command line. Multiple -c options " +
-              "may be given. Specs will be _appended_ to any read from a file with -f/--specfile")
-op.add_option("-f", "--specfile", dest="SPECFILE", metavar="FILE", default=None,
-              help="specify a file with histogram path patterns (and bin ranges) that are to be normalised")
-op.add_option("-i", "--in-place", dest="IN_PLACE", default=False, action="store_true",
-              help="overwrite input file(s) rather than making <input>-scaled.yoda")
-op.add_option("-q", "--quiet", dest="VERBOSITY", action="store_const", const=0, default=1,
-              help="reduce printouts to errors-only")
-op.add_option("-v", "--debug", dest="VERBOSITY", action="store_const", const=2, default=1,
-              help="increase printouts to include debug info")
-opts, args = op.parse_args()
+parser.add_argument("INFILES", nargs="+",
+                    help="file or folder with reference histos")
+parser.add_argument("-r", "--ref", dest="REFS", action="append", default=[],
+                    help="file or folder with reference histos")
+parser.add_argument("--ref-prefix", dest="REF_PREFIX", metavar="NAME", default="REF",
+                    help="treat /NAME/foo as a reference plot for /foo, and don't rescale /NAME histos")
+parser.add_argument("-c", "--spec", dest="SPECS", metavar="SPECSTR", action="append", default=[],
+                    help="provide a single scaling specification on the command line. Multiple -c options " +
+                    "may be given. Specs will be _appended_ to any read from a file with -f/--specfile")
+parser.add_argument("-f", "--specfile", dest="SPECFILE", metavar="FILE", default=None,
+                    help="specify a file with histogram path patterns (and bin ranges) that are to be normalised")
+parser.add_argument("-i", "--in-place", dest="IN_PLACE", default=False, action="store_true",
+                    help="overwrite input file(s) rather than making <input>-scaled.yoda")
+parser.add_argument("-q", "--quiet", dest="VERBOSITY", action="store_const", const=0, default=1,
+                    help="reduce printouts to errors-only")
+parser.add_argument("-v", "--debug", dest="VERBOSITY", action="store_const", const=2, default=1,
+                    help="increase printouts to include debug info")
+args = parser.parse_args()
 
 
 ## Define parser for scale specification strings
@@ -106,26 +108,26 @@ def parse_specstr(line):
     elif scalearg == "UNSCALE":
         scaleop = "x"
     rtn = (PointMatcher(pathpatt), PointMatcher(refpatt), scaleop, scalearg)
-    #print rtn
+    #print(rtn)
     return rtn
 
 
 ## Parse spec file and command-line specs
 SPECS = []
-if opts.SPECFILE:
-    with open(opts.SPECFILE, "r") as f:
+if args.SPECFILE:
+    with open(args.SPECFILE, "r") as f:
         for line in f:
             line = line.strip()
             if line.startswith("#"):
                 continue
             SPECS.append( parse_specstr(line) )
-SPECS += [parse_specstr(s) for s in opts.SPECS]
+SPECS += [parse_specstr(s) for s in args.SPECS]
 
 
 ## Read reference histograms
 import yoda, os, glob
 reffiles = []
-for r in opts.REFS:
+for r in args.REFS:
     if os.path.isdir(r):
         reffiles += glob.glob( os.path.join(r, "*.yoda") ) #< TODO: Add a yoda.util function for finding files that it can read
     elif r.endswith(".yoda"):
@@ -135,15 +137,15 @@ for r in reffiles:
     aos = yoda.read(r)
     for aopath, ao in aos.items():
         ## Use /REF_PREFIX/foo as a ref plot for /foo, if the ref prefix is set
-        if opts.REF_PREFIX and aopath.startswith("/%s/" % opts.REF_PREFIX):
-            aopath = aopath.replace("/%s/" % opts.REF_PREFIX, "/", 1) # NB. ao.path is unchanged
+        if args.REF_PREFIX and aopath.startswith("/%s/" % args.REF_PREFIX):
+            aopath = aopath.replace("/%s/" % args.REF_PREFIX, "/", 1) # NB. ao.path is unchanged
         aos_ref[aopath] = ao
-if opts.VERBOSITY > 1:
+if args.VERBOSITY > 1:
     print("DEBUG: %d reference histos" % len(aos_ref))
 
 
 ## Loop over input files for rescaling
-for infile in args:
+for infile in args.INFILES:
     aos_out = {}
     aos_in = yoda.read(infile)
     for aopath, ao in sorted(aos_in.items()):
@@ -152,8 +154,8 @@ for infile in args:
         aos_out[aopath] = ao
 
         ## Don't rescale /REF_PREFIX objects
-        if aopath.startswith("/%s/" % opts.REF_PREFIX):
-            if opts.VERBOSITY > 1:
+        if aopath.startswith("/%s/" % args.REF_PREFIX):
+            if args.VERBOSITY > 1:
                 print("DEBUG: not rescaling ref object '%s'" % aopath)
             continue
 
@@ -172,14 +174,14 @@ for infile in args:
                             refpaths = [aopath]
                     else:
                         refpaths = [p for p in list(aos_ref.keys()) if (s[1] and s[1].search_path(p))]
-                    if opts.VERBOSITY > 1:
+                    if args.VERBOSITY > 1:
                         print("DEBUG:", aopath, "=>", refpaths)
                     if not refpaths:
                         print("ERROR: No reference histogram '%s' found for '%s'. Not rescaling" % (s[1].path.pattern, aopath))
                         # TODO: should we actually skip it from the output entirely in this case?
                         continue
                     if len(refpaths) > 1:
-                        if opts.VERBOSITY > 0:
+                        if args.VERBOSITY > 0:
                             print("WARNING: Multiple reference histograms found for '%s'. Using first: '%s'" % (aopath, refpaths[0]))
                     aoref = aos_ref[refpaths[0]]
 
@@ -188,14 +190,13 @@ for infile in args:
 
         ## Identify and check spec to be used for scaling determination
         if not aospecs:
-            if opts.VERBOSITY > 1:
-                print("DEBUG: No scaling spec found for '%s'. Output is unscaled" % aopath)
             aoref, matcher, mode, factor = None, None, "x", 1.0
+            if args.VERBOSITY > 1:
+                print("DEBUG: No scaling spec found for '%s'. Output is unscaled" % aopath)
         else:
-            if len(aospecs) > 1:
-                if opts.VERBOSITY > 0:
-                    print("WARNING: Multiple scaling specs found for '%s'. Using first: '%r'" % (aopath, aospecs[0]))
             aoref, matcher, mode, factor = aospecs[0]
+            if args.VERBOSITY > 0:
+                print("WARNING: Multiple scaling specs found for '%s'. Using first: '%r'" % (aopath, aospecs[0]))
 
 
         ## Work out scalefactor
@@ -224,7 +225,7 @@ for infile in args:
             if aoref:
                 sref = aoref.mkScatter()
             if sref and type(s) is not type(sref):
-                if opts.VERBOSITY > 0:
+                if args.VERBOSITY > 0:
                     print("WARNING: Type mismatch between Scatter reps of '%s'. Are input and ref histos of same dimension?" % aopath)
                 continue
 
@@ -234,9 +235,10 @@ for infile in args:
                         self.n    = n
                         self.xmin = xmin
                         self.xmax = xmax
+
                 pt = Pt(i, p.xMin, p.xMax)
                 result = matcher.match_pos(pt)
-                #print result
+                #print(result)
                 return result
 
 
@@ -245,38 +247,38 @@ for infile in args:
             if type(s) is yoda.Scatter2D:
                 ## NOTE: sum(errs) only works if there's only one +- pair
                 # TODO: only loop over specified bins/points
-                assert(all(len(p.xErrs) == 2 for p in s.points))
-                norm = sum(p.y * sum(p.xErrs) for i, p in enumerate(s.points) if matchpoint(i, p))
+                assert(all(len(p.xErrs()) == 2 for p in s.points()))
+                norm = sum(p.y() * sum(p.xErrs()) for i, p in enumerate(s.points()) if matchpoint(i, p))
                 if norm == 0:
                     print("ERROR: Normalisation of given range is 0; cannot rescale this to a finite value. Result will be unscaled")
                     sf = 1.0
                 elif mode == "=":
                     sf = float(factor)/norm
                 elif mode == "x":
-                    assert(all(len(p.xErrs) == 2 for p in sref.points))
-                    refnorm = sum(p.y * sum(p.xErrs) for i, p in enumerate(sref.points) if matchpoint(i, p))
+                    assert(all(len(p.xErrs()) == 2 for p in sref.points()))
+                    refnorm = sum(p.y * sum(p.xErrs()) for i, p in enumerate(sref.points()) if matchpoint(i, p))
                     sf = factor*refnorm/norm
             #
             elif type(s) is yoda.Scatter3D:
                 ## NOTE: sum(errs) only works if there's only one +- pair
                 # TODO: only loop over specified bins/points
-                if opts.VERBOSITY > 0:
+                if args.VERBOSITY > 0:
                     print("WARNING: Point/bin range restrictions are not yet implemented for 2D scatter / 3D histo types")
-                assert(all(len(p.xErrs) == 2 and len(p.yErrs) == 2) for p in s.points)
-                norm = sum(p.z * sum(p.xErrs) * sum(p.yErrs) for p in s.points)
+                    assert(all(len(p.xErrs()) == 2 and len(p.yErrs()) == 2) for p in s.points())
+                    norm = sum(p.z() * sum(p.xErrs()) * sum(p.yErrs()) for p in s.points())
                 if norm == 0:
                     print("ERROR: Normalisation of given range is 0; cannot rescale this to a finite value. Result will be unscaled")
                     sf = 1.0
                 elif mode == "=":
                     sf = factor/norm
                 elif mode == "x":
-                    assert(all(len(p.xErrs) == 2 and len(p.yErrs) == 2) for p in sref.points)
-                    refnorm = sum(p.z * sum(p.xErrs) * sum(p.yErrs) for p in sref.points)
+                    assert(all(len(p.xErrs()) == 2 and len(p.yErrs()) == 2) for p in sref.points())
+                    refnorm = sum(p.z * sum(p.xErrs()) * sum(p.yErrs()) for p in sref.points())
                     sf = factor*refnorm/norm
 
 
         ## Rescale
-        if opts.VERBOSITY > 1:
+        if args.VERBOSITY > 1:
             print("DEBUG: '%s' rescaled by factor %.3g" % (aopath, sf))
         if type(ao) in (yoda.Histo1D, yoda.Histo2D):
             ao.scaleW(sf)
@@ -297,9 +299,10 @@ for infile in args:
         aos_out[aopath] = ao
 
     ## Write out rescaled file, possibly in-place (i.e. replace input -- not the default behaviour!)
-    if not opts.IN_PLACE:
+    if not args.IN_PLACE:
         infileparts = os.path.splitext( os.path.basename(infile) )
         outfile = infileparts[0] + "-scaled.yoda"
     else:
         outfile = infile
+    #
     yoda.write(sorted(aos_out.values()), outfile)

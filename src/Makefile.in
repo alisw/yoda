@@ -147,7 +147,8 @@ am_libYODA_la_OBJECTS = libYODA_la-Exceptions.lo libYODA_la-Reader.lo \
 	libYODA_la-Histo1D.lo libYODA_la-Histo2D.lo \
 	libYODA_la-Profile1D.lo libYODA_la-Profile2D.lo \
 	libYODA_la-Scatter1D.lo libYODA_la-Scatter2D.lo \
-	libYODA_la-Scatter3D.lo
+	libYODA_la-Scatter3D.lo libYODA_la-Point1D.lo \
+	libYODA_la-Point2D.lo libYODA_la-Point3D.lo
 libYODA_la_OBJECTS = $(am_libYODA_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -423,7 +424,7 @@ libYODA_la_SOURCES = \
     WriterFLAT.cc \
     WriterAIDA.cc \
     Dbn0D.cc \
-	Dbn1D.cc \
+    Dbn1D.cc \
     Counter.cc \
     Histo1D.cc \
     Histo2D.cc \
@@ -431,7 +432,10 @@ libYODA_la_SOURCES = \
     Profile2D.cc \
     Scatter1D.cc \
     Scatter2D.cc \
-    Scatter3D.cc
+    Scatter3D.cc \
+    Point1D.cc \
+    Point2D.cc \
+    Point3D.cc
 
 libYODA_la_LDFLAGS = -avoid-version
 libYODA_la_LIBADD = $(builddir)/tinyxml/libyoda-tinyxml.la $(builddir)/yamlcpp/libyoda-yaml-cpp.la
@@ -521,6 +525,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libYODA_la-Exceptions.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libYODA_la-Histo1D.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libYODA_la-Histo2D.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libYODA_la-Point1D.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libYODA_la-Point2D.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libYODA_la-Point3D.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libYODA_la-Profile1D.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libYODA_la-Profile2D.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libYODA_la-Reader.Plo@am__quote@
@@ -691,6 +698,27 @@ libYODA_la-Scatter3D.lo: Scatter3D.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Scatter3D.cc' object='libYODA_la-Scatter3D.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libYODA_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libYODA_la-Scatter3D.lo `test -f 'Scatter3D.cc' || echo '$(srcdir)/'`Scatter3D.cc
+
+libYODA_la-Point1D.lo: Point1D.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libYODA_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libYODA_la-Point1D.lo -MD -MP -MF $(DEPDIR)/libYODA_la-Point1D.Tpo -c -o libYODA_la-Point1D.lo `test -f 'Point1D.cc' || echo '$(srcdir)/'`Point1D.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libYODA_la-Point1D.Tpo $(DEPDIR)/libYODA_la-Point1D.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Point1D.cc' object='libYODA_la-Point1D.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libYODA_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libYODA_la-Point1D.lo `test -f 'Point1D.cc' || echo '$(srcdir)/'`Point1D.cc
+
+libYODA_la-Point2D.lo: Point2D.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libYODA_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libYODA_la-Point2D.lo -MD -MP -MF $(DEPDIR)/libYODA_la-Point2D.Tpo -c -o libYODA_la-Point2D.lo `test -f 'Point2D.cc' || echo '$(srcdir)/'`Point2D.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libYODA_la-Point2D.Tpo $(DEPDIR)/libYODA_la-Point2D.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Point2D.cc' object='libYODA_la-Point2D.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libYODA_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libYODA_la-Point2D.lo `test -f 'Point2D.cc' || echo '$(srcdir)/'`Point2D.cc
+
+libYODA_la-Point3D.lo: Point3D.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libYODA_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libYODA_la-Point3D.lo -MD -MP -MF $(DEPDIR)/libYODA_la-Point3D.Tpo -c -o libYODA_la-Point3D.lo `test -f 'Point3D.cc' || echo '$(srcdir)/'`Point3D.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libYODA_la-Point3D.Tpo $(DEPDIR)/libYODA_la-Point3D.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Point3D.cc' object='libYODA_la-Point3D.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libYODA_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libYODA_la-Point3D.lo `test -f 'Point3D.cc' || echo '$(srcdir)/'`Point3D.cc
 
 mostlyclean-libtool:
 	-rm -f *.lo

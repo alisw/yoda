@@ -219,8 +219,11 @@ namespace YODA {
     /// @name Bin accessors
     //@{
 
-    /// Number of bins on this axis (not counting under/overflow)
+    /// Number of bins (not counting under/overflow)
     size_t numBins() const { return bins().size(); }
+
+    /// Number of bins on the x-axis (not counting under/overflow)
+    size_t numBinsX() const { return numBins(); }
 
     /// Low edge of this histo's axis
     double xMin() const { return _axis.xMin(); }

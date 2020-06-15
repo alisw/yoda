@@ -76,6 +76,9 @@ namespace YODA {
 
     /// Reset this analysis object
     virtual void reset() = 0;
+    
+    // variation parser
+    void parseVariations(){ return ; }
 
     //@}
 

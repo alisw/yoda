@@ -37,21 +37,23 @@ cdef list _aobjects_to_list(vector[c.AnalysisObject*]* aobjects, patterns, unpat
         ao = deref(aobjects)[i]
         ## NOTE: automatic type conversion by passing the type() as a key to globals()
         newao = cutil.new_owned_cls(globals()[ao.type().decode('utf-8')], ao)
-        if _pattern_check(newao.path, patterns, unpatterns):
+        if _pattern_check(newao.path(), patterns, unpatterns):
             out.append(newao)
     return out
 
 ## Make a Python dict of analysis objects from a C++ vector of them
 cdef dict _aobjects_to_dict(vector[c.AnalysisObject*]* aobjects, patterns, unpatterns):
     cdef dict out = {}
+    # from collections import OrderedDict
+    # OrderedDict out = OrderedDict()
     cdef c.AnalysisObject* ao
     cdef size_t i
     for i in range(aobjects.size()):
         ao = deref(aobjects)[i]
         ## NOTE: automatic type conversion by passing the type() as a key to globals()
         newao = cutil.new_owned_cls( globals()[ao.type().decode('utf-8')], ao)
-        if _pattern_check(newao.path, patterns, unpatterns):
-            out[newao.path] = newao
+        if _pattern_check(newao.path(), patterns, unpatterns):
+            out[newao.path()] = newao
     return out
 
 # ## Set a istringstream's string from a C/Python string
@@ -111,8 +113,16 @@ def read(filename, asdict=True, patterns=None, unpatterns=None):
     #
     cdef vector[c.AnalysisObject*] aobjects
     c.IO_read_from_file(filename.encode('utf-8'), aobjects)
-    return _aobjects_to_dict(&aobjects, patterns, unpatterns) if asdict \
-        else _aobjects_to_list(&aobjects, patterns, unpatterns)
+
+    if asdict:
+        d = _aobjects_to_dict(&aobjects, patterns, unpatterns)
+        try:
+            import collections
+            return collections.OrderedDict(sorted(d.items()))
+        except:
+            return d	
+    else:
+        return _aobjects_to_list(&aobjects, patterns, unpatterns)
 
 
 def readYODA(filename, asdict=True, patterns=None, unpatterns=None):
@@ -195,8 +205,8 @@ def write(ana_objs, filename):
     # cdef c.ostringstream oss
     cdef vector[c.AnalysisObject*] vec
     cdef AnalysisObject a
-    aolist = ana_objs.values() if hasattr(ana_objs, "values") else ana_objs \
-             if hasattr(ana_objs, "__iter__") else [ana_objs]
+    aolist = [ao for key,ao in sorted(ana_objs.items())] if hasattr(ana_objs, "items") \
+              else ana_objs if hasattr(ana_objs, "__iter__") else [ana_objs]
     for a in aolist:
         vec.push_back(a._AnalysisObject())
     c.IO_write_to_file(filename.encode('utf-8'), vec)
@@ -215,7 +225,7 @@ def writeYODA(ana_objs, file_or_filename):
     for a in aolist:
         vec.push_back(a._AnalysisObject())
     if type(file_or_filename) is str:
-        c.WriterYODA_create().write_to_file(file_or_filename, vec)
+        c.WriterYODA_create().write_to_file(file_or_filename.encode('utf-8'), vec)
     else:
         c.WriterYODA_create().write(oss, vec)
         _str_to_file(oss.str(), file_or_filename)
@@ -233,7 +243,7 @@ def writeFLAT(ana_objs, file_or_filename):
     for a in aolist:
         vec.push_back(a._AnalysisObject())
     if type(file_or_filename) is str:
-        c.WriterFLAT_create().write_to_file(file_or_filename, vec)
+        c.WriterFLAT_create().write_to_file(file_or_filename.encode('utf-8'), vec)
     else:
         c.WriterFLAT_create().write(oss, vec)
         _str_to_file(oss.str(), file_or_filename)
@@ -251,7 +261,7 @@ def writeAIDA(ana_objs, file_or_filename):
     for a in aolist:
         vec.push_back(a._AnalysisObject())
     if type(file_or_filename) is str:
-        c.WriterAIDA_create().write_to_file(file_or_filename, vec)
+        c.WriterAIDA_create().write_to_file(file_or_filename.encode('utf-8'), vec)
     else:
         c.WriterAIDA_create().write(oss, vec)
         _str_to_file(oss.str(), file_or_filename)

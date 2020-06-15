@@ -1,11 +1,13 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import yoda, random
 
 h = yoda.Histo2D(5,0.,10., 5,0.,10., "/foo")
 for _ in range(100):
     h.fill(random.gauss(5, 3), random.gauss(5, 2))
 print(h)
+print(h.bins)
 
 yoda.write([h], "h2d.yoda")
 aos = yoda.read("h2d.yoda")

@@ -52,16 +52,16 @@ cdef class Histo2D(AnalysisObject):
 
     def __len__(self):
         "Number of bins"
-        return self.numBins
+        return self.numBins()
 
     def __getitem__(self, py_ix):
         "Direct access to bins"
-        cdef size_t i = cutil.pythonic_index(py_ix, self.h2ptr().numBins())
+        cdef size_t i = cutil.pythonic_index(py_ix, self.numBins())
         return cutil.new_borrowed_cls(HistoBin2D, & self.h2ptr().bins().at(i), self)
 
 
     def __repr__(self):
-        return "<%s '%s' %d bins, sumw=%.2g>" % (self.__class__.__name__, self.path, len(self.bins), self.sumW())
+        return "<%s '%s' %d bins, sumw=%.2g>" % (self.__class__.__name__, self.path(), len(self.bins()), self.sumW())
 
 
     def reset(self):
@@ -86,7 +86,7 @@ cdef class Histo2D(AnalysisObject):
         self.h2ptr().fillBin(i, weight, fraction)
 
 
-    @property
+    #@property
     def totalDbn(self):
         """() -> Dbn2D
         The Dbn2D representing the total distribution."""
@@ -217,47 +217,47 @@ cdef class Histo2D(AnalysisObject):
         self.h2ptr().normalize(normto, includeoverflows)
 
 
-    @property
+    #@property
     def xMin(self):
         """Low x edge of the histo."""
         return self.h2ptr().xMin()
 
-    @property
+    #@property
     def xMax(self):
         """High x edge of the histo."""
         return self.h2ptr().xMax()
 
-    @property
+    #@property
     def yMin(self):
         """Low y edge of the histo."""
         return self.h2ptr().yMin()
 
-    @property
+    #@property
     def yMax(self):
         """High y edge of the histo."""
         return self.h2ptr().yMax()
 
 
-    @property
+    #@property
     def numBins(self):
         """() -> int
         Number of bins (not including overflows)."""
         return self.h2ptr().numBins()
 
-    @property
+    #@property
     def numBinsX(self):
         """() -> int
         Number of bins (edges) along the x axis."""
         return self.h2ptr().numBinsX()
 
-    @property
+    #@property
     def numBinsY(self):
         """() -> int
         Number of bins (edges) along the y axis."""
         return self.h2ptr().numBinsY()
 
 
-    @property
+    #@property
     def bins(self):
         """Access the ordered bins list."""
         return [self.bin(i) for i in xrange( self.h2ptr().numBins())]
@@ -358,7 +358,7 @@ cdef class Histo2D(AnalysisObject):
 
     # def sumWs(self):
     #     """All sumWs of the histo."""
-    #     return [b.sumW for b in self.bins]
+    #     return [b.sumW for b in self.bins()]
 
     def _mknp(self, xs):
         try:
@@ -367,30 +367,38 @@ cdef class Histo2D(AnalysisObject):
         except ImportError:
             return xs
 
+    def xEdges(self):
+        """All x edges of the histo."""
+        return self._mknp(self.h2ptr().xEdges())
+
     def xMins(self):
         """All x low edges of the histo."""
-        return self._mknp([b.xMin for b in self.bins])
+        return self._mknp([b.xMin() for b in self.bins()])
+
+    def xMins(self):
+        """All x low edges of the histo."""
+        return self._mknp([b.xMin() for b in self.bins()])
 
     def xMaxs(self):
         """All x high edges of the histo."""
-        return self._mknp([b.xMax for b in self.bins])
+        return self._mknp([b.xMax() for b in self.bins()])
 
     def xMids(self):
         """All x bin midpoints of the histo."""
-        return self._mknp([b.xMid for b in self.bins])
+        return self._mknp([b.xMid() for b in self.bins()])
 
     def xFoci(self):
         """All x bin foci of the histo."""
-        return self._mknp([b.xFocus for b in self.bins])
+        return self._mknp([b.xFocus() for b in self.bins()])
 
     def xVals(self, foci=False):
         return self.xFoci() if foci else self.xMids()
 
     def xErrs(self, foci=False):
         if foci:
-            return [(b.xFocus-b.xMin, b.xMax-b.xFocus) for b in self.bins]
+            return [(b.xFocus()-b.xMin(), b.xMax()-b.xFocus()) for b in self.bins()]
         else:
-            return [(b.xMid-b.xMin, b.xMax-b.xMid) for b in self.bins]
+            return [(b.xMid()-b.xMin(), b.xMax()-b.xMid()) for b in self.bins()]
 
     # def xMin(self):
     #     """Lowest x value."""
@@ -400,31 +408,34 @@ cdef class Histo2D(AnalysisObject):
     #     """Highest x value."""
     #     return max(self.xMaxs())
 
+    def yEdges(self):
+        """All y edges of the histo."""
+        return self._mknp(self.h2ptr().yEdges())
 
     def yMins(self):
         """All y low edges of the histo."""
-        return self._mknp([b.yMin for b in self.bins])
+        return self._mknp([b.yMin() for b in self.bins()])
 
     def yMaxs(self):
         """All y high edges of the histo."""
-        return self._mknp([b.yMax for b in self.bins])
+        return self._mknp([b.yMax() for b in self.bins()])
 
     def yMids(self):
         """All y bin midpoints of the histo."""
-        return self._mknp([b.yMid for b in self.bins])
+        return self._mknp([b.yMid() for b in self.bins()])
 
     def yFoci(self):
         """All y bin foci of the histo."""
-        return self._mknp([b.yFocus for b in self.bins])
+        return self._mknp([b.yFocus() for b in self.bins()])
 
     def yVals(self, foci=False):
         return self.yFoci() if foci else self.yMids()
 
     def yErrs(self, foci=False):
         if foci:
-            return [(b.yFocus-b.yMin, b.yMax-b.yFocus) for b in self.bins]
+            return [(b.yFocus()-b.yMin(), b.yMax()-b.yFocus()) for b in self.bins()]
         else:
-            return [(b.yMid-b.yMin, b.yMax-b.yMid) for b in self.bins]
+            return [(b.yMid()-b.yMin(), b.yMax()-b.yMid()) for b in self.bins()]
 
     # def yMin(self):
     #     """Lowest y value."""
@@ -437,11 +448,11 @@ cdef class Histo2D(AnalysisObject):
 
     def heights(self):
         """All y heights of the histo."""
-        return self._mknp([b.height for b in self.bins])
+        return self._mknp([b.height() for b in self.bins()])
 
     def volumes(self):
         """All areas of the histo."""
-        return self._mknp([b.area for b in self.bins])
+        return self._mknp([b.area() for b in self.bins()])
 
     def zVals(self, vol=False):
         return self.volumes() if vol else self.heights()
@@ -451,7 +462,7 @@ cdef class Histo2D(AnalysisObject):
 
         TODO: asymm arg / heightErrsMinus/Plus?
         """
-        return self._mknp([b.heightErr for b in self.bins])
+        return self._mknp([b.heightErr() for b in self.bins()])
 
     def volumeErrs(self): #, asymm=False):
         """All volume errors of the histo.
@@ -462,7 +473,7 @@ cdef class Histo2D(AnalysisObject):
         # if asymm:
         #    pass
         #else:
-        return self._mknp([b.volumeErr for b in self.bins])
+        return self._mknp([b.volumeErr() for b in self.bins()])
 
     def zErrs(self, vol=False):
         return self.volErrs() if vol else self.heightErrs()

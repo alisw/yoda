@@ -19,12 +19,12 @@ cdef class Counter(AnalysisObject):
     def __init__(self, path="", title=""):
         path  = path.encode('utf-8')
         title = title.encode('utf-8')
-        cutil.set_owned_ptr(self, new c.Counter(<string>path, 
+        cutil.set_owned_ptr(self, new c.Counter(<string>path,
                                                 <string>title))
 
 
     def __repr__(self):
-        return "<%s '%s' sumw=%0.2g, err=%s>" % (self.__class__.__name__, self.path, self.val, self.err)
+        return "<%s '%s' sumw=%0.2g, err=%s>" % (self.__class__.__name__, self.path(), self.val(), self.err())
 
 
     def reset(self):
@@ -69,19 +69,19 @@ cdef class Counter(AnalysisObject):
         Sum of weights filled into this counter."""
         return self.cptr().sumW2()
 
-    @property
+    #@property
     def val(self):
         """() -> float
         Sum of weights filled into this counter."""
         return self.cptr().val()
 
-    @property
+    #@property
     def err(self):
         """() -> float
         Binomial uncertainty on the sum of weights filled into this counter."""
         return self.cptr().err()
 
-    @property
+    #@property
     def relErr(self):
         """() -> float
         Relative binomial uncertainty on the sum of weights filled into this counter."""

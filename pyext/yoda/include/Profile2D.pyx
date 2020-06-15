@@ -57,12 +57,12 @@ cdef class Profile2D(AnalysisObject):
 
     def __getitem__(self, py_ix):
         "Direct access to bins"
-        cdef size_t i = cutil.pythonic_index(py_ix, self.p2ptr().numBins())
+        cdef size_t i = cutil.pythonic_index(py_ix, self.numBins())
         return cutil.new_borrowed_cls(ProfileBin2D, & self.p2ptr().bins().at(i), self)
 
 
     def __repr__(self):
-        return "<%s '%s' %d bins, sumw=%0.2g>" % (self.__class__.__name__, self.path, len(self.bins), self.sumW())
+        return "<%s '%s' %d bins, sumw=%0.2g>" % (self.__class__.__name__, self.path(), len(self.bins()), self.sumW())
 
 
     def reset(self):
@@ -87,7 +87,7 @@ cdef class Profile2D(AnalysisObject):
         self.p2ptr().fillBin(i, z, weight, fraction)
 
 
-    @property
+    #@property
     def totalDbn(self):
         """() -> Dbn3D
         The Dbn3D representing the total distribution."""
@@ -215,47 +215,47 @@ cdef class Profile2D(AnalysisObject):
         self.p1ptr().scaleZ(f)
 
 
-    @property
+    #@property
     def xMin(self):
         """Low x edge of the histo."""
         return self.p2ptr().xMin()
 
-    @property
+    #@property
     def xMax(self):
         """High x edge of the histo."""
         return self.p2ptr().xMax()
 
-    @property
+    #@property
     def yMin(self):
         """Low y edge of the histo."""
         return self.p2ptr().yMin()
 
-    @property
+    #@property
     def yMax(self):
         """High y edge of the histo."""
         return self.p2ptr().yMax()
 
 
-    @property
+    #@property
     def numBins(self):
         """() -> int
         Number of bins (not including overflows)."""
         return self.p2ptr().numBins()
 
-    @property
+    #@property
     def numBinsX(self):
         """() -> int
         Number of bins (edges) along the x axis."""
         return self.p2ptr().numBinsX()
 
-    @property
+    #@property
     def numBinsY(self):
         """() -> int
         Number of bins (edges) along the y axis."""
         return self.p2ptr().numBinsY()
 
 
-    @property
+    #@property
     def bins(self):
         """Access the ordered bins list."""
         return list(self)
@@ -347,7 +347,7 @@ cdef class Profile2D(AnalysisObject):
 
     # def sumWs(self):
     #     """All sumWs of the histo."""
-    #     return [b.sumW for b in self.bins]
+    #     return [b.sumW() for b in self.bins()]
 
     def _mknp(self, xs):
         try:
@@ -356,30 +356,34 @@ cdef class Profile2D(AnalysisObject):
         except ImportError:
             return xs
 
+    def xEdges(self):
+        """All x edges of the histo."""
+        return self._mknp(self.p2ptr().xEdges())
+
     def xMins(self):
         """All x low edges of the histo."""
-        return self._mknp([b.xMin for b in self.bins])
+        return self._mknp([b.xMin() for b in self.bins()])
 
     def xMaxs(self):
         """All x high edges of the histo."""
-        return self._mknp([b.xMax for b in self.bins])
+        return self._mknp([b.xMax() for b in self.bins()])
 
     def xMids(self):
         """All x bin midpoints of the histo."""
-        return self._mknp([b.xMid for b in self.bins])
+        return self._mknp([b.xMid() for b in self.bins()])
 
     def xFoci(self):
         """All x bin foci of the histo."""
-        return self._mknp([b.xFocus for b in self.bins])
+        return self._mknp([b.xFocus() for b in self.bins()])
 
     def xVals(self, foci=False):
         return self.xFoci() if foci else self.xMids()
 
     def xErrs(self, foci=False):
         if foci:
-            return [(b.xFocus-b.xMin, b.xMax-b.xFocus) for b in self.bins]
+            return [(b.xFocus()-b.xMin(), b.xMax()-b.xFocus()) for b in self.bins()]
         else:
-            return [(b.xMid-b.xMin, b.xMax-b.xMid) for b in self.bins]
+            return [(b.xMid()-b.xMin(), b.xMax()-b.xMid()) for b in self.bins()]
 
     # def xMin(self):
     #     """Lowest x value."""
@@ -390,30 +394,34 @@ cdef class Profile2D(AnalysisObject):
     #     return max(self.xMaxs())
 
 
+    def yEdges(self):
+        """All y edges of the histo."""
+        return self._mknp(self.p2ptr().yEdges())
+
     def yMins(self):
         """All y low edges of the histo."""
-        return self._mknp([b.yMin for b in self.bins])
+        return self._mknp([b.yMin() for b in self.bins()])
 
     def yMaxs(self):
         """All y high edges of the histo."""
-        return self._mknp([b.yMax for b in self.bins])
+        return self._mknp([b.yMax() for b in self.bins()])
 
     def yMids(self):
         """All y bin midpoints of the histo."""
-        return self._mknp([b.yMid for b in self.bins])
+        return self._mknp([b.yMid() for b in self.bins()])
 
     def yFoci(self):
         """All y bin foci of the histo."""
-        return self._mknp([b.yFocus for b in self.bins])
+        return self._mknp([b.yFocus() for b in self.bins()])
 
     def yVals(self, foci=False):
         return self.yFoci() if foci else self.yMids()
 
     def yErrs(self, foci=False):
         if foci:
-            return [(b.yFocus-b.yMin, b.yMax-b.yFocus) for b in self.bins]
+            return [(b.yFocus()-b.yMin(), b.yMax()-b.yFocus()) for b in self.bins()]
         else:
-            return [(b.yMid-b.yMin, b.yMax-b.yMid) for b in self.bins]
+            return [(b.yMid()-b.yMin(), b.yMax()-b.yMid()) for b in self.bins()]
 
     # def yMin(self):
     #     """Lowest y value."""
@@ -426,7 +434,7 @@ cdef class Profile2D(AnalysisObject):
 
     def zMeans(self):
         """All y heights of the histo."""
-        return self._mknp([b.height for b in self.bins])
+        return self._mknp([b.height() for b in self.bins()])
 
     def zVals(self):
         return self.zMeans()
@@ -434,11 +442,11 @@ cdef class Profile2D(AnalysisObject):
 
     def zStdErrs(self):
         """All standard errors on the z means."""
-        return self._mknp([b.zStdErr for b in self.bins])
+        return self._mknp([b.zStdErr() for b in self.bins()])
 
     def zStdDevs(self):
         """All standard deviations on the z means."""
-        return self._mknp([b.zStdDev for b in self.bins])
+        return self._mknp([b.zStdDev() for b in self.bins()])
 
     def zErrs(self, sd=False):
         return self.zStdDevs() if sd else self.zStdErrs()

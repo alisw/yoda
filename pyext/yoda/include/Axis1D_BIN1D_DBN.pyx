@@ -22,7 +22,7 @@ cdef class Axis1D_${BIN1D}_${DBN}(util.Base):
         return "<Axis1D with %d bins>" % self.numBins
 
 
-    @property
+    #@property
     def numBins(self):
         return self.a1ptr().bins().size()
 
@@ -38,15 +38,15 @@ cdef class Axis1D_${BIN1D}_${DBN}(util.Base):
     def addBin(self, a, b):
         self.a1ptr().addBin(a, b)
 
-    @property
+    #@property
     def totalDbn(self):
         return cutil.new_borrowed_cls(${DBN}, &self.a1ptr().totalDbn(), self)
 
-    @property
+    #@property
     def underflow(self):
         return cutil.new_borrowed_cls(${DBN}, &self.a1ptr().underflow(), self)
 
-    @property
+    #@property
     def overflow(self):
         return cutil.new_borrowed_cls(${DBN}, &self.a1ptr().overflow(), self)
 

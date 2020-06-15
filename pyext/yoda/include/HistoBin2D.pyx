@@ -14,23 +14,23 @@ cdef class HistoBin2D(Bin2D_Dbn2D):
     # def fill(self, x, y, weight=1.0, fraction=1.0):
     #     self.hb2ptr().fill(x, y, weight, fraction)
 
-    @property
+    #@property
     def volume(self):
         return self.hb2ptr().volume()
 
-    @property
+    #@property
     def height(self):
         return self.hb2ptr().height()
 
-    @property
+    #@property
     def volumeErr(self):
         return self.hb2ptr().volumeErr()
 
-    @property
+    #@property
     def heightErr(self):
         return self.hb2ptr().heightErr()
 
-    @property
+    #@property
     def relErr(self):
         return self.hb2ptr().relErr()
 
@@ -42,4 +42,5 @@ cdef class HistoBin2D(Bin2D_Dbn2D):
         return cutil.new_owned_cls(HistoBin2D, new c.HistoBin2D(deref(a.hb2ptr()) - deref(b.hb2ptr())))
 
     def __repr__(self):
-        return 'HistoBin2D(%g, %g; %g, %g; sumw=%g)' % (self.xEdges + self.yEdges + [self.sumW])
+        return 'HistoBin2D(%g, %g; %g, %g; sumw=%g)' % (self.xEdges[0], self.xEdges[1],
+                                                        self.yEdges[0], self.yEdges[1], self.sumW)

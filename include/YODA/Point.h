@@ -16,17 +16,19 @@ namespace YODA {
   public:
 
     typedef std::pair<double,double> ValuePair;
-
+    
 
     /// Virtual destructor for inheritance
     virtual ~Point() {};
-
-
+    
     /// Space dimension of the point
     virtual size_t dim() = 0;
     
     //get the error map for the highest dimension
     virtual const std::map< std::string, std::pair<double,double>> & errMap() const =0;
+    
+    //Parse the annotation from the parent AO which contains any variations
+    virtual void getVariationsFromParent() const =0;
 
     /// Get the point value for direction @a i
     virtual double val(size_t i) const = 0;
@@ -88,6 +90,19 @@ namespace YODA {
     /// @todo void transform(size_t i, FN f) = 0;
 
     //@}
+    
+    void setParentAO(AnalysisObject* parent){
+      _parentAO=parent;
+    }
+    
+    AnalysisObject* getParentAO() const{
+      return _parentAO;
+    }
+    
+  private:
+    // pointer back to the parent AO which these points belong to.
+    AnalysisObject* _parentAO=0;
+    
 
   };
 

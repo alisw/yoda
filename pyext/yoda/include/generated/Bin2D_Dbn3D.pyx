@@ -32,7 +32,7 @@ cdef class Bin2D_Dbn3D(Bin):
     #     self.b2ptr().scaleW(w)
 
 
-    @property
+    #@property
     def xEdges(self):
         """
         The lower and upper x edges.
@@ -40,7 +40,7 @@ cdef class Bin2D_Dbn3D(Bin):
         cdef pair[double, double] x = self.b2ptr().xEdges()
         return (x.first, x.second)
 
-    @property
+    #@property
     def yEdges(self):
         """
         The lower and upper y edges.
@@ -48,7 +48,7 @@ cdef class Bin2D_Dbn3D(Bin):
         cdef pair[double, double] y = self.b2ptr().yEdges()
         return (y.first, y.second)
 
-    @property
+    #@property
     def xyEdges(self):
         """
         The lower and upper x,y edge pairs.
@@ -56,153 +56,153 @@ cdef class Bin2D_Dbn3D(Bin):
         return util.XY(self.xEdges, self.yEdges)
 
 
-    @property
+    #@property
     def xMin(self):
         """Low edge in x."""
         return self.b2ptr().xMin()
 
-    @property
+    #@property
     def yMin(self):
         """Low edge in y."""
         return self.b2ptr().yMin()
 
-    @property
+    #@property
     def xyMin(self):
         """Low edges in x,y."""
         return util.XY(self.xMin, self.yMin)
 
 
-    @property
+    #@property
     def xMax(self):
         """High edge in x."""
         return self.b2ptr().xMax()
 
-    @property
+    #@property
     def yMax(self):
         """High edge in y."""
         return self.b2ptr().yMax()
 
-    @property
+    #@property
     def xyMax(self):
         """High edges in x,y."""
         return util.XY(self.xMax, self.yMax)
 
 
-    @property
+    #@property
     def xMid(self):
         """Geometric centre of the bin in x"""
         return self.b2ptr().xMid()
 
-    @property
+    #@property
     def yMid(self):
         """Geometric centre of the bin in y"""
         return self.b2ptr().yMid()
 
-    @property
+    #@property
     def xyMid(self):
         """Geometric centre of the bin"""
         return util.XY(self.xMid, self.yMid)
 
 
-    @property
+    #@property
     def xWidth(self):
         """Width of the bin in x"""
         return self.b2ptr().xWidth()
 
-    @property
+    #@property
     def yWidth(self):
         """Width of the bin in y"""
         return self.b2ptr().yWidth()
 
-    @property
+    #@property
     def xyWidths(self):
         """The widths of this bin in the x- and y-dimensions."""
         return util.XY(self.xWidth, self.yWidth)
 
 
-    @property
+    #@property
     def area(self):
         """The area of this bin in the x-y plane."""
         return self.b2ptr().area()
 
 
-    @property
+    #@property
     def xFocus(self):
         """Focus of the bin in x"""
         return self.b2ptr().xFocus()
 
-    @property
+    #@property
     def yFocus(self):
         """Focus of the bin in y"""
         return self.b2ptr().yFocus()
 
-    @property
+    #@property
     def xyFocus(self):
         """The focus of the bin in the x- and y-dimensions"""
         return util.XY(self.xFocus, self.yFocus)
 
 
-    @property
+    #@property
     def xMean(self):
         return self.b2ptr().xMean()
 
-    @property
+    #@property
     def yMean(self):
         return self.b2ptr().xMean()
 
-    @property
+    #@property
     def xyMean(self):
         return util.XY(self.xMean, self.yMean)
 
 
-    @property
+    #@property
     def xVariance(self):
         return self.b2ptr().xVariance()
 
-    @property
+    #@property
     def yVariance(self):
         return self.b2ptr().xVariance()
 
-    @property
+    #@property
     def xyVariance(self):
         return util.XY(self.xVariance, self.yVariance)
 
 
-    @property
+    #@property
     def xStdDev(self):
         return self.b2ptr().xStdDev()
 
-    @property
+    #@property
     def yStdDev(self):
         return self.b2ptr().yStdDev()
 
-    @property
+    #@property
     def xyStdDev(self):
         return util.XY(self.xStdDev, self.yStdDev)
 
 
-    @property
+    #@property
     def xStdErr(self):
         return self.b2ptr().xStdErr()
 
-    @property
+    #@property
     def yStdErr(self):
         return self.b2ptr().yStdErr()
 
-    @property
+    #@property
     def xyStdErr(self):
         return util.XY(self.xStdErr, self.yStdErr)
 
 
-    @property
+    #@property
     def xRMS(self):
         return self.b2ptr().xRMS()
 
-    @property
+    #@property
     def yRMS(self):
         return self.b2ptr().yRMS()
 
-    @property
+    #@property
     def xyRMS(self):
         return util.XY(self.xRMS, self.yRMS)
 
@@ -210,23 +210,23 @@ cdef class Bin2D_Dbn3D(Bin):
     # Raw statistics #
     ##################
 
-    @property
+    #@property
     def sumWX(self):
         return self.b2ptr().sumWX()
 
-    @property
+    #@property
     def sumWY(self):
         return self.b2ptr().sumWY()
 
-    @property
+    #@property
     def sumWXY(self):
         return self.b2ptr().sumWXY()
 
-    @property
+    #@property
     def sumWX2(self):
         return self.b2ptr().sumWX2()
 
-    @property
+    #@property
     def sumWY2(self):
         return self.b2ptr().sumWY2()
 

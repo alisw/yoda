@@ -85,85 +85,85 @@ cdef class Dbn2D(util.Base):
 
     # TODO: map direct properties from C++
 
-    @property
+    #@property
     def mean(self):
         """Weighted mean of x"""
         return util.XY(self.d2ptr().xMean(), self.d2ptr().yMean())
 
-    @property
+    #@property
     def variance(self):
         """Weighted variance of x"""
         return util.XY(self.d2ptr().xVariance(), self.d2ptr().yVariance())
 
-    @property
+    #@property
     def stdDev(self):
         """Weighted standard deviation of x"""
         return util.XY(self.d2ptr().xStdDev(), self.d2ptr().yStdDev())
 
-    @property
+    #@property
     def stdErr(self):
         """Weighted standard error on <x>"""
         return util.XY(self.d2ptr().xStdErr(), self.d2ptr().yStdErr())
 
-    @property
+    #@property
     def rms(self):
         """Weighted root mean squared (RMS) of x"""
         return util.XY(self.d2ptr().xRMS(), self.d2ptr().yRMS())
 
 
-    @property
+    #@property
     def numEntries(self):
         """The number of entries"""
         return self.d2ptr().numEntries()
 
-    @property
+    #@property
     def effNumEntries(self):
         """Effective number of entries (for weighted events)"""
         return self.d2ptr().effNumEntries()
 
 
-    @property
+    #@property
     def errW(self):
         """Error on sumW"""
         return self.d2ptr().errW()
 
-    @property
+    #@property
     def relErrW(self):
         """Relative error on sumW"""
         return self.d2ptr().relErrW()
 
 
-    @property
+    #@property
     def sumW(self):
         """sum(weights)"""
         return self.d2ptr().sumW()
 
-    @property
+    #@property
     def sumW2(self):
         """sum(weights * weights)"""
         return self.d2ptr().sumW2()
 
-    @property
+    #@property
     def sumWX(self):
         """sum(weights * xs)"""
         return self.d2ptr().sumWX()
 
-    @property
+    #@property
     def sumWY(self):
         """sum(weights * ys)"""
         return self.d2ptr().sumWY()
 
-    @property
+    #@property
     def sumWX2(self):
         """sum(weights * xs * xs)"""
         return self.d2ptr().sumWX2()
 
-    @property
+    #@property
     def sumWY2(self):
         """sum(weights * ys * ys)"""
         return self.d2ptr().sumWY2()
 
-    @property
+    #@property
     def sumWXY(self):
         """sum(weights xs * ys)"""
         return self.d2ptr().sumWXY()

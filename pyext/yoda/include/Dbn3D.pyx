@@ -92,35 +92,35 @@ cdef class Dbn3D(util.Base):
 
     # TODO: map direct properties from C++
 
-    @property
+    #@property
     def mean(self):
         """Weighted mean of x"""
         return util.XYZ(self.d3ptr().xMean(),
                         self.d3ptr().yMean(),
                         self.d3ptr().zMean())
 
-    @property
+    #@property
     def variance(self):
         """Weighted variance of x"""
         return util.XYZ(self.d3ptr().xVariance(),
                         self.d3ptr().yVariance(),
                         self.d3ptr().zVariance())
 
-    @property
+    #@property
     def stdDev(self):
         """Weighted standard deviation of x"""
         return util.XYZ(self.d3ptr().xStdDev(),
                         self.d3ptr().yStdDev(),
                         self.d3ptr().zStdDev())
 
-    @property
+    #@property
     def stdErr(self):
         """Weighted standard error on <x>"""
         return util.XYZ(self.d3ptr().xStdErr(),
                         self.d3ptr().yStdErr(),
                         self.d3ptr().zStdErr())
 
-    @property
+    #@property
     def rms(self):
         """Weighted root mean squared (RMS) of x"""
         return util.XYZ(self.d3ptr().xRMS(),
@@ -128,79 +128,79 @@ cdef class Dbn3D(util.Base):
                         self.d3ptr().zRMS())
 
 
-    @property
+    #@property
     def numEntries(self):
         """The number of entries"""
         return self.d3ptr().numEntries()
 
-    @property
+    #@property
     def effNumEntries(self):
         """Effective number of entries (for weighted events)"""
         return self.d3ptr().effNumEntries()
 
 
-    @property
+    #@property
     def errW(self):
         """Error on sumW"""
         return self.d3ptr().errW()
 
-    @property
+    #@property
     def relErrW(self):
         """Relative error on sumW"""
         return self.d3ptr().relErrW()
 
 
-    @property
+    #@property
     def sumW(self):
         """sum(weights)"""
         return self.d3ptr().sumW()
 
-    @property
+    #@property
     def sumW2(self):
         """sum(weights * weights)"""
         return self.d3ptr().sumW2()
 
-    @property
+    #@property
     def sumWX(self):
         """sum(weights * xs)"""
         return self.d3ptr().sumWX()
 
-    @property
+    #@property
     def sumWY(self):
         """sum(weights * ys)"""
         return self.d3ptr().sumWY()
 
-    @property
+    #@property
     def sumWZ(self):
         """sum(weights * zs)"""
         return self.d3ptr().sumWZ()
 
-    @property
+    #@property
     def sumWX2(self):
         """sum(weights * xs * xs)"""
         return self.d3ptr().sumWX2()
 
-    @property
+    #@property
     def sumWY2(self):
         """sum(weights * ys * ys)"""
         return self.d3ptr().sumWY2()
 
-    @property
+    #@property
     def sumWZ2(self):
         """sum(weights * zs * zs)"""
         return self.d3ptr().sumWZ2()
 
-    @property
+    #@property
     def sumWXY(self):
         """sum(weights * xs * ys)"""
         return self.d3ptr().sumWXY()
 
-    @property
+    #@property
     def sumWXZ(self):
         """sum(weights * xs * zs)"""
         return self.d3ptr().sumWXZ()
 
-    @property
+    #@property
     def sumWYZ(self):
         """sum(weights * ys * zs)"""
         return self.d3ptr().sumWYZ()
