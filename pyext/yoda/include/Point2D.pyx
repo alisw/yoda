@@ -11,89 +11,123 @@ cdef class Point2D(Point):
     def __init__(self, x=0, y=0, xerrs=0, yerrs=0, source=""):
         if source==None: source=""
         cutil.set_owned_ptr(self, new c.Point2D())
-        self.x = x
-        self.y = y
-        self.xErrs = xerrs
-        self.setYErrs(yerrs,source)
+        self.setX(x)
+        self.setY(y)
+        self.setXErrs(xerrs)
+        self.setYErrs(yerrs, source)
 
     def copy(self):
         return cutil.new_owned_cls(Point2D, new c.Point2D(deref(self.p2ptr())))
 
     # TODO: add clone() as mapping to (not yet existing) C++ newclone()?
 
-    def setYErrs(self, val, source):
-        if source==None: source=""
-        self.p2ptr().setYErrs(util.read_symmetric(val))
 
-    property x:
-        """x coordinate"""
-        def __get__(self):
-            return self.p2ptr().x()
-        def __set__(self, x):
-            self.p2ptr().setX(x)
+    def x(self):
+        """The x value"""
+        return self.p2ptr().x()
+    def setX(self, x):
+        """Set the x value"""
+        self.p2ptr().setX(x)
 
-    property y:
-        """y coordinate"""
-        def __get__(self):
-            return self.p2ptr().y()
-        def __set__(self, y):
-            self.p2ptr().setY(y)
-
-    property xy:
-        """x and y coordinates as a tuple"""
-        def __get__(self):
-            return util.XY(self.x, self.y)
-        def __set__(self, val):
-            self.x, self.y = val
-
-
-    # TODO: How does this fit into the multi-error API? Still useful, but just reports first errs... how to get _all_ +- err pairs?
-    # LC: This is fine because preserntly only the highest dimension supports multi-errors
-    property xErrs:
+    def xErrs(self):
         """The x errors"""
-        def __get__(self):
-            return util.read_error_pair(self.p2ptr().xErrs())
-        def __set__(self, val):
-            self.p2ptr().setXErrs(util.read_symmetric(val))
+        return util.read_error_pair(self.p2ptr().xErrs())
 
-    # TODO: How does this fit into the multi-error API? Still useful, but just reports first errs... how to get _all_ +- err pairs?
-    # LC: I think it's Ok to leave this like this, for most users the nominal is what they want anyway,
-    # and for those who want multi-errs, they can set using a method eg setErrs(dim,(ed,eu),source) and access using errs(dim,(ed,eu),source) 
-    property yErrs:
-        """The y errors"""
-        def __get__(self):
-            return util.read_error_pair(self.p2ptr().yErrs())
-        def __set__(self, val):
-            self.p2ptr().setYErrs(util.read_symmetric(val))
+    def setXErrs(self, val):
+        """Set the x errors"""
+        self.p2ptr().setXErrs(util.read_symmetric(val))
 
-
-    @property
     def xMin(self):
         """The minimum x position, i.e. lowest error"""
         return self.p2ptr().xMin()
-    @property
     def xMax(self):
         """The maximum x position, i.e. highest error"""
         return self.p2ptr().xMax()
 
+    def xErrAvg(self):
+        return self.p2ptr().xErrAvg()
 
-    @property
+
+
+    def y(self):
+        """The y value"""
+        return self.p2ptr().y()
+    def setY(self, y):
+        """Set the y value"""
+        self.p2ptr().setY(y)
+
+    def yErrs(self):
+        """The y errors"""
+        return util.read_error_pair(self.p2ptr().yErrs())
+    
+    def yErrsFromSource(self, source):
+        """The y errors"""
+        if isinstance(source, str):
+           source = source.encode('utf-8')
+        return util.read_error_pair(self.p2ptr().yErrs(source))
+    # def setYErrs(self, val):
+    #     """Set the y errors"""
+    #     self.p2ptr().setYErrs(util.read_symmetric(val))
+    def setYErrs(self, *es):
+        """(int, float) -> None
+           (int, [float, float]) -> None
+           (int, float, float) -> None
+        Set asymmetric errors on axis i"""
+        source = None
+        es = list(es)
+        if type(es[-1]) is str:
+            source = es[-1]
+            es = es[:-1]
+        else:
+            pass
+        errs = es
+        if source is None:
+            source = ""
+        if len(errs) == 1:
+            if not hasattr(errs[0], "__iter__"):
+                self.setErr(2,errs[0], source)
+                return
+            errs = errs[0]
+        # assert len(errs) == 2:
+        if isinstance(source, str):
+           source = source.encode('utf-8')
+        self.pptr().setErrs(2, tuple(errs), source)
+    
+    def setYErrs(self, val, source):
+        if source is None:
+            source = ""
+        self.p2ptr().setYErrs(util.read_symmetric(val))
+
     def yMin(self):
         """The minimum y position, i.e. lowest error"""
         return self.p2ptr().yMin()
-    @property
     def yMax(self):
         """The maximum y position, i.e. highest error"""
         return self.p2ptr().yMax()
 
+    def yErrAvg(self):
+        return self.p2ptr().yErrAvg()
 
-    property xErrAvg:
-        def __get__(self):
-            return self.p2ptr().xErrAvg()
 
-    property yErrAvg:
-        def __get__(self):
-            return self.p2ptr().yErrAvg()
+
+    # property xy:
+    #     """x and y coordinates as a tuple"""
+    #     def __get__(self):
+    #         return util.XY(self.x, self.y)
+    #     def __set__(self, val):
+    #         self.x, self.y = val
+
+
+
+    # # TODO: How does this fit into the multi-error API? Still useful, but just reports first errs... how to get _all_ +- err pairs?
+    # # LC: I think it's Ok to leave this like this, for most users the nominal is what they want anyway,
+    # # and for those who want multi-errs, they can set using a method eg setErrs(dim,(ed,eu),source) and access using errs(dim,(ed,eu),source)
+    # property yErrs:
+    #     """The y errors"""
+    #     def __get__(self):
+    #         return util.read_error_pair(self.p2ptr().yErrs())
+    #     def __set__(self, val):
+    #         self.p2ptr().setYErrs(util.read_symmetric(val))
 
 
     def scaleX(self, a):
@@ -124,7 +158,7 @@ cdef class Point2D(Point):
 
 
     def __repr__(self):
-        return '<Point2D(x=%g, y=%g)>' % (self.x, self.y)
+        return '<Point2D(x=%g, y=%g)>' % (self.x(), self.y())
 
     def __richcmp__(Point2D self, Point2D other, int op):
         if op == 0:

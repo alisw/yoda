@@ -1,3 +1,6 @@
+.NOTPARALLEL:
+	@true
+
 STATIC_SRC = \
     __init__.py \
     axis.pyx \

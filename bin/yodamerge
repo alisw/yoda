@@ -1,9 +1,9 @@
 #! /usr/bin/env python
 
 """\
-%prog [-o outfile] <yodafile1>[:<scale1>] <yodafile2>[:<scale1>] ...
-  e.g. %prog run1.yoda run2.yoda run3.yoda  (unweighted merging of three runs)
-    or %prog run1.yoda:2.0 run2.yoda:3.142  (weighted merging of two runs)
+%(prog)s [-o outfile] <yodafile1>[:<scale1>] <yodafile2>[:<scale1>] ...
+  e.g. %(prog)s run1.yoda run2.yoda run3.yoda  (unweighted merging of three runs)
+    or %(prog)s run1.yoda:2.0 run2.yoda:3.142  (weighted merging of two runs)
 
 Merge analysis objects from multiple YODA files, combining the statistics of
 objects whose names are found in multiple files. May be used either to merge
@@ -55,7 +55,7 @@ NORMALIZED, UNNORMALIZED, OR A MIX?
   script or program to do the merging: the merging machinery of this script is
   available directly in the yoda Python module.
 
-See the source of this script (e.g. use 'less `which %prog`) for more discussion.
+See the source of this script (e.g. use 'less `which %(prog)s`) for more discussion.
 """
 
 # MORE NOTES
@@ -99,38 +99,37 @@ See the source of this script (e.g. use 'less `which %prog`) for more discussion
 # particular requirements.
 
 
-import yoda, optparse, sys, math
+import yoda, argparse, sys, math
 
-parser = optparse.OptionParser(usage=__doc__)
-parser.add_option("-o", "--output", default="-", dest="OUTPUT_FILE", metavar="PATH",
-                  help="write output to specified path")
-parser.add_option("--s1d-mode", "--s1dmode", default="assume_mean", dest="S1D_MODE", metavar="MODE",
-                  help="choose strategy for combining Scatter1D objects: one of 'first', 'combine', 'assume_mean', 'add'")
-parser.add_option("--s2d-mode", "--s2dmode", default="assume_mean", dest="S2D_MODE", metavar="MODE",
-                  help="choose strategy for combining Scatter2D objects: one of 'first', 'combine', 'assume_mean', 'add'")
-parser.add_option("--s3d-mode", "--s3dmode", default="assume_mean", dest="S3D_MODE", metavar="MODE",
-                  help="choose strategy for combining Scatter3D objects: one of 'first', 'combine', 'assume_mean', 'add'")
-parser.add_option("--type-mismatch-mode", default="scatter", dest="TYPE_MISMATCH_MODE", metavar="MODE",
-                  help="choose strategy for combining objects whose types mismatch: one of 'first', 'scatter'")
-parser.add_option("--add", "--stack", action="store_true", default=False, dest="STACK",
-                  help="force simple stacking (also forces all scatter modes to 'add')")
-parser.add_option("--no-veto-empty", action="store_false", default=True, dest="VETO_EMPTY",
-                  help="disable the removal of empty (sumW=0) data objects _before_ applying merge heuristics. You probably want the default!")
-parser.add_option("--assume-normalized", action="store_true", default=False, dest="ASSUME_NORMALIZED",
-                  help="DEPRECATED, AND DOES NOTHING. This option _used_ to bypass the detection heuristic for unnormalized histograms")
-opts, fileargs = parser.parse_args()
-
+parser = argparse.ArgumentParser(usage=__doc__)
+parser.add_argument("INFILES", nargs="+", help="datafile1 datafile2 [...]")
+parser.add_argument("-o", "--output", default="-", dest="OUTPUT_FILE", metavar="PATH",
+                    help="write output to specified path")
+parser.add_argument("--s1d-mode", "--s1dmode", default="assume_mean", dest="S1D_MODE", metavar="MODE",
+                    help="choose strategy for combining Scatter1D objects: one of 'first', 'combine', 'assume_mean', 'add'")
+parser.add_argument("--s2d-mode", "--s2dmode", default="assume_mean", dest="S2D_MODE", metavar="MODE",
+                    help="choose strategy for combining Scatter2D objects: one of 'first', 'combine', 'assume_mean', 'add'")
+parser.add_argument("--s3d-mode", "--s3dmode", default="assume_mean", dest="S3D_MODE", metavar="MODE",
+                    help="choose strategy for combining Scatter3D objects: one of 'first', 'combine', 'assume_mean', 'add'")
+parser.add_argument("--type-mismatch-mode", default="scatter", dest="TYPE_MISMATCH_MODE", metavar="MODE",
+                    help="choose strategy for combining objects whose types mismatch: one of 'first', 'scatter'")
+parser.add_argument("--add", "--stack", action="store_true", default=False, dest="STACK",
+                    help="force simple stacking (also forces all scatter modes to 'add')")
+parser.add_argument("--no-veto-empty", action="store_false", default=True, dest="VETO_EMPTY",
+                    help="disable the removal of empty (sumW=0) data objects _before_ applying merge heuristics. You probably want the default!")
+parser.add_argument("--assume-normalized", action="store_true", default=False, dest="ASSUME_NORMALIZED",
+                    help="DEPRECATED, AND DOES NOTHING. This option _used_ to bypass the detection heuristic for unnormalized histograms")
+args = parser.parse_args()
 
 ## Include scatters in "add" mode
-if opts.STACK:
-    opts.S1D_MODE = "add"
-    opts.S2D_MODE = "add"
-    opts.S3D_MODE = "add"
-
+if args.STACK:
+    args.S1D_MODE = "add"
+    args.S2D_MODE = "add"
+    args.S3D_MODE = "add"
 
 ## Put the incoming objects into a dict from each path to a list of histos and scalings
 analysisobjects_in = {}
-for fa in fileargs:
+for fa in args.INFILES:
     filename, scale = fa, 1.0
     if ":" in fa:
         try:
@@ -154,7 +153,7 @@ for p, aos in analysisobjects_in.items():
     if not all(type(ao) is aotype for ao in aos):
         msg = "WARNING: cannot merge mismatched analysis object types for path %s: " % p
         scatter_fail = False
-        if opts.TYPE_MISMATCH_MODE == "scatter":
+        if args.TYPE_MISMATCH_MODE == "scatter":
             saos = []
             for ao in aos:
                 sao = ao.mkScatter()
@@ -169,7 +168,7 @@ for p, aos in analysisobjects_in.items():
             else:
                 msg += "... failed, "
                 scatter_fail = True
-        if opts.TYPE_MISMATCH_MODE == "first" or scatter_fail:
+        if args.TYPE_MISMATCH_MODE == "first" or scatter_fail:
             sys.stderr.write(msg + "returning first object\n")
             analysisobjects_out[p] = aos[0]
             continue
@@ -177,7 +176,7 @@ for p, aos in analysisobjects_in.items():
 
     ## Remove empty fillable data objects, to avoid gotchas where e.g. histos are normalised and hence
     ## ScaledBy should be set... but isn't because the emptiness blocked rescaling to finite area
-    if opts.VETO_EMPTY:
+    if args.VETO_EMPTY:
         # TODO: Add a Fillable interface/ABC and use that for the type matching
         if aotype in (yoda.Counter, yoda.Histo1D, yoda.Histo2D, yoda.Profile1D, yoda.Profile2D):
             aos_nonzero = [ao for ao in aos if ao.sumW() != 0] #< possible that this doesn't mean no fills :-/
@@ -195,11 +194,14 @@ for p, aos in analysisobjects_in.items():
 
         ## Identify a target rescaling factor from the 1/scalefactor-weighted norms of each run
         rescale = None
-        if len(aos) > 1 and opts.STACK:
+        if len(aos) > 1 and args.STACK:
             pass # we're in dumb stacking mode
-        elif all("ScaledBy" in ao.annotations for ao in aos):
-            rescale = 1.0 / sum(float(ao.annotation("yodamerge_scale"))/float(ao.annotation("ScaledBy")) for ao in aos)
-        elif all("ScaledBy" not in ao.annotations for ao in aos):
+        elif all("ScaledBy" in ao.annotations() for ao in aos):
+            try:
+                rescale = 1.0 / sum(float(ao.annotation("yodamerge_scale"))/float(ao.annotation("ScaledBy")) for ao in aos)
+            except ZeroDivisionError:
+                sys.stderr.write("WARNING: Abandoning normalized merge of path %s because ScaledBy attributes are zero.\n" % p)
+        elif all("ScaledBy" not in ao.annotations() for ao in aos):
             pass
         else:
             sys.stderr.write("WARNING: Abandoning normalized merge of path %s because some but not all inputs have ScaledBy attributes\n" % p)
@@ -233,9 +235,9 @@ for p, aos in analysisobjects_in.items():
         elif aotype in (yoda.Scatter1D,yoda.Scatter2D,yoda.Scatter3D):
 
             ## Retrieve dimensionality of the Scatter*D object
-            dim=ao_out.dim
-            SND_MODE=getattr(opts,"S%dD_MODE" % dim)
-            axis=['','x','y','z']
+            dim = ao_out.dim()
+            SND_MODE = getattr(args, "S%dD_MODE" % dim)
+            axis = ['','x','y','z']
 
             ## Use asymptotic mean+stderr convergence statistics
             if SND_MODE in ("assume_mean", "add"):
@@ -244,34 +246,34 @@ for p, aos in analysisobjects_in.items():
                 if any(float(ao.annotation("yodamerge_scale")) != 1.0 for ao in aos):
                     msg += " (+ user scaling)"
                 sys.stderr.write(msg + "\n")
-                npoints = len(ao_out.points)
+                npoints = len(ao_out.points())
                 for i in range(npoints):
                     val_i = scalesum = 0.0
-                    ep_i = {} # will hold the values of the multiple error sources 
-                    em_i = {} # will hold the values of the multiple error sources 
+                    ep_i = {} # will hold the values of the multiple error sources
+                    em_i = {} # will hold the values of the multiple error sources
                     for ao in aos:
                         scale = float(ao.annotation("yodamerge_scale"))
-                        variations=ao.variations()
+                        variations = ao.variations()
                         scalesum += scale
-                        val_i += scale * ao.points[i].val(dim)
+                        val_i += scale * ao.point(i).val(dim)
                         for var in variations:
-                          if not var in ep_i.keys(): 
-                            ep_i[var]=0.
-                            em_i[var]=0.
-                          ep_i[var] += (scale * ao.points[i].errs(dim,var)[0])**2
-                          em_i[var] += (scale * ao.points[i].errs(dim,var)[1])**2
-                    for var in ep_i.keys(): 
-                      ep_i[var] = math.sqrt(ep_i[var])
-                      em_i[var] = math.sqrt(em_i[var])
+                            if not var in ep_i.keys():
+                                ep_i[var] = 0.
+                                em_i[var] = 0.
+                            ep_i[var] += (scale * ao.point(i).errs(dim,var)[0])**2
+                            em_i[var] += (scale * ao.point(i).errs(dim,var)[1])**2
+                    for var in ep_i.keys():
+                        ep_i[var] = math.sqrt(ep_i[var])
+                        em_i[var] = math.sqrt(em_i[var])
                     if SND_MODE == "assume_mean":
                         val_i /= scalesum
-                        for var in ep_i.keys(): 
-                          ep_i[var]  /= scalesum
-                          em_i[var]  /= scalesum
-                    setattr(ao_out.points[i],'%s' % axis[dim], val_i)
-                    for var in ep_i.keys(): 
-                      #setattr(ao_out.points[i],'set%sErrs' % axis[dim].upper(), ((ep_i[var], em_i[var]),var))
-                      ao_out.points[i].setErrs(dim , (ep_i[var], em_i[var]),var)
+                        for var in ep_i.keys():
+                            ep_i[var] /= scalesum
+                            em_i[var] /= scalesum
+                    ao_out.point(i).setVal(dim, val_i)
+                    for var in ep_i.keys():
+                        #setattr(ao_out.point(i),'set%sErrs' % axis[dim].upper(), ((ep_i[var], em_i[var]),var))
+                        ao_out.point(i).setErrs(dim , (ep_i[var], em_i[var]),var)
 
             ## Add more points to the output scatter
             elif SND_MODE == "combine":
@@ -283,7 +285,7 @@ for p, aos in analysisobjects_in.items():
                 pass
 
             else:
-                raise Exception("Unknown Scatter%dD merging mode:" % dim + opts.SND_MODE)
+                raise Exception("Unknown Scatter%dD merging mode:" % dim + args.SND_MODE)
 
         ## Other data types (just warn, and write out the first object)
         else:
@@ -293,4 +295,4 @@ for p, aos in analysisobjects_in.items():
     analysisobjects_out[p] = ao_out
 
 ## Write output
-yoda.writeYODA(analysisobjects_out, opts.OUTPUT_FILE)
+yoda.writeYODA(analysisobjects_out, args.OUTPUT_FILE)

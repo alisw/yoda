@@ -1,7 +1,7 @@
 ## Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([YODA],[1.7.4],[yoda@projects.hepforge.org],[YODA])
+AC_INIT([YODA],[1.8.2],[yoda@projects.hepforge.org],[YODA])
 
 ## Check and block installation into the src/build dir
 if test "$prefix" = "$PWD"; then
@@ -131,11 +131,11 @@ AM_CONDITIONAL(ENABLE_PYEXT, [test x$enable_pyext == xyes])
 
 ## Cython checks
 if test x$enable_pyext == xyes; then
-  AM_CHECK_CYTHON([0.23.5], [:], [:])
+  AM_CHECK_CYTHON([0.24], [:], [:])
   if test x$CYTHON_FOUND = xyes; then
-
-    AC_MSG_NOTICE([Cython >= 0.23.5 found: Python extension source can be rebuilt (for developers)])
-
+    AC_MSG_NOTICE([Cython >= 0.24 found: Python extension source can be rebuilt (for developers)])
+    # Force rebuild since we have a sufficient Cython
+    test -f pyext/yoda/core.pyx && touch pyext/yoda/core.pyx
   fi
 
   AC_CHECK_FILE([pyext/yoda/core.cpp],

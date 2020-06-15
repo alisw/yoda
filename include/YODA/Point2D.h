@@ -11,6 +11,7 @@
 #include "YODA/Utils/MathUtils.h"
 #include <utility>
 
+
 namespace YODA {
 
 
@@ -78,6 +79,7 @@ namespace YODA {
     {
       _ex = p._ex;
       _ey = p._ey;
+      this->setParentAO( p.getParentAO());
     }
 
 
@@ -87,6 +89,7 @@ namespace YODA {
       _y = p._y;
       _ex = p._ex;
       _ey = p._ey;
+      this->setParentAO( p.getParentAO());
       return *this;
     }
 
@@ -209,31 +212,38 @@ namespace YODA {
 
     /// Get y-error values
     const std::pair<double,double>& yErrs(std::string source="") const {
+      if (source!="") getVariationsFromParent();
       if (!_ey.count(source)) throw RangeError("yErrs has no such key: "+source);
       return _ey.at(source);
     }
 
     /// Get negative y-error value
     double yErrMinus(std::string source="") const {
+      if (source!="") getVariationsFromParent();
       if (!_ey.count(source)) throw RangeError("yErrs has no such key: "+source);
       return _ey.at(source).first;
     }
 
     /// Get positive y-error value
     double yErrPlus(std::string source="") const {
+      if (source!="") getVariationsFromParent();
       if (!_ey.count(source)) throw RangeError("yErrs has no such key: "+source);
       return _ey.at(source).second;
     }
 
     /// Get average y-error value
     double yErrAvg(std::string source="") const {
+      if (source!="") getVariationsFromParent();
       if (!_ey.count(source)) throw RangeError("yErrs has no such key: "+source);
-      return (_ey.at(source).first + _ey.at(source).second)/2.0;
+      double res=(fabs(_ey.at(source).first) + fabs(_ey.at(source).second))/2.;
+      return res;
     }
 
     /// Set negative y error
     void setYErrMinus(double eyminus, std::string source="") {
-      if (!_ey.count(source)) _ey[source] = std::make_pair(0.,0.);
+      if (!_ey.count(source)) {
+        _ey[source] = std::make_pair(0.,0.);
+      }
       _ey.at(source).first = eyminus;
     }
 
@@ -267,12 +277,14 @@ namespace YODA {
 
     /// Get value minus negative y-error
     double yMin(std::string source="") const {
+      if (source!="") getVariationsFromParent();
       if (!_ey.count(source)) throw RangeError("yErrs has no such key: "+source);
       return _y - _ey.at(source).first;
     }
 
     /// Get value plus positive y-error
     double yMax(std::string source="") const {
+      if (source!="") getVariationsFromParent();
       if (!_ey.count(source)) throw RangeError("yErrs has no such key: "+source);
       return _y + _ey.at(source).second;
     }
@@ -378,9 +390,10 @@ namespace YODA {
     }
 
     /// Get error map for direction @a i
-    const std::map< std::string, std::pair<double,double>> & errMap() const {
-      return _ey;
-    }
+    const std::map< std::string, std::pair<double,double>> & errMap() const; 
+    
+    // Parse the variations from the parent AO if it exists
+    void getVariationsFromParent() const;
 
     /// Get error values for direction @a i
     const std::pair<double,double>& errs(size_t i, std::string source="") const {
@@ -481,6 +494,7 @@ namespace YODA {
       default: throw RangeError("Invalid axis int, must be in range 1..dim");
       }
     }
+    
 
     //@}
 
@@ -489,6 +503,7 @@ namespace YODA {
 
     /// @name Value and error variables
     //@{
+
 
     double _x;
     double _y;

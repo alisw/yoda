@@ -42,7 +42,11 @@ namespace YODA {
     for (const string& a : ao.annotations()) {
       if (a.empty()) continue;
       /// @todo Write out floating point annotations as scientific notation
-      os << a << ": " << ao.annotation(a) << "\n";
+      string ann = ao.annotation(a);
+      // remove stpurious line returns at the end of a string so that we don't
+      // end up with two line returns.
+      ann.erase(std::remove(ann.begin(), ann.end(), '\n'), ann.end());
+      os << a << ": " << ann << "\n";
     }
     os << "---\n";
   }
@@ -56,7 +60,7 @@ namespace YODA {
     _writeAnnotations(os, c);
     os << "# sumW\t sumW2\t numEntries\n";
     os << c.sumW()  << "\t" << c.sumW2() << "\t" << c.numEntries() << "\n";
-    os << "END " << _iotypestr("COUNTER") << "\n";
+    os << "END " << _iotypestr("COUNTER") << "\n\n";
 
     os.flags(oldflags);
   }
@@ -95,7 +99,7 @@ namespace YODA {
       os << b.sumWX()   << "\t" << b.sumWX2()   << "\t";
       os << b.numEntries() << "\n";
     }
-    os << "END " << _iotypestr("HISTO1D") << "\n";
+    os << "END " << _iotypestr("HISTO1D") << "\n\n";
 
     os.flags(oldflags);
   }
@@ -149,7 +153,7 @@ namespace YODA {
       os << b.sumWXY()   << "\t";
       os << b.numEntries() << "\n";
     }
-    os << "END " << _iotypestr("HISTO2D") << "\n";
+    os << "END " << _iotypestr("HISTO2D") << "\n\n";
 
     os.flags(oldflags);
   }
@@ -185,7 +189,7 @@ namespace YODA {
       os << b.sumWY()   << "\t" << b.sumWY2()   << "\t";
       os << b.numEntries() << "\n";
     }
-    os << "END " << _iotypestr("PROFILE1D") << "\n";
+    os << "END " << _iotypestr("PROFILE1D") << "\n\n";
 
     os.flags(oldflags);
   }
@@ -235,7 +239,7 @@ namespace YODA {
       os << b.sumWXY()   << "\t"; // << b.sumWXZ()    << "\t" << b.sumWYZ() << "\t";
       os << b.numEntries() << "\n";
     }
-    os << "END " << _iotypestr("PROFILE2D") << "\n";
+    os << "END " << _iotypestr("PROFILE2D") << "\n\n";
 
     os.flags(oldflags);
   }
@@ -246,40 +250,19 @@ namespace YODA {
     os << scientific << showpoint << setprecision(_precision);
 
     os << "BEGIN " << _iotypestr("SCATTER1D") << " " << s.path() << "\n";
-    //first write the Variations, a dummy annotation which
-    //contains the additional columns which will be written out
-    //for sytematic variations
-    YAML::Emitter out; 
-    out << YAML::Flow ;
-    out << s.variations();
-    os << "Variations" << ": " << out.c_str() << "\n";
-    // then write the regular annotations
     _writeAnnotations(os, s);
      
-    std::vector<std::string> variations= s.variations();
-    
     //write headers
-    std::string headers="# xval\t ";
-    for (const auto   &source : variations){
-         headers+=" xerr-"+source+"\t xerr+"+source+"\t";
-    }
+    std::string headers="# xval\t xerr-\t xerr+\t";
     os << headers << "\n";
     
     //write points
     for (const Point1D& pt : s.points()) {
       // fill central value
-      os << pt.x();
-      // fill errors for variations. The first should always be "" which is nominal.
-      // Assumes here that all points in the Scatter have the same
-      // variations... if not a range error will get thrown from
-      // the point when the user tries to access a variation it
-      // doesn't have... @todo maybe better way to do this?
-      for (const auto   &source : variations){
-        os << "\t" << pt.xErrMinus(source) << "\t" << pt.xErrPlus(source) ;
-      }
+      os << pt.x() << "\t" << pt.xErrMinus() << "\t" << pt.xErrPlus() ;
       os <<  "\n";
     }
-    os << "END " << _iotypestr("SCATTER1D") << "\n";
+    os << "END " << _iotypestr("SCATTER1D") << "\n\n";
 
     os << flush;
     os.flags(oldflags);
@@ -289,25 +272,13 @@ namespace YODA {
   void WriterYODA::writeScatter2D(std::ostream& os, const Scatter2D& s) {
     ios_base::fmtflags oldflags = os.flags();
     os << scientific << showpoint << setprecision(_precision);
-
     os << "BEGIN " << _iotypestr("SCATTER2D") << " " << s.path() << "\n";
-    //first write the Variations, a dummy annotation which
-    //contains the additional columns which will be written out
-    //for sytematic variations
-    YAML::Emitter out; 
-    out << YAML::Flow ;
-    out << s.variations();
-    os << "Variations" << ": " << out.c_str() << "\n";
-    // then write the regular annotations
+    //  write annotations
     _writeAnnotations(os, s);
     
-    std::vector<std::string> variations= s.variations();
     //write headers
     /// @todo Change ordering to {vals} {errs} {errs} ...
-    std::string headers="# xval\t xerr-\t xerr+\t yval\t";
-    for (const auto   &source : variations){
-         headers+=" yerr-"+source+"\t yerr+"+source+"\t";
-    }
+    std::string headers="# xval\t xerr-\t xerr+\t yval\t yerr-\t yerr+\t";
     os << headers << "\n";
     
     //write points
@@ -315,18 +286,10 @@ namespace YODA {
       /// @todo Change ordering to {vals} {errs} {errs} ...
       // fill central value
       os << pt.x() << "\t" << pt.xErrMinus() << "\t" << pt.xErrPlus() << "\t";
-      os << pt.y();
-      // fill errors for variations. The first should always be "" which is nominal.
-      // Assumes here that all points in the Scatter have the same
-      // variations... if not a range error will get thrown from
-      // the point when the user tries to access a variation it
-      // doesn't have... @todo maybe better way to do this?
-      for (const auto   &source : variations){
-        os << "\t" << pt.yErrMinus(source) << "\t" << pt.yErrPlus(source) ;
-      }
+      os << pt.y() << "\t" << pt.yErrMinus() << "\t" << pt.yErrPlus() ;
       os <<  "\n";
     }
-    os << "END " << _iotypestr("SCATTER2D") << "\n";
+    os << "END " << _iotypestr("SCATTER2D") << "\n\n";
 
     os << flush;
     os.flags(oldflags);
@@ -336,25 +299,14 @@ namespace YODA {
   void WriterYODA::writeScatter3D(std::ostream& os, const Scatter3D& s) {
     ios_base::fmtflags oldflags = os.flags();
     os << scientific << showpoint << setprecision(_precision);
-
     os << "BEGIN " << _iotypestr("SCATTER3D") << " " << s.path() << "\n";
-    //first write the Variations, a dummy annotation which
-    //contains the additional columns which will be written out
-    //for sytematic variations
-    YAML::Emitter out; 
-    out << YAML::Flow ;
-    out << s.variations();
-    os << "Variations" << ": " << out.c_str() << "\n";
-    // then write the regular annotations
+    //  write the annotations
     _writeAnnotations(os, s);
     
-    std::vector<std::string> variations= s.variations();
+   // std::vector<std::string> variations= s.variations();
     //write headers
     /// @todo Change ordering to {vals} {errs} {errs} ...
-    std::string headers="# xval\t xerr-\t xerr+\t yval\t yerr-\t yerr+\t zval\t ";
-    for (const auto   &source : variations){
-         headers+=" zerr-"+source+"\t zerr+"+source+"\t";
-    }
+    std::string headers="# xval\t xerr-\t xerr+\t yval\t yerr-\t yerr+\t zval\t zerr-\t zerr+\t";
     os << headers << "\n";
     
     //write points
@@ -363,18 +315,10 @@ namespace YODA {
       // fill central value
       os << pt.x() << "\t" << pt.xErrMinus() << "\t" << pt.xErrPlus() << "\t";
       os << pt.y() << "\t" << pt.yErrMinus() << "\t" << pt.yErrPlus() << "\t";
-      os << pt.z();
-      // fill errors for variations. The first should always be "" which is nominal.
-      // Assumes here that all points in the Scatter have the same
-      // variations... if not a range error will get thrown from
-      // the point when the user tries to access a variation it
-      // doesn't have... @todo maybe better way to do this?
-      for (const auto   &source : variations){
-        os << "\t" << pt.zErrMinus(source) << "\t" << pt.zErrPlus(source) ;
-      }
+      os << pt.z() << "\t" << pt.zErrMinus() << "\t" << pt.zErrPlus() ;
       os <<  "\n";
     }
-    os << "END " << _iotypestr("SCATTER3D") << "\n";
+    os << "END " << _iotypestr("SCATTER3D") << "\n\n";
 
     os << flush;
     os.flags(oldflags);

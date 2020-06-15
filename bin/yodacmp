@@ -1,10 +1,10 @@
 #! /usr/bin/env python
 
 """\
-%prog - generate histogram comparison plots
+%(prog)s - generate histogram comparison plots
 
 USAGE:
- %prog [options] yodafile1[:'Option1=Value':'Option2=Value':...]
+ %(prog)s [options] yodafile1[:'Option1=Value':'Option2=Value':...]
        [path/to/yodafile2 ...] [PLOT:PlotOption1=Value:...]
 """
 
@@ -12,63 +12,62 @@ import yoda, sys, os
 
 def main():
 
-    from optparse import OptionParser, OptionGroup
-    parser = OptionParser(usage=__doc__)
-    parser.add_option("-o", "--outdir", dest="OUTDIR",
+    import argparse
+    parser = argparse.ArgumentParser(usage=__doc__)
+    parser.add_argument("ARGS", nargs="+", help="YODA data files with optional colon-separated option strings")
+    parser.add_argument("-o", "--outdir", dest="OUTDIR",
                       default=".", help="write data files into this directory")
-    # parser.add_option("--hier-out", action="store_true", dest="HIER_OUTPUT", default=False,
+    # parser.add_argument("--hier-out", action="store_true", dest="HIER_OUTPUT", default=False,
     #                   help="write output dat files into a directory hierarchy which matches the analysis paths")
-    # parser.add_option("--plotinfodir", dest="PLOTINFODIRS", action="append",
+    # parser.add_argument("--plotinfodir", dest="PLOTINFODIRS", action="append",
     #                   default=["."], help="directory which may contain plot header information (in addition "
     #                   "to standard Rivet search paths)")
 
-    stygroup = OptionGroup(parser, "Plot style")
-    # stygroup.add_option("--refid", dest="REF_ID",
+    stygroup = parser.add_argument_group("Plot style")
+    # stygroup.add_argument("--refid", dest="REF_ID",
     #                     default="REF", help="ID of reference data set (file path for non-REF data)")
-    # stygroup.add_option("--linear", action="store_true", dest="LINEAR",
+    # stygroup.add_argument("--linear", action="store_true", dest="LINEAR",
     #                     default=False, help="plot with linear scale")
-    # stygroup.add_option("--mc-errs", action="store_true", dest="MC_ERRS",
+    # stygroup.add_argument("--mc-errs", action="store_true", dest="MC_ERRS",
     #                     default=False, help="show vertical error bars on the MC lines")
-    # stygroup.add_option("--no-title", action="store_true", dest="NOPLOTTITLE",
+    # stygroup.add_argument("--no-title", action="store_true", dest="NOPLOTTITLE",
     #                     default=False, help="don't show the plot title on the plot "
     #                     "(useful when the plot description should only be given in a caption)")
-    # stygroup.add_option("--style", dest="STYLE", default="default",
+    # stygroup.add_argument("--style", dest="STYLE", default="default",
     #                     help="change plotting style: default|bw|talk")
-    stygroup.add_option("-c", "--config", dest="CONFIGFILES", action="append", default=[], #["~/.make-plots"],
+    stygroup.add_argument("-c", "--config", dest="CONFIGFILES", action="append", default=[], #["~/.make-plots"],
                         help="additional plot config file(s). Settings will be included in the output configuration.")
-    parser.add_option_group(stygroup)
 
     # TODO: re-enable the pattern matching, and _maybe_ the variants on ref-only plotting if we don't have a plotting system via YODA soon
     #
-    selgroup = OptionGroup(parser, "Selective plotting")
-    # selgroup.add_option("--show-single", dest="SHOW_SINGLE", choices=("no", "ref", "mc", "all"),
+    selgroup = parser.add_argument_group("Selective plotting")
+    # selgroup.add_argument("--show-single", dest="SHOW_SINGLE", choices=("no", "ref", "mc", "all"),
     #                     default="mc", help="control if a plot file is made if there is only one dataset to be plotted "
-    #                     "[default=%default]. If the value is 'no', single plots are always skipped, for 'ref' and 'mc', "
+    #                     "[default=%(default)s]. If the value is 'no', single plots are always skipped, for 'ref' and 'mc', "
     #                     "the plot will be written only if the single plot is a reference plot or an MC "
     #                     "plot respectively, and 'all' will always create single plot files.\n The 'ref' and 'all' values "
     #                     "should be used with great care, as they will also write out plot files for all reference "
     #                     "histograms without MC traces: combined with the -R/--rivet-refs flag, this is a great way to "
     #                     "write out several thousand irrelevant reference data histograms!")
-    # selgroup.add_option("--show-mc-only", "--all", action="store_true", dest="SHOW_IF_MC_ONLY",
+    # selgroup.add_argument("--show-mc-only", "--all", action="store_true", dest="SHOW_IF_MC_ONLY",
     #                     default=False, help="make a plot file even if there is only one dataset to be plotted and "
     #                     "it is an MC one. Deprecated and will be removed: use --show-single instead, which overrides this.")
-    # # selgroup.add_option("-l", "--histogram-list", dest="HISTOGRAMLIST",
+    # # selgroup.add_argument("-l", "--histogram-list", dest="HISTOGRAMLIST",
     # #                     default=None, help="specify a file containing a list of histograms to plot, in the format "
     # #                     "/ANALYSIS_ID/histoname, one per line, e.g. '/DELPHI_1996_S3430090/d01-x01-y01'.")
-    selgroup.add_option("-m", "--match", action="append",
+    selgroup.add_argument("-m", "--match", action="append",
                         help="only write out histograms whose $path/$name string matches these regexes. The argument "
                         "may also be a text file.",
                         dest="PATHPATTERNS")
-    selgroup.add_option("-M", "--unmatch", action="append",
+    selgroup.add_argument("-M", "--unmatch", action="append",
                         help="exclude histograms whose $path/$name string matches these regexes",
                         dest="PATHUNPATTERNS")
-    parser.add_option_group(selgroup)
 
 
     ## Parse command line args into filenames and associated annotations
-    opts, args = parser.parse_args()
+    args = parser.parse_args()
     fnames, fname_anns = [], []
-    for a in args:
+    for a in args.ARGS:
         fname, anns = parse_arg(a)
         fnames.append(fname)
         fname_anns.append(anns)
@@ -78,7 +77,7 @@ def main():
     # TODO: Order, dict merging, etc.
     import re
     plotkeys = {}
-    for pf in opts.CONFIGFILES:
+    for pf in args.CONFIGFILES:
         plotkeys.update( yoda.plotting.read_plot_keys(plotfile) )
 
     ## Extract PLOT keys
@@ -97,7 +96,7 @@ def main():
         aos = [ ao.mkScatter() for ao in yoda.read(fname, asdict=False) ]
         for ao in aos:
             # TODO: Allow Rivet to strip /REF prefixes in its use of this API
-            p = ao.path.replace("/REF", "")
+            p = ao.path().replace("/REF", "")
             ## Apply .plot patterns first
             for patt, keys in plotkeys.keys():
                 if re.match(patt, p):
@@ -108,7 +107,7 @@ def main():
                 ao.setAnnotation(k, v)
             ## Obsfucate the path for uniqueness
             # TODO: Tidy fname slashes etc. for this purpose
-            ao.path = p + "@" + fname
+            ao.setPath(p + "@" + fname)
             ## The first file is used as the reference
             # TODO: Use arg[0] or --refid for identifying the ref histo (if there is one)
             if i == 0:
@@ -117,28 +116,28 @@ def main():
             ao.setAnnotation("Origin", fname)
             ## Add to plotting dict
             aolists.setdefault(p, []).append(ao)
-    # for p, aos in sorted(aolists.items()): print p, len(aos)
+    # for p, aos in sorted(aolists.items()): print(p, len(aos))
 
     ## Apply path pattern match discarding from dict
-    opts.PATHPATTERNS = [re.compile(r) for r in opts.PATHPATTERNS] if opts.PATHPATTERNS else []
-    opts.PATHUNPATTERNS = [re.compile(r) for r in opts.PATHUNPATTERNS] if opts.PATHUNPATTERNS else []
+    args.PATHPATTERNS = [re.compile(r) for r in args.PATHPATTERNS] if args.PATHPATTERNS else []
+    args.PATHUNPATTERNS = [re.compile(r) for r in args.PATHUNPATTERNS] if args.PATHUNPATTERNS else []
     keylist = list(aolists.keys())
     for path in keylist: # can't modify for-loop target in loop
         useThis = True
-        if opts.PATHPATTERNS:
+        if args.PATHPATTERNS:
             useThis = False
-            for regex in opts.PATHPATTERNS:
+            for regex in args.PATHPATTERNS:
                 if regex.search(path):
                     useThis = True
                     break
-        if useThis and opts.PATHUNPATTERNS:
-            for regex in opts.PATHUNPATTERNS:
+        if useThis and args.PATHUNPATTERNS:
+            for regex in args.PATHUNPATTERNS:
                 if regex.search(path):
                     useThis = False
                     break
         if not useThis:
             del aolists[path]
-    # for p, aos in sorted(aolists.items()): print p, len(aos)
+    # for p, aos in sorted(aolists.items()): print(p, len(aos))
 
 
     ## Loop over unique paths, plotting in order of command-line appearance
@@ -168,15 +167,15 @@ def main():
         ##
         # for key, val in plotparser.getHeaders(h).items():
         #     plot[key] = val
-        # if opts.LINEAR:
+        # if args.LINEAR:
         #     plot["LogY"] = "0"
-        # if opts.NOPLOTTITLE:
+        # if args.NOPLOTTITLE:
         #     plot["Title"] = ""
         ##
-        # if opts.STYLE == "talk":
+        # if args.STYLE == "talk":
         #     plot["PlotSize"] = "8,6"
-        # elif opts.STYLE == "bw":
-        #     if opts.RATIO:
+        # elif args.STYLE == "bw":
+        #     if args.RATIO:
         #         plot["RatioPlotErrorBandColor"] = "black!10"
 
 
@@ -200,7 +199,7 @@ def main():
         #         ## Default linecolor, linestyle
         #         setStyle(mchistos[infile][h], styleidx)
         #         styleidx += 1
-        #         if opts.MC_ERRS:
+        #         if args.MC_ERRS:
         #             mchistos[infile][h].setAnnotation("ErrorBars", "1")
         #         ## Plot defaults from .plot files
         #         for key, val in plotparser.getHistogramOptions(h).items():
@@ -210,10 +209,10 @@ def main():
         #         mchistos[infile][h].setAnnotation("Path", infile + h)
         #         anaobjects.append(mchistos[infile][h])
         #         drawonly.append(infile + h)
-        #         if opts.RATIO and ratioreference is None:
+        #         if args.RATIO and ratioreference is None:
         #             ratioreference = infile + h
 
-        # if opts.RATIO and len(drawonly) > 1:
+        # if args.RATIO and len(drawonly) > 1:
         #     plot["RatioPlot"] = "1"
         #     plot["RatioPlotReference"] = ratioreference
 
@@ -262,9 +261,9 @@ def setStyle(ao, index):
     LINECOLORS = ["Blue", "Red", "Green", "DarkOrange", "DarkOrchid"]
     LINESTYLES = ["-", "--", "-.", ":"]
 
-    # if opts.STYLE == "talk":
+    # if args.STYLE == "talk":
     #     ao.setAnnotation("LineWidth", "1pt")
-    # if opts.STYLE == "bw":
+    # if args.STYLE == "bw":
     #     LINECOLORS = [0.9, 0.5, 0.3]
 
     c = index %  len(LINECOLORS)
@@ -333,12 +332,12 @@ if __name__ == "__main__":
 def writeOutput(output, h):
     "Choose output file name and dir"
     hparts = h.strip("/").split("/")
-    if opts.HIER_OUTPUT:
+    if args.HIER_OUTPUT:
         ana = "_".join(hparts[:-1]) if len(hparts) > 1 else "ANALYSIS"
-        outdir = os.path.join(opts.OUTDIR, ana)
+        outdir = os.path.join(args.OUTDIR, ana)
         outfile = "%s.dat" % hparts[-1]
     else:
-        outdir = opts.OUTDIR
+        outdir = args.OUTDIR
         outfile = "%s.dat" % "_".join(hparts)
     mkoutdir(outdir)
     outfilepath = os.path.join(outdir, outfile)

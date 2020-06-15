@@ -1,53 +1,65 @@
 #! /usr/bin/env python
 
 """\
-%prog [-o outfile] <datafile1> <datafile2>
+%(prog)s [-o outfile] <datafile1> <datafile2>
 
 Compare analysis objects between two YODA-readable data files.
 """
 
 from __future__ import print_function
 
-import yoda, sys, optparse
+import yoda, sys, argparse
+from yoda.script_helpers import filter_aos
 
-parser = optparse.OptionParser(usage=__doc__)
-parser.add_option("-o", "--output", default="-", dest="OUTPUT_FILE",
-                  help="write output to the given file (default: stdout)")
-parser.add_option("-t", "--tol", type=float, default=1e-5, dest="TOL",
-                  help="relative tolerance of numerical difference permitted before complaining (default: %default)")
-parser.add_option("-l", "--list", action="store_true", default=False, dest="LIST",
-                  help="only print paths of mismatching objects, skip diff details (default: %default)")
-parser.add_option("-a", "--annotations", action="store_true", default=False, dest="ANNOTATIONS",
-                  help="also compare annotations (not done by default)")
-parser.add_option("--ignore-missing", action="store_true", default=False, dest="IGNORE_MISSING",
-                  help="don't complain if an object in file #1 is not found in file #2")
-parser.add_option("--ignore-new", action="store_true", default=False, dest="IGNORE_NEW",
-                  help="don't complain if an object in file #2 is not found in file #1")
-parser.add_option("-q", "--quiet", action="store_true", default=False, dest="QUIET",
-                  help="print nothing, only express comparison result via return code (default: %default)")
-opts, filenames = parser.parse_args()
+parser = argparse.ArgumentParser(usage=__doc__)
+parser.add_argument("ARGS", nargs=2, help="<datafile1> <datafile2>")
+parser.add_argument("-o", "--output", default="-", dest="OUTPUT_FILE",
+                    help="write output to the given file (default: stdout)")
+parser.add_argument("-t", "--tol", type=float, default=1e-5, dest="TOL",
+                    help="relative tolerance of numerical difference permitted before complaining (default: %(default)s)")
+parser.add_argument("-l", "--list", action="store_true", default=False, dest="LIST",
+                    help="only print paths of mismatching objects, skip diff details (default: %(default)s)")
+parser.add_argument("-a", "--annotations", action="store_true", default=False, dest="ANNOTATIONS",
+                    help="also compare annotations (not done by default)")
+parser.add_argument("-m", "--match", dest="MATCH", metavar="PATT", default=None,
+                    help="only write out histograms whose path matches this regex")
+parser.add_argument("-M", "--unmatch", dest="UNMATCH", metavar="PATT", default=None,
+                    help="exclude histograms whose path matches this regex")
+parser.add_argument("--ignore-missing", action="store_true", default=False, dest="IGNORE_MISSING",
+                    help="don't complain if an object in file #1 is not found in file #2")
+parser.add_argument("--ignore-new", action="store_true", default=False, dest="IGNORE_NEW",
+                    help="don't complain if an object in file #2 is not found in file #1")
+parser.add_argument("-q", "--quiet", action="store_true", default=False, dest="QUIET",
+                    help="print nothing, only express comparison result via return code (default: %(default)s)")
+args = parser.parse_args()
 
+filenames = args.ARGS
 if len(filenames) != 2:
     print("ERROR! Please supply *two* YODA files for comparison")
     sys.exit(7)
+
 
 ## Get data objects
 aodict1 = yoda.read(filenames[0])
 aodict2 = yoda.read(filenames[1])
 
+## Filter data objects
+filter_aos(aodict1, args.MATCH, args.UNMATCH)
+filter_aos(aodict2, args.MATCH, args.UNMATCH)
+
 CLEAN = True
 def log(msg):
-    if not opts.QUIET and not opts.LIST:
+    if not args.QUIET and not args.LIST:
         print(msg)
 
 ## Check number of data objects in each file
 if len(aodict1) != len(aodict2):
     CLEAN = False
-    if not (opts.IGNORE_MISSING or opts.IGNORE_NEW):
+    if not (args.IGNORE_MISSING or args.IGNORE_NEW):
         log("Different numbers of data objects in %s and %s" % tuple(filenames[:2]))
 elif sorted(list(aodict1.keys())) != sorted(list(aodict2.keys())):
     CLEAN = False
-    if not (opts.IGNORE_MISSING or opts.IGNORE_NEW):
+    if not (args.IGNORE_MISSING or args.IGNORE_NEW):
         log("Different data object paths in %s and %s" % tuple(filenames[:2]))
 
 ## A slightly tolerant numerical comparison function
@@ -68,18 +80,18 @@ def eq(a, b):
         return False
     ## Finally apply a tolerant numerical comparison on numeric types
     # TODO: Be careful with values on either side of zero -- abs(float(a)) etc. on denom?
-    return abs(float(a) - float(b))/(float(a) + float(b)) < opts.TOL
+    return abs(float(a) - float(b))/(float(a) + float(b)) < args.TOL
 
 def ptstr(pt):
     vstr1 = "{x:.5g} + {ex[0]:.5g} - {ex[1]:.5g}"
     vstr2 = "{x:.5g} +- {ex[0]:.5g}"
     vstrs = []
-    if pt.dim >= 1:
-        vstrs.append( (vstr2 if eq(*pt.xErrs) else vstr1).format(x=pt.x, ex=pt.xErrs) )
-    if pt.dim >= 2:
-        vstrs.append( (vstr2 if eq(*pt.yErrs) else vstr1).format(x=pt.y, ex=pt.yErrs) )
-    if pt.dim >= 3:
-        vstrs.append( (vstr2 if eq(*pt.zErrs) else vstr1).format(x=pt.z, ex=pt.zErrs) )
+    if pt.dim() >= 1:
+        vstrs.append( (vstr2 if eq(*pt.xErrs()) else vstr1).format(x=pt.x(), ex=pt.xErrs()) )
+    if pt.dim() >= 2:
+        vstrs.append( (vstr2 if eq(*pt.yErrs()) else vstr1).format(x=pt.y(), ex=pt.yErrs()) )
+    if pt.dim() >= 3:
+        vstrs.append( (vstr2 if eq(*pt.zErrs()) else vstr1).format(x=pt.z(), ex=pt.zErrs()) )
     return "(" + ", ".join(vstrs) + ")"
 
 ## Compare each object pair
@@ -91,14 +103,14 @@ for path in sorted(set(list(aodict1.keys()) + list(aodict2.keys()))):
         ## Get the object in file #1
         ao1 = aodict1.get(path, None)
         if ao1 is None:
-            if not opts.IGNORE_NEW:
+            if not args.IGNORE_NEW:
                 THISCLEAN = False
                 log("Data object '%s' not found in %s" % (path, filenames[0]))
             break
         ## Get the object in file #2
         ao2 = aodict2.get(path, None)
         if ao2 is None:
-            if not opts.IGNORE_MISSING:
+            if not args.IGNORE_MISSING:
                 THISCLEAN = False
                 log("Data object '%s' not found in %s" % (path, filenames[1]))
             break
@@ -107,7 +119,7 @@ for path in sorted(set(list(aodict1.keys()) + list(aodict2.keys()))):
         if type(ao1) is not type(ao2):
             THISCLEAN = False
             log("Data objects with path '%s' have different types (%s and %s) in %s and %s" % \
-                  (path, str(type(ao1)), str(type(ao2)), filenames[0], filenames[1]))
+                (path, str(type(ao1)), str(type(ao2)), filenames[0], filenames[1]))
             break
 
         ## Convert to scatter representations
@@ -118,33 +130,33 @@ for path in sorted(set(list(aodict1.keys()) + list(aodict2.keys()))):
             print("WARNING! Could not create a '%s' scatter for comparison (%s)" % (path, type(e).__name__))
 
         ## Check for compatible dimensionalities (should already be ok, but just making sure)
-        if s1.dim != s2.dim:
+        if s1.dim() != s2.dim():
             THISCLEAN = False
             log("Data objects with path '%s' have different scatter dimensions (%d and %d) in %s and %s" % \
-                  (path, s1.dim, s2.dim, filenames[0], filenames[1]))
+                (path, s1.dim(), s2.dim(), filenames[0], filenames[1]))
             break
 
         ## Compare the numbers of points/bins
-        if s1.numPoints != s2.numPoints:
+        if s1.numPoints() != s2.numPoints():
             THISCLEAN = False
             log("Data objects with path '%s' have different numbers of points (%d and %d) in %s and %s" % \
-                  (path, s1.numPoints, s2.numPoints, filenames[0], filenames[1]))
+                (path, s1.numPoints(), s2.numPoints(), filenames[0], filenames[1]))
             break
 
         ## Compare the numeric values of each point
         premsg = "Data points differ for data objects with path '%s' in %s and %s:\n" % (path, filenames[0], filenames[1])
         msgs = []
-        for i, (p1, p2) in enumerate(zip(s1.points, s2.points)):
+        for i, (p1, p2) in enumerate(zip(s1.points(), s2.points())):
             # TODO: do this more nicely when point.val(int) and point.err(int) are mapped into Python
             ok = True
             diffaxis = []
-            if p1.dim >= 1 and not (eq(p1.x, p2.x) and eq(p1.xErrs, p2.xErrs)):
+            if p1.dim() >= 1 and not (eq(p1.x(), p2.x()) and eq(p1.xErrs(), p2.xErrs())):
                 ok = False
                 diffaxis.append('x')
-            if p1.dim >= 2 and not (eq(p1.y, p2.y) and eq(p1.yErrs, p2.yErrs)):
+            if p1.dim() >= 2 and not (eq(p1.y(), p2.y()) and eq(p1.yErrs(), p2.yErrs())):
                 ok = False
                 diffaxis.append('y')
-            if p1.dim >= 3 and not (eq(p1.z, p2.z) and eq(p1.zErrs, p2.zErrs)):
+            if p1.dim() >= 3 and not (eq(p1.z(), p2.z()) and eq(p1.zErrs(), p2.zErrs())):
                 ok = False
                 diffaxis.append('z')
             if not ok:
@@ -155,8 +167,8 @@ for path in sorted(set(list(aodict1.keys()) + list(aodict2.keys()))):
             break
 
         ## Compare the annotations (not done by default)
-        if opts.ANNOTATIONS:
-            for annotation in set(ao1.annotations + ao2.annotations):
+        if args.ANNOTATIONS:
+            for annotation in set(ao1.annotations() + ao2.annotations()):
                 if ao1.annotation(annotation) != ao2.annotation(annotation):
                     THISCLEAN = False
                     log("Data objects with path '%s' have different '%s' annotations ('%s' and '%s') in %s and %s" %
@@ -166,7 +178,7 @@ for path in sorted(set(list(aodict1.keys()) + list(aodict2.keys()))):
         break
 
     ## List failing path in list mode
-    if not THISCLEAN and opts.LIST and not opts.QUIET:
+    if not THISCLEAN and args.LIST and not args.QUIET:
         print(path)
 
     ## Aggregate total cleanliness flag
@@ -175,4 +187,4 @@ for path in sorted(set(list(aodict1.keys()) + list(aodict2.keys()))):
 if not CLEAN:
     sys.exit(1)
 
-sys.exit(0)
+# sys.exit(0)

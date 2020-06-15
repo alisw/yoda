@@ -20,6 +20,7 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
+#include <functional>
 #include <numeric>
 #include <cassert>
 #include <limits>
@@ -245,45 +246,97 @@ namespace YODA {
   /// @name Binning helper functions
   //@{
 
-  /// @brief Make a list of @a nbins + 1 values equally spaced between @a start and @a end inclusive.
+  /// @brief Make a list of @a nbins + 1 values uniformly spaced between @a xmin and @a xmax inclusive.
   ///
-  /// NB. The arg ordering and the meaning of the nbins variable is "histogram-like",
+  /// @note The arg ordering and the meaning of the nbins variable is "histogram-like",
   /// as opposed to the Numpy/Matlab version.
-  inline std::vector<double> linspace(size_t nbins, double start, double end, bool include_end=true) {
-    assert(end >= start);
+  inline std::vector<double> linspace(size_t nbins, double xmin, double xmax, bool include_end=true) {
+    assert(xmax >= xmin);
     assert(nbins > 0);
     std::vector<double> rtn;
-    const double interval = (end-start)/static_cast<double>(nbins);
+    const double interval = (xmax-xmin)/static_cast<double>(nbins);
     for (size_t i = 0; i < nbins; ++i) {
-      rtn.push_back(start + i*interval);
+      rtn.push_back(xmin + i*interval);
     }
     assert(rtn.size() == nbins);
-    if (include_end) rtn.push_back(end); // exact end, not result of n * interval
+    if (include_end) rtn.push_back(xmax); // exact xmax, not result of n * interval
     return rtn;
   }
 
 
-  /// @brief Make a list of @a nbins + 1 values exponentially spaced between @a start and @a end inclusive.
+  /// @brief Make a list of @a nbins + 1 values uniformly spaced in log(x) between @a xmin and @a xmax inclusive.
   ///
-  /// NB. The arg ordering and the meaning of the nbins variable is "histogram-like",
-  /// as opposed to the Numpy/Matlab version, and the start and end arguments are expressed
-  /// in "normal" space, rather than as the logarithms of the start/end values as in Numpy/Matlab.
-  inline std::vector<double> logspace(size_t nbins, double start, double end, bool include_end=true) {
-    assert(end >= start);
-    assert(start > 0);
+  /// @note The arg ordering and the meaning of the nbins variable is "histogram-like",
+  /// as opposed to the Numpy/Matlab version, and the xmin and xmax arguments are expressed
+  /// in "normal" space, rather than as the logarithms of the xmin/xmax values as in Numpy/Matlab.
+  inline std::vector<double> logspace(size_t nbins, double xmin, double xmax, bool include_end=true) {
+    assert(xmax >= xmin);
+    assert(xmin > 0);
     assert(nbins > 0);
-    const double logstart = std::log(start);
-    const double logend = std::log(end);
-    const std::vector<double> logvals = linspace(nbins, logstart, logend);
+    const double logxmin = std::log(xmin);
+    const double logxmax = std::log(xmax);
+    const std::vector<double> logvals = linspace(nbins, logxmin, logxmax);
     assert(logvals.size() == nbins+1);
     std::vector<double> rtn; rtn.reserve(logvals.size());
-    rtn.push_back(start);
+    rtn.push_back(xmin);
     for (size_t i = 1; i < logvals.size()-1; ++i) {
       rtn.push_back(std::exp(logvals[i]));
     }
     assert(rtn.size() == nbins);
-    if (include_end) rtn.push_back(end);
+    if (include_end) rtn.push_back(xmax);
     return rtn;
+  }
+
+
+  /// @todo fspace() for uniform sampling from f(x); requires ability to invert fn... how, in general?
+  //inline std::vector<double> fspace(size_t nbins, double xmin, double xmax, std::function<double(double)>& fn) {
+
+
+  /// @brief Make a list of @a nbins + 1 values spaced with *density* ~ f(x) between @a xmin and @a end inclusive.
+  ///
+  /// The density function @a fn will be evaluated at @a nsample uniformly
+  /// distributed points between @a xmin and @a xmax, its integral approximated
+  /// via the Trapezium Rule and used to normalize the distribution, and @a
+  /// nbins + 1 edges then selected to (approximately) divide into bins each
+  /// containing fraction 1/@a nbins of the integral.
+  ///
+  /// @note The function @a fn does not need to be a normalized pdf, but it should be non-negative.
+  /// Any negative values returned by @a fn(x) will be truncated to zero and contribute nothing to
+  /// the estimated integral and binning density.
+  ///
+  /// @note The arg ordering and the meaning of the nbins variable is "histogram-like",
+  /// as opposed to the Numpy/Matlab version, and the xmin and xmax arguments are expressed
+  /// in "normal" space, rather than in the function-mapped space as with Numpy/Matlab.
+  ///
+  /// @note The naming of this function differs from the other, Matlab-inspired ones: the bin spacing is
+  /// uniform in the CDF of the density function given, rather than in the function itself. For
+  /// most use-cases this is more intuitive.
+  inline std::vector<double> pdfspace(size_t nbins, double xmin, double xmax, std::function<double(double)>& fn, size_t nsample=10000) {
+    const double dx = (xmax-xmin)/(double)nsample;
+    const std::vector<double> xs = linspace(nsample, xmin, xmax);
+    std::vector<double> ys(0, nsample);
+    auto posfn = [&](double x){return std::max(fn(x), 0.0);};
+    std::transform(xs.begin(), xs.end(), ys.begin(), posfn);
+    std::vector<double> areas; areas.reserve(nsample);
+    double areasum = 0;
+    for (size_t i = 0; i < ys.size()-1; ++i) {
+      const double area = (ys[i] + ys[i+1])*dx/2.0;
+      areas[i] = area;
+      areasum += area;
+    }
+    const double df = areasum/(double)nbins;
+    std::vector<double> xedges{xmin}; xedges.reserve(nbins+1);
+    double fsum = 0;
+    for (size_t i = 0; i < nsample-1; ++i) {
+      fsum += areas[i];
+      if (fsum > df) {
+        fsum = 0;
+        xedges.push_back(xs[i+1]);
+      }
+    }
+    xedges.push_back(xmax);
+    assert(xedges.size() == nbins+1);
+    return xedges;
   }
 
 

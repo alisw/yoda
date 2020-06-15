@@ -13,19 +13,24 @@ def as_bool(x):
     raise Exception("'{}' cannot be parsed as a boolean flag".format(s))
 
 
-def _autotype(var, autobool=True):
+def _autotype(var, autobool=False):
     """Automatically convert strings to numerical types if possible."""
     if type(var) is not str:
         return var
-    if var.isdigit() or (var.startswith("-") and var[1:].isdigit()):
-        return int(var)
+    ## Convert via Python ast parser
     try:
-        return float(var)
-    except: pass
-    if autobool:
+        import ast
+        var = ast.literal_eval(var)
+    except:
+        # TODO: print a warning?
+        pass
+    ## Try friendly string conversions to bool
+    if autobool and type(var) is str:
         try:
-            return as_bool(var)
-        except: pass
+            var = as_bool(var)
+        except:
+            pass
+    ## Finally return
     return var
 
 

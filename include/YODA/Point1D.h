@@ -52,13 +52,16 @@ namespace YODA {
     /// Copy constructor
     Point1D(const Point1D& p)
       : _x(p._x), _ex(p._ex)
-    {  }
+    {  
+      this->setParentAO( p.getParentAO());
+    }
 
 
     /// Copy assignment
     Point1D& operator = (const Point1D& p) {
       _x = p._x;
       _ex = p._ex;
+      this->setParentAO( p.getParentAO());
       return *this;
     }
 
@@ -90,24 +93,28 @@ namespace YODA {
 
     /// Get x-error values
     const std::pair<double,double>& xErrs(  std::string source="") const {
+      if (source!="") getVariationsFromParent();
       if (!_ex.count(source)) throw RangeError("xErrs has no such key: "+source);
       return _ex.at(source);
     }
 
     /// Get negative x-error value
     double xErrMinus( std::string source="") const {
+      if (source!="") getVariationsFromParent();
       if (!_ex.count(source)) throw RangeError("xErrs has no such key: "+source);
       return _ex.at(source).first;
     }
 
     /// Get positive x-error value
     double xErrPlus( std::string source="") const {
+      if (source!="") getVariationsFromParent();
       if (!_ex.count(source)) throw RangeError("xErrs has no such key: "+source);
       return _ex.at(source).second;
     }
 
     /// Get average x-error value
     double xErrAvg( std::string source="") const {
+      if (source!="") getVariationsFromParent();
       if (!_ex.count(source)) throw RangeError("xErrs has no such key: "+source);
       return (_ex.at(source).first + _ex.at(source).second)/2.0;
     }
@@ -148,12 +155,14 @@ namespace YODA {
 
     /// Get value minus negative x-error
     double xMin(std::string source="") const {
+      if (source!="") getVariationsFromParent();
       if (!_ex.count(source)) throw RangeError("xErrs has no such key: "+source);
       return _x - _ex.at(source).first;
     }
 
     /// Get value plus positive x-error
     double xMax(std::string source="") const {
+      if (source!="") getVariationsFromParent();
       if (!_ex.count(source)) throw RangeError("xErrs has no such key: "+source);
       return _x + _ex.at(source).second;
     }
@@ -215,8 +224,12 @@ namespace YODA {
 
     /// Get error map for direction @a i
     const std::map< std::string, std::pair<double,double>> & errMap() const {
+      getVariationsFromParent();
       return _ex;
     }
+    
+    // Parse the variations from the parent AO if it exists
+    void getVariationsFromParent() const;
 
     /// Get error values for direction @a i
     const std::pair<double,double>& errs(size_t i, std::string source="") const {

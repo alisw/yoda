@@ -46,10 +46,10 @@ cdef inline object new_borrowed_cls(object cls, void* ptr, object owner):
 
 
 ## Translation utility to allow use of 'Pythonic' negative indices
-cdef inline size_t pythonic_index(int i, size_t size) except? 0:
+cdef inline size_t pythonic_index(int i, size_t size) except ? 0:
     if i < 0:
         i += size
-    if 0 <= i < size:
+    if 0 <= i and i < size:
         return i
     else:
         raise IndexError

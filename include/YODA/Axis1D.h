@@ -568,11 +568,11 @@ namespace YODA {
     DBN _dbn;
 
     /// Under- and overflows
-    DBN _underflow;
-    DBN _overflow;
+    DBN _underflow, _overflow;
 
     // Binsearcher, for searching bins
     Utils::BinSearcher _binsearcher;
+
     // Mapping from binsearcher indices to bin indices (allowing gaps)
     std::vector<long> _indexes;
 

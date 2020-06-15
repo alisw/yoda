@@ -10,21 +10,21 @@ cdef class Bin(util.Base):
             del p
 
 
-    @property
+    #@property
     def dim(self):
         """None -> int
         Dimension of the fill space (should match containing Histo/Profile)"""
         return self.bptr().dim()
 
 
-    @property
+    #@property
     def numEntries(self):
         """
         The number of entries that have filled the bin.
         """
         return self.bptr().numEntries()
 
-    @property
+    #@property
     def effNumEntries(self):
         """
         The effective number of entries in the bin.
@@ -34,14 +34,14 @@ cdef class Bin(util.Base):
         return self.bptr().effNumEntries()
 
 
-    @property
+    #@property
     def sumW(self):
         """
         The sum of weights: sum(weights).
         """
         return self.bptr().sumW()
 
-    @property
+    #@property
     def sumW2(self):
         """
         The sum of weights-squared: sum(weights * weights)

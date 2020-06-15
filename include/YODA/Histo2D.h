@@ -241,6 +241,20 @@ namespace YODA {
     /// @name Bin accessors
     //@{
 
+    /// All bin edges on this histo's x axis
+    ///
+    /// @note This only returns the finite edges, i.e. -inf and +inf are removed
+    /// @todo Make the +-inf stripping controllable by a default-valued bool arg
+    const std::vector<double> xEdges() const { return _axis.xEdges(); }
+
+    /// All bin edges on this histo's y axis
+    ///
+    /// @note This only returns the finite edges, i.e. -inf and +inf are removed
+    /// @todo Make the +-inf stripping controllable by a default-valued bool arg
+    const std::vector<double> yEdges() const { return _axis.yEdges(); }
+
+    /// @todo Add xMins, xMaxs, xMids, xFoci, and y-versions
+
     /// Low x edge of this histo's axis
     double xMin() const { return _axis.xMin(); }
 

@@ -16,7 +16,7 @@ cdef extern from "errors.hh":
 
 ctypedef map[string, string] Annotations
 ctypedef double (*dbl_dbl_fptr) (double)
-ctypedef map[string, pair[double,double]] errMap 
+ctypedef map[string, pair[double,double]] errMap
 
 
 # Math utils {{{
@@ -255,7 +255,7 @@ cdef extern from "YODA/Point.h" namespace "YODA":
         # void set(size_t i, double val, double eminus, double eplus) except +yodaerr
         void set(size_t i, double val, pair[double,double]& e) except +yodaerr
         void set(size_t i, double val, pair[double,double]& e, string source) except +yodaerr
-        
+
         errMap errMap() except +yodaerr
 
 #}}} Point
@@ -777,8 +777,12 @@ cdef extern from "YODA/Scatter1D.h" namespace "YODA":
         void combineWith(const vector[Scatter1D]&) #except +yodaerr
 
         void scaleX(double) except +yodaerr
-        
+
+        void parseVariations() except +yodaerr
+
         vector[string] variations() except +yodaerr
+
+        vector[vector[double]] covarianceMatrix(bool) except +yodaerr
 
     void Scatter1D_transformX "YODA::transformX" (Scatter1D&, dbl_dbl_fptr)
 
@@ -835,7 +839,10 @@ cdef extern from "YODA/Scatter2D.h" namespace "YODA":
         void scaleXY(double, double) except +yodaerr
         #void scale(double, double) except +yodaerr
 
+        void parseVariations() except +yodaerr
         vector[string] variations() except +yodaerr
+
+        vector[vector[double]] covarianceMatrix(bool) except +yodaerr
 
     void Scatter2D_transformX "YODA::transformX" (Scatter2D&, dbl_dbl_fptr)
     void Scatter2D_transformY "YODA::transformY" (Scatter2D&, dbl_dbl_fptr)
@@ -895,8 +902,12 @@ cdef extern from "YODA/Scatter3D.h" namespace "YODA":
         void scaleZ(double) except +yodaerr
         void scaleXYZ(double, double, double) except +yodaerr
         #void scale(double, double, double) except +yodaerr
-        
+
+        void parseVariations() except +yodaerr
         vector[string] variations() except +yodaerr
+
+        vector[vector[double]] covarianceMatrix() except +yodaerr
+        vector[vector[double]] covarianceMatrix(bool) except +yodaerr
 
     void Scatter3D_transformX "YODA::transformX" (Scatter3D&, dbl_dbl_fptr)
     void Scatter3D_transformY "YODA::transformY" (Scatter3D&, dbl_dbl_fptr)
@@ -960,11 +971,13 @@ cdef extern from "YODA/Histo1D.h" namespace "YODA":
         void addBins(vector[double] edges) except +yodaerr
         void eraseBin(size_t index) except +yodaerr
 
-        double xMin() except +yodaerr
-        double xMax() except +yodaerr
         vector[double] xEdges() except +yodaerr
 
+        double xMin() except +yodaerr
+        double xMax() except +yodaerr
+
         size_t numBins() except +yodaerr
+        size_t numBinsX() except +yodaerr
 
         vector[HistoBin1D]& bins()
         int binIndexAt(double x) except +yodaerr
@@ -1071,6 +1084,9 @@ cdef extern from "YODA/Histo2D.h" namespace "YODA":
         void addBins(const vector[double]& edges) except +yodaerr
         # void eraseBin(size_t index) except +yodaerr
 
+        vector[double] xEdges() except +yodaerr
+        vector[double] yEdges() except +yodaerr
+
         double xMin() except +yodaerr
         double xMax() except +yodaerr
         double yMin() except +yodaerr
@@ -1167,12 +1183,13 @@ cdef extern from "YODA/Profile1D.h" namespace "YODA":
         void addBins(vector[double] edges) except +yodaerr
         # TODO: void eraseBin(size_t index) except +yodaerr
 
+        vector[double] xEdges() except +yodaerr
+
         double xMin() except +yodaerr
         double xMax() except +yodaerr
 
-        vector[double] xEdges() except +yodaerr
-
         size_t numBins() except +yodaerr
+        size_t numBinsX() except +yodaerr
 
         vector[ProfileBin1D] bins() #except +yodaerr
         int binIndexAt(double x) except +yodaerr
@@ -1266,6 +1283,9 @@ cdef extern from "YODA/Profile2D.h" namespace "YODA":
         void addBin(const pair[double, double]&, const pair[double, double]&) except +yodaerr
         void addBins(const vector[double]&, const vector[double]&) except +yodaerr
         # void eraseBin(size_t index) except +yodaerr
+
+        vector[double] xEdges() except +yodaerr
+        vector[double] yEdges() except +yodaerr
 
         double xMin() except +yodaerr
         double xMax() except +yodaerr

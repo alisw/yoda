@@ -1,3 +1,157 @@
+2020-05-08  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Release 1.8.2.
+
+2020-04-28  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Fix off-by-one error in Axis2D.numBinsX/Y() return values, fixing Histo2D and Profile2D.
+
+	* Add numBinsX() methods to the 1D histogram and profile classes.
+
+2020-04-26  Christian Gutschow <chris.g@cern.ch>
+
+	* Py3 compatibility fix
+
+2020-04-23  Valentin Boettcher <hiro@protagon.space>
+
+	* Fix call to `Histo1D.annotationsDict`
+
+2020-04-03  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Release 1.8.1
+
+2020-02-26  Jon Butterworth <J.Butterworth@ucl.ac.uk>
+
+	* Fix list-return read YODA-format function.
+
+2020-02-21  Alison Clarke <alison.r.clarke@durham.ac.uk>
+
+	* Removed unwanted space at end of headers.
+
+	* Set correct dimension when calling setErrs.
+
+	* Added zerrs to 3DScatter headers.
+
+2020-02-20  Alison Clarke <alison.r.clarke@durham.ac.uk>
+
+	* Added xErrs, yErrs, zErrs to Scatter3D.pyx
+
+2020-02-10  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add underflow and overflow reporting to the verbose yodals printout.
+
+2020-02-08  Louie Corpe <louie.dartmoor.corpe@cern.ch>
+
+	* Re-instate title() and fix bug in z-error storage for scatter 3Ds.
+
+2020-02-07  Christian Gutschow <chris.g@cern.ch>
+
+	* Python3 compatibility tweaks
+
+2020-02-03  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add a pdfspace() function in C++ and a Python equivalent
+	-- recoded rather than mapped, due to the technical implications of
+	passing Python callables as std::functions -- for custom binning
+	from a density function.
+
+2020-01-24  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Fix YODA 1.7 style call to AO.dim.
+
+2020-01-22  Louie Corpe <louie.dartmoor.corpe@cern.ch>
+
+	* Update yodamerge ao_out.point(i).setVal(dim, val_i)
+
+2020-01-14  Dmitry Kalinkin <dmitry.kalinkin@gmail.com>
+
+	* IO.pyx: missing python3 compatibility
+
+2020-01-14  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Sort dicts on IO write(), and return ordered dicts in read mode if possible.
+
+2019-12-20  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Release 1.8.0.
+
+2019-11-01  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add extra optional bool arguments to the mkScatter converter
+	functions for Histo1D and Histo2D types.
+
+	* Force rebuild of the Python interface if a sufficient Cython is
+	found, even if the generated .cpp file is present at
+	configure-time.
+
+2019-09-05  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Final conversion to use ast module not just in autotype but as
+	first choice in AO.annotation.
+
+2019-08-20  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Remove ALL uses of @property in the Python interfaces: all
+	methods must have call-parentheses now.
+
+2019-07-30  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Improve Python annotation parsing to preferentially use ast rather than yaml.
+
+2019-06-21  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add x/yErrs and x/yErrAvgs functions to Scatter2D Python.
+
+2019-06-018  Louie Corpe <lcorpe@cern.ch>
+
+	* Release 1.7.7
+
+	* Fix printing of YAML annotations.
+
+	* Fix Python 3 / Unicode compatibility for Point.pyx.
+
+2019-06-07  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Release 1.7.6
+
+2019-06-06  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add xEdges and yEdges methods to the 2D Histo and Profile classes, in C++ and Python.
+
+	* Remove @property attributes from Python xEdges methods. More of that to come in version 1.8.0.
+
+2019-05-26  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Fix Python3/argparse attribute access bug in yodamerge.
+
+2019-05-09  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Release 1.7.5
+
+2019-05-06  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Convert bin/* scripts to use Python3-compatible argparse rather than old optparse.
+
+2019-05-02 Christian Gutschow <chris.g@cern.ch>
+
+	* Fix Histo1D::integralRange to include the second-argument bin content as described in the docstring.
+
+2019-04-29  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Fix Python3 StringIO import compatibility -- thanks to Tom Neep for the patch!
+
+2019-03-05  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add -m/-M filtering to yodadiff.
+
+2019-02-27  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Fix HistoBin2D printing in Python interface.
+
+2019-02-17  Jon Butterworth  <j.butterworth@ucl.ac.uk>
+
+	* Protect yodamerge against zero-valued (?!) ScaledBy attributes.
+
 2018-12-10  Andy Buckley  <andy.buckley@cern.ch>
 
 	* Release 1.7.4

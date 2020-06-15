@@ -110,14 +110,14 @@ namespace YODA {
     /// perfectly regular gridded bins. For irregular binnings, this is
     /// the number of cuts that were necessary to grid the data.
     size_t numBinsX() const {
-      return _nx;
+      return _nx-1;
     }
 
     /// Get the number of bins on the y-axis. This is only sensible for
     /// perfectly regular gridded bins. For irregular binnings, this is
     /// the number of cuts that were necessary to grid the data.
     size_t numBinsY() const {
-      return _ny;
+      return _ny-1;
     }
 
     //@}
@@ -159,21 +159,11 @@ namespace YODA {
     /// their respective factors.
     void scaleXY(double sx, double sy) {
       _dbn.scaleXY(sx, sy);
-      /// @todo Reinstate when C++11 allowed in API
-      // for (Outflow& outflow : _outflows)
-      //   for (DBN& dbn : outflow)
-      //     dbn.scaleXY(sx, sy);
-      for (size_t io = 0; io < _outflows.size(); ++io) {
-        Outflow& outflow = _outflows[io];
-        for (size_t id = 0; id < outflow.size(); ++id) {
-          DBN& dbn = outflow[id];
+      for (Outflow& outflow : _outflows)
+        for (DBN& dbn : outflow)
           dbn.scaleXY(sx, sy);
-        }
-      }
-      /// @todo Reinstate when C++11 allowed in API
-      // for (Bin& bin : _bins)
-      //   bin.scaleXY(sx, sy);
-      for (size_t ib = 0; ib < _bins.size(); ++ib) _bins[ib].scaleXY(sx, sy);
+      for (Bin& b : _bins)
+        b.scaleXY(sx, sy);
       _updateAxis(_bins);
     }
 
@@ -182,21 +172,11 @@ namespace YODA {
     /// scalefactor.
     void scaleW(double scalefactor) {
       _dbn.scaleW(scalefactor);
-      /// @todo Reinstate when C++11 allowed in API
-      // for (Outflow& outflow : _outflows)
-      //   for (DBN& dbn : outflow)
-      //     dbn.scaleW(scalefactor);
-      for (size_t io = 0; io < _outflows.size(); ++io) {
-        Outflow& outflow = _outflows[io];
-        for (size_t id = 0; id < outflow.size(); ++id) {
-          DBN& dbn = outflow[id];
+      for (Outflow& outflow : _outflows)
+        for (DBN& dbn : outflow)
           dbn.scaleW(scalefactor);
-        }
-      }
-      /// @todo Reinstate when C++11 allowed in API
-      // for (Bin& bin : _bins)
-      //   bin.scaleW(scalefactor);
-      for (size_t ib = 0; ib < _bins.size(); ++ib) _bins[ib].scaleW(scalefactor);
+      for (Bin& bin : _bins)
+        bin.scaleW(scalefactor);
       _updateAxis(_bins);
     }
 
@@ -318,6 +298,9 @@ namespace YODA {
     void _setLock(bool locked) { _locked = locked; }
 
 
+    /// @todo Add xMins, xMaxs, xMids, xFoci, and y-versions
+
+
     /// Return the lowest-valued bin edge along the x-axis
     double xMin() const { return _xRange.first; }
 
@@ -330,6 +313,25 @@ namespace YODA {
 
     /// Return the highest-valued bin edge along the y-axis
     double yMax() const { return _yRange.second; }
+
+
+    /// Return all the NbinX+1 bin edges on the x-axis
+    ///
+    /// @note This only returns the finite edges, i.e. -inf and +inf are removed
+    /// @todo Make the +-inf stripping controllable by a default-valued bool arg
+    std::vector<double> xEdges() const {
+      std::vector<double> rtn(_binSearcherX.edges().begin()+1, _binSearcherX.edges().end()-1);
+      return rtn;
+    }
+
+    /// Return all the NbinY+1 bin edges on the y-axis
+    ///
+    /// @note This only returns the finite edges, i.e. -inf and +inf are removed
+    /// @todo Make the +-inf stripping controllable by a default-valued bool arg
+    std::vector<double> yEdges() const {
+      std::vector<double> rtn(_binSearcherY.edges().begin()+1, _binSearcherY.edges().end()-1);
+      return rtn;
+    }
 
 
     /// Add a bin, providing its x- and y- edge ranges
@@ -353,10 +355,8 @@ namespace YODA {
       if (bins.size() == 0) return;
       _checkUnlocked();
       Bins newBins = _bins;
-      /// @todo Reinstate when C++11 allowed in API
-      // for (const Bin& b : bins)
-      //   newBins.push_back(b);
-      for (size_t ib = 0; ib < bins.size(); ++ib) newBins.push_back(bins[ib]);
+      for (const Bin& b : bins)
+        newBins.push_back(b);
       _updateAxis(newBins);
     }
 
@@ -638,18 +638,15 @@ namespace YODA {
     Outflows _outflows;
 
     // Binsearcher, for searching bins
-    Utils::BinSearcher _binSearcherX;
-    Utils::BinSearcher _binSearcherY;
+    Utils::BinSearcher _binSearcherX, _binSearcherY;
 
-    EdgePair1D _xRange;
-    EdgePair1D _yRange;
+    EdgePair1D _xRange, _yRange;
 
     // Mapping from bin-searcher indices to bin indices (allowing gaps)
     std::vector<ssize_t> _indexes;
 
-    // Necessary for bounds checking and indexing
-    size_t _nx;
-    size_t _ny;
+    // Numbers of edges on axes (necessary for bounds checking and indexing)
+    size_t _nx, _ny;
 
     /// Whether modifying bin edges is permitted
     bool _locked;

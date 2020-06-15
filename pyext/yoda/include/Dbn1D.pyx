@@ -62,69 +62,69 @@ cdef class Dbn1D(util.Base):
         self.d1ptr().scaleX(x)
 
 
-    @property
+    #@property
     def xMean(self):
         """Weighted mean of x"""
         return self.d1ptr().xMean()
-    
-    @property
+
+    #@property
     def xVariance(self):
         """Weighted variance of x"""
         return self.d1ptr().xVariance()
 
-    @property
+    #@property
     def xStdDev(self):
         """Weighted standard deviation of x"""
         return self.d1ptr().xStdDev()
 
-    @property
+    #@property
     def xStdErr(self):
         """Weighted standard error on <x>"""
         return self.d1ptr().xStdErr()
 
-    @property
+    #@property
     def xRMS(self):
         """Weighted root mean squared (RMS) of x"""
         return self.d1ptr().xRMS()
 
-    @property
+    #@property
     def numEntries(self):
         """The number of entries"""
         return self.d1ptr().numEntries()
 
-    @property
+    #@property
     def effNumEntries(self):
         """Effective number of entries (for weighted events)"""
         return self.d1ptr().effNumEntries()
 
 
-    @property
+    #@property
     def errW(self):
         """Error on sumW"""
         return self.d1ptr().errW()
 
-    @property
+    #@property
     def relErrW(self):
         """Relative error on sumW"""
         return self.d1ptr().relErrW()
 
 
-    @property
+    #@property
     def sumW(self):
         """sum(weights)"""
         return self.d1ptr().sumW()
 
-    @property
+    #@property
     def sumW2(self):
         """sum(weights * weights)"""
         return self.d1ptr().sumW2()
 
-    @property
+    #@property
     def sumWX(self):
         """sum(weights * xs)"""
         return self.d1ptr().sumWX()
 
-    @property
+    #@property
     def sumWX2(self):
         """sum(weights * xs * xs)"""
         return self.d1ptr().sumWX2()

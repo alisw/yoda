@@ -9,12 +9,12 @@ for i in range(1000):
 
 s = h1 / h2
 print(s)
-for p in s.points:
+for p in s.points():
     print(" ", p)
 
 print()
 
 s = h1.divideBy(h2)
 print(s)
-for p in s.points:
+for p in s.points():
     print(" ", p)

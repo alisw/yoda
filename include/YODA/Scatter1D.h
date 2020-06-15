@@ -140,6 +140,8 @@ namespace YODA {
 
 
     ///////////////////////////////////////////////////
+    
+    void parseVariations() ;
 
     /// Get the list of variations stored in the points
     const std::vector<std::string> variations() const ;
@@ -191,22 +193,30 @@ namespace YODA {
 
     /// Insert a new point, defined as the x value and no errors
     void addPoint(double x) {
-      _points.insert(Point1D(x));
+      Point1D thisPoint=Point1D(x);
+      thisPoint.setParentAO(this); 
+      _points.insert(thisPoint);
     }
 
     /// Insert a new point, defined as the x value and symmetric errors
     void addPoint(double x, double ex) {
-      _points.insert(Point1D(x, ex));
+      Point1D thisPoint=Point1D(x, ex);
+      thisPoint.setParentAO(this); 
+      _points.insert(thisPoint);
     }
 
     /// Insert a new point, defined as the x value and an asymmetric error pair
     void addPoint(double x, const std::pair<double,double>& ex) {
-      _points.insert(Point1D(x, ex));
+      Point1D thisPoint=Point1D(x, ex);
+      thisPoint.setParentAO(this); 
+      _points.insert(thisPoint);
     }
 
     /// Insert a new point, defined as the x value and explicit asymmetric errors
     void addPoint(double x, double exminus, double explus) {
-      _points.insert(Point1D(x, exminus, explus));
+      Point1D thisPoint=Point1D(x, exminus, explus);
+      thisPoint.setParentAO(this); 
+      _points.insert(thisPoint);
     }
 
     /// Insert a collection of new points
@@ -252,6 +262,8 @@ namespace YODA {
   private:
 
     Points _points;
+    
+    bool _variationsParsed =false ;
 
   };
 
@@ -293,7 +305,7 @@ namespace YODA {
   }
 
   //@}
-
+   
 
   /////////////////////////////////
 
@@ -323,7 +335,7 @@ namespace YODA {
   }
 
   //@}
-
+  
 
 }
 

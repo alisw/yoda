@@ -16,31 +16,31 @@ cdef class ProfileBin2D(Bin2D_Dbn3D):
     # def fill_bin(self, z, weight=1.0, fraction=1.0):
     #     self.pb2ptr().fillBin(z, weight, fraction)
 
-    @property
+    #@property
     def mean(self):
         return self.pb2ptr().mean()
 
-    @property
+    #@property
     def stdDev(self):
         return self.pb2ptr().stdDev()
-    
-    @property
+
+    #@property
     def variance(self):
         return self.pb2ptr().variance()
 
-    @property
+    #@property
     def stdErr(self):
         return self.pb2ptr().stdErr()
-    
-    @property
+
+    #@property
     def rms(self):
         return self.pb2ptr().rms()
 
-    @property
+    #@property
     def sumWZ(self):
         return self.pb2ptr().sumWZ()
 
-    @property
+    #@property
     def sumWZ2(self):
         return self.pb2ptr().sumWZ2()
 

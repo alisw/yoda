@@ -20,7 +20,7 @@ cdef class Axis2D_${BIN2D}_${DBN}(util.Base):
             ny, pair[double, double](yl, yu)))
 
 
-    @property
+    #@property
     def numBins(self):
         return self._Axis1D().bins().size()
 
@@ -37,7 +37,7 @@ cdef class Axis2D_${BIN2D}_${DBN}(util.Base):
         return "<Axis2D with %d bins>" % self.numBins
 
 
-    @property
+    #@property
     def totalDbn(self):
         return cutil.new_owned_cls(
             ${DBN}, new c.${DBN}(self.a2ptr().totalDbn()))
@@ -45,11 +45,11 @@ cdef class Axis2D_${BIN2D}_${DBN}(util.Base):
     def addBin(self, a, b, c, d):
         self.a2ptr().addBin(a, b, c, d)
 
-    @property
+    #@property
     def outflow(self, ix, iy):
         return cutil.new_owned_cls(${DBN}, new c.${DBN}(self.a2ptr().outflow(ix, iy)))
 
-    @property
+    #@property
     def edges(self):
         return util.XY(
             util.EdgePair(self.a2ptr().xMin(), self.a2ptr().xMax()),

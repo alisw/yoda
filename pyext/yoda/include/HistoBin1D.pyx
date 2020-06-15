@@ -26,7 +26,7 @@ cdef class HistoBin1D(Bin1D_Dbn1D):
     #     self.hb1ptr().fillBin(weight, fraction)
 
 
-    @property
+    #@property
     def area(self):
         """
         b.area <==> b.sumW
@@ -36,7 +36,7 @@ cdef class HistoBin1D(Bin1D_Dbn1D):
         """
         return self.hb1ptr().area()
 
-    @property
+    #@property
     def height(self):
         """
         b.height <==> b.area / b.width
@@ -46,7 +46,7 @@ cdef class HistoBin1D(Bin1D_Dbn1D):
         """
         return self.hb1ptr().height()
 
-    @property
+    #@property
     def areaErr(self):
         """
         Error computed using binomial statistics on squared sum of bin
@@ -54,7 +54,7 @@ cdef class HistoBin1D(Bin1D_Dbn1D):
         """
         return self.hb1ptr().areaErr()
 
-    @property
+    #@property
     def heightErr(self):
         """
         Height error - scales the s.areaError by the reciprocal of the
@@ -62,7 +62,7 @@ cdef class HistoBin1D(Bin1D_Dbn1D):
         """
         return self.hb1ptr().heightErr()
 
-    @property
+    #@property
     def relErr(self):
         """
         Relative error - same for either area or height interpretations.

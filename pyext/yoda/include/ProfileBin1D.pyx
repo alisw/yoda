@@ -40,38 +40,38 @@ cdef class ProfileBin1D(Bin1D_Dbn2D):
     #     self.pb1ptr().scaleY(ay)
 
 
-    @property
+    #@property
     def mean(self):
         """The mean of the y-values that have filled the bin."""
         return self.pb1ptr().mean()
 
-    @property
+    #@property
     def variance(self):
         """The variance of the y-values that have filled the bin."""
         return self.pb1ptr().variance()
 
-    @property
+    #@property
     def stdDev(self):
         """The standard deviation of the y-values that have filled the bin."""
         return self.pb1ptr().stdDev()
-    
-    @property
+
+    #@property
     def stdErr(self):
         """The standard error of the y-values that have filled the bin."""
         return self.pb1ptr().stdErr()
-    
-    @property
+
+    #@property
     def rms(self):
         """The RMS of the y-values that have filled the bin."""
         return self.pb1ptr().rms()
 
 
-    @property
+    #@property
     def sumWY(self):
         """sum(weights * ys)"""
         return self.pb1ptr().sumWY()
 
-    @property
+    #@property
     def sumWY2(self):
         """sum(weights * ys * ys)"""
         return self.pb1ptr().sumWY2()
