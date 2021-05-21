@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_HistoBin2D_h
 #define YODA_HistoBin2D_h
@@ -22,7 +22,7 @@ namespace YODA {
   public:
 
     /// @name Constructors
-    //@{
+    /// @{
 
     /// Make a new, empty bin with two pairs of edges.
     HistoBin2D(double xmin, double xmax, double ymin, double ymax)
@@ -54,11 +54,11 @@ namespace YODA {
       return *this;
     }
 
-    //@}
+    /// @}
 
 
     /// @name Modifiers
-    //@{
+    /// @{
 
     /// A fill() function accepting coordinates as separate numbers
     ///
@@ -86,11 +86,11 @@ namespace YODA {
       Bin2D<Dbn2D>::reset();
     }
 
-    //@}
+    /// @}
 
 
     /// @name Accessors
-    //@{
+    /// @{
 
     /// The volume of a bin
     double volume() const {
@@ -117,11 +117,11 @@ namespace YODA {
       return sumW2() != 0 ? sqrt(sumW2()) / sumW() : 0;
     }
 
-    //@}
+    /// @}
 
 
     /// @name Transformers
-    //@{
+    /// @{
 
     // /// @brief Transformer taking x as the primary axis of ProfileBin1D
     // ///
@@ -140,7 +140,7 @@ namespace YODA {
     //   return ret;
     // }
 
-    //@}
+    /// @}
   };
 
 

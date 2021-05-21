@@ -17,7 +17,7 @@ cdef class Bin1D_${DBN}(Bin):
         cutil.set_owned_ptr(self, new c.Bin1D_${DBN}(pair[double, double](xlow, xhigh)))
 
     def __repr__(self):
-        return '<%s x=[%g, %g)>' % (self.__class__.__name__, self.xMin, self.xMax)
+        return '<%s x=[%g, %g)>' % (self.__class__.__name__, self.xMin(), self.xMax())
 
 
     # def scaleX(self, ax):
@@ -35,37 +35,30 @@ cdef class Bin1D_${DBN}(Bin):
     #     self.b1ptr().scaleW(a)
 
 
-    #@property
     def xEdges(self):
         """The lower and upper edges."""
-        return (self.xMin, self.xMax)
+        return (self.xMin(), self.xMax())
 
-    #@property
     def xMin(self):
         """The lower bin edge."""
         return self.b1ptr().xMin()
 
-    #@property
     def xMax(self):
         """The upper bin edge."""
         return self.b1ptr().xMax()
 
-    #@property
     def xMid(self):
         """The midpoint of the bin."""
         return self.b1ptr().xMid()
 
-    #@property
     def xWidth(self):
         """The width of the bin."""
         return self.b1ptr().xWidth()
 
-    #@property
     def xMean(self):
         """The mean of the x-values that have filled the bin."""
         return self.b1ptr().xMean()
 
-    #@property
     def xFocus(self):
         """
         The focus of the bin. If the bin has been filled, then this
@@ -74,28 +67,24 @@ cdef class Bin1D_${DBN}(Bin):
         """
         return self.b1ptr().xFocus()
 
-    #@property
     def xVariance(self):
         """
         The variance of the x-values that have filled the bin.
         """
         return self.b1ptr().xVariance()
 
-    #@property
     def xStdDev(self):
         """
         The standard deviation of the x-values that have filled the bin.
         """
         return self.b1ptr().xStdDev()
 
-    #@property
     def xStdErr(self):
         """
         The standard error of the x-values that have filled the bin.
         """
         return self.b1ptr().xStdErr()
 
-    #@property
     def xRMS(self):
         """
         The root-mean-square of the x-values that have filled the bin.
@@ -104,14 +93,12 @@ cdef class Bin1D_${DBN}(Bin):
 
 
 
-    #@property
     def sumWX(self):
         """
         The sum of weights-times-x: sum(weights * x)
         """
         return self.b1ptr().sumWX()
 
-    #@property
     def sumWX2(self):
         """
         The sum of weights-times-x-squared: sum(weights * x * x)

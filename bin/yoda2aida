@@ -10,7 +10,7 @@ It will die when AIDA does! Which is *soon*...
 """
 
 import yoda, os, sys, argparse
-from yoda.script_helpers import parse_x2y_args, filter_aos
+from yoda.script_helpers import parse_x2y_args
 
 parser = argparse.ArgumentParser(usage=__doc__)
 parser.add_argument("ARGS", nargs="+", help="infile [outfile]")
@@ -28,6 +28,5 @@ if not in_out:
     sys.exit(1)
 
 for i, o in in_out:
-    analysisobjects = yoda.readYODA(i)
-    filter_aos(analysisobjects, args.MATCH, args.UNMATCH)
+    analysisobjects = yoda.readYODA(i, False, args.MATCH, args.UNMATCH)
     yoda.writeAIDA(analysisobjects, o)

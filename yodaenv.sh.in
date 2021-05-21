@@ -15,5 +15,6 @@ export PYTHONPATH="@YODA_PYTHONPATH@:$PYTHONPATH"
 # export LATEXINPUTS="@datadir@/Rivet/texmf/tex:$LATEXINPUTS"
 
 if (complete &> /dev/null); then
-    test -e "@datadir@/YODA/yoda-completion" && source "@datadir@/YODA/yoda-completion"
+    comppath="@sysconfdir@/bash_completion.d/yoda-completion"
+    test -e $comppath && source $comppath
 fi

@@ -1,18 +1,20 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_READER_H
 #define YODA_READER_H
 
 #include "YODA/AnalysisObject.h"
 #include "YODA/Utils/Traits.h"
+#include "YODA/Index.h"
 #include <string>
 #include <fstream>
 #include <vector>
 #include <type_traits>
 #include <iostream>
+#include <sstream>
 
 namespace YODA {
 
@@ -26,7 +28,7 @@ namespace YODA {
 
 
     /// @name Reading multiple analysis objects,
-    //@{
+    /// @{
 
     /// @brief Read in a collection of objects @a objs from output stream @a stream.
     ///
@@ -115,9 +117,43 @@ namespace YODA {
       return rtn;
     }
 
-    //@}
+    /// @}
 
 
+    /// @brief Make file index
+    ///
+    /// Makes an index of a file's contents.
+    ///
+    /// @param[in] filename Path to the file to index.
+    /// @return @sa Index
+    Index mkIndex(const std::string& filename) {
+      if (filename != "-") {
+        try {
+          std::ifstream instream;
+          instream.open(filename.c_str());
+          Index idx(mkIndex(instream));
+          instream.close();
+          return idx;
+        } catch (std::ifstream::failure& e) {
+          throw WriteError("Reading of filename " + filename +
+                           " failed: " + e.what());
+        }
+      } else {
+        try {
+          return mkIndex(std::cin);
+        } catch (std::runtime_error& e) {
+          throw ReadError("Reading from stdin failed: " + std::string(e.what()));
+        }
+      }
+    }
+
+    /// @brief Make stream index
+    ///
+    /// Makes an index of an input stream's contents.
+    ///
+    /// @param[in] stream Input stream to index.
+    /// @return @sa Index
+    virtual Index mkIndex(std::istream& stream) = 0;
   };
 
 

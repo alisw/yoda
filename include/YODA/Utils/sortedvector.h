@@ -19,7 +19,7 @@ namespace YODA {
     ///
     /// @warning This still scales as n^2 log n or so, if inserting n
     /// elements. Prefer to populate a whole std::vector first, then add, so the
-    /// sorting/searchin only needs to be done once.
+    /// sorting/searching only needs to be done once.
     ///
     /// @todo Need to template on the value-comparison definition?
     /// @todo Generalise the type of source container for constructor argument

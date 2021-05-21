@@ -1,3 +1,135 @@
+2021-03-31  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Version 1.9.0 release.
+
+	* Add missing inline declarations to free IO functions.
+
+	* Add fillDim() methods to the Bin, Bin1D and Bin2D classes.
+
+	* Rename the Point getParentAO etc. to getParent, using the new
+	Scatter base, and improve the accessor methods.
+
+	* Add Scatter base class to the Scatter classes, with rmPoints()
+	implemented there.
+
+	* Add Binned and Fillable base classes, the former introducing the
+	fillDim() method and rmBin(), and use them as ABCs for the
+	counter, histo and profile types.
+
+2021-03-30  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Allow YODA's Python interface to read from StringIO and FileIO objects.
+
+	* Add rmPoint() and rmPoints() methods on all Scatter types.
+
+2020-03-30  Christian Gutschow  <chris.g@cern.ch>
+
+	* Change scaleDim() to scale() for points and scatters
+
+2021-03-29  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Remove ROOT5 compatibility, and handle 6.22 change in PyROOT.
+
+2021-03-26  Christian Holm Christensen  <cholm@cern.ch>
+
+	* Fix out-of-source builds re. bash completions.
+
+	* Fixes to the Profile1D Python interface.
+
+2021-03-26  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add <limits> header include to AnalysisObject.h to support GCC11
+	(cf. http://gcc.gnu.org/gcc-11/porting_to.html)
+
+2020-12-10  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Restructure yodamerge to use pairwise merges, avoiding
+	simultaneous loading of all the input files and greatly speeding
+	up processing. Simultaneous simplification by replacement of
+	yodamerge stacking functionality with yodastack.
+
+2020-11-25  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Version 1.8.5
+
+2020-11-24  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add relErrs() functions to the H1D and H2D Python interfaces.
+
+	* Add an explicit configure test and override variable for the cython executable.
+
+2020-11-16  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Fix typo from xAvgErr -> xErrAvg in Scatter2D.xErrAvgs() Python function.
+
+2020-11-05  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Version 1.8.4
+
+2020-11-03  Christian Gutschow  <chris.g@cern.ch>
+
+	* Don't suppress cross-section-normalised empty histograms in yodamerge
+
+2020-11-03  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Use ROOT's ROOT_VERSION_CODE and ROOT_VERSION macros to handle
+	the changing TPython API.
+
+	* Do not apply bin-width scaling by default between YODA and ROOT
+	binned objects.
+
+	* Improve ROOT conversion utilities to support a fuller set of
+	width-scaling and focus-mapping options.
+
+	* Fix Point1D.setXErrs() function to handle sources and asymm
+	errors correctly.
+
+	* Map scatter reset() functions into Python.
+
+2020-08-31  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Create bash completion dir in $prefix/etc if it doesn't exist.
+>>>>>>> release-1-8
+
+2020-07-15  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Fix missing call-parentheses in Python-mapped Bin classes,
+	including in the __repr__ functions, which was making print(bin)
+	crash.
+
+2020-07-02  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Release 1.8.3
+
+2020-06-24  Dmitry Kalinkin <dmitry.kalinkin@gmail.com>
+
+	* The python method `Histo2D.addBins` was reimplemented using
+	`Histo2D::addBins()` C++ method instead of `Histo2D::addBin()` for
+	better performance.
+
+2020-06-24  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Make the low stats error for variances strictly require Neff >
+	1, rather than a fuzzy comparison that can cause trouble
+	downstream.
+
+2020-06-22  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Make xyMids,Foci,Errs,Mins,Maxs etc. runtime configurable with
+	'unique' and 'asgrid' optional params.
+
+	* Convert geometric axis-property array functions on Histo2D and
+	Profile2D to return the unique edges, mins, maxes, mids,
+	etc. rather than the heavily repeated versions for all the bins.
+
+2020-06-06  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Fix Histo2D.volumes() Python mapping, and add sumWs() functions to all histo types.
+
+	* Add asgrid optional arguments to value-related Python methods for Histo2D and Profile2D
+
+	* Add computation of Python versions and passing them to Cython as command-line flags.
+
 2020-05-08  Andy Buckley  <andy.buckley@cern.ch>
 
 	* Release 1.8.2.

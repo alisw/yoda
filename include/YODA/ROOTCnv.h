@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_ROOTCnv_h
 #define YODA_ROOTCnv_h
@@ -20,7 +20,7 @@ namespace YODA {
 
 
   /// @name Conversion functions from ROOT to YODA data types
-  //@{
+  /// @{
 
   /// @todo Check that direct Scatter filling gives the same result at mkScatter(h) for ROOT -> YODA
 
@@ -71,7 +71,7 @@ namespace YODA {
   /// Convert a ROOT 1D histogram (excluding TProfile) to a YODA Scatter2D
   ///
   /// The optional bool arg specifies whether or not to divide y vals/errs by bin width.
-  inline Scatter2D toScatter2D(const TH1& th1, bool scalebywidth=true) {
+  inline Scatter2D toScatter2D(const TH1& th1, bool scalebywidth=false) {
     Scatter2D rtn;
     for (int ix = 1; ix <= th1.GetNbinsX(); ++ix) {
       const TAxis& axx = *th1.GetXaxis();
@@ -96,18 +96,18 @@ namespace YODA {
 
 
   /// Convert a ROOT 1D histogram (excluding TProfile) to a YODA Scatter2D
-  inline Scatter2D toScatter2D(const TH1* th1, bool scalebywidth=true) {
+  inline Scatter2D toScatter2D(const TH1* th1, bool scalebywidth=false) {
     if (th1 == NULL) throw UserError("Null TH1 pointer passed as argument");
     return toScatter2D(*th1, scalebywidth);
   }
 
 
   /// Convert a ROOT 1D histogram (excluding TProfile) to a new'd YODA Scatter2D
-  inline Scatter2D* toNewScatter2D(const TH1& th1, bool scalebywidth=true) {
+  inline Scatter2D* toNewScatter2D(const TH1& th1, bool scalebywidth=false) {
     return toScatter2D(th1, scalebywidth).newclone();
   }
   /// Convert a ROOT 1D histogram (excluding TProfile) to a new'd YODA Scatter2D
-  inline Scatter2D* toNewScatter2D(const TH1* th1, bool scalebywidth=true) {
+  inline Scatter2D* toNewScatter2D(const TH1* th1, bool scalebywidth=false) {
     return toScatter2D(th1, scalebywidth).newclone();
   }
 
@@ -143,7 +143,7 @@ namespace YODA {
   /// Convert a ROOT 2D histogram to a YODA Scatter3D
   ///
   /// The optional bool arg specifies whether or not to divide y vals/errs by bin area.
-  inline Scatter3D toScatter3D(const TH2& th2, bool scalebyarea=true) {
+  inline Scatter3D toScatter3D(const TH2& th2, bool scalebyarea=false) {
     Scatter3D rtn;
     for (int ix = 1; ix <= th2.GetNbinsX(); ++ix) {
       for (int iy = 1; iy <= th2.GetNbinsY(); ++iy) {
@@ -180,18 +180,18 @@ namespace YODA {
 
 
   /// Convert a ROOT 2D histogram to a YODA Scatter3D
-  inline Scatter3D toScatter3D(const TH2* th2, bool scalebyarea=true) {
+  inline Scatter3D toScatter3D(const TH2* th2, bool scalebyarea=false) {
     if (th2 == NULL) throw UserError("Null TH2 pointer passed as argument");
     return toScatter3D(*th2, scalebyarea);
   }
 
 
   /// Convert a ROOT 2D histogram to a new'd YODA Scatter3D
-  inline Scatter3D* toNewScatter3D(const TH2& th2, bool scalebyarea=true) {
+  inline Scatter3D* toNewScatter3D(const TH2& th2, bool scalebyarea=false) {
     return toScatter3D(th2, scalebyarea).newclone();
   }
   /// Convert a ROOT 2D histogram to a new'd YODA Scatter3D
-  inline Scatter3D* toNewScatter3D(const TH2* th2, bool scalebyarea=true) {
+  inline Scatter3D* toNewScatter3D(const TH2* th2, bool scalebyarea=false) {
     return toScatter3D(th2, scalebyarea).newclone();
   }
 
@@ -202,7 +202,7 @@ namespace YODA {
   /// @todo Add toScatter2D(TGraph&/*) and toScatter3D(TGraph2D&/*)
 
 
-  //@}
+  /// @}
 
 
 
@@ -211,12 +211,12 @@ namespace YODA {
 
 
   /// @name Conversion functions from YODA to ROOT data types
-  //@{
+  /// @{
 
   /// @brief Convert a YODA Histo1D to a ROOT 1D histogram
   ///
   /// @todo Check/improve/extend -- needs SetBinError or not?
-  inline TH1D toTH1D(const Histo1D& h) {
+  inline TH1D toTH1D(const Histo1D& h, bool scalebywidth=false) {
     // Work out bin edges first
     std::vector<double> edges;
     edges.reserve(h.numBins()+1);
@@ -233,7 +233,7 @@ namespace YODA {
     for (int i = 1; i <= rtn.GetNbinsX(); ++i) {
       try {
         const HistoBin1D& b = h.binAt(rtn.GetBinCenter(i)); // throws if in a gap
-        rtn.SetBinContent(i, b.sumW());
+        rtn.SetBinContent(i, b.sumW() / (scalebywidth ? b.width() : 1));
         sumw2s[i] = b.sumW2();
       } catch (const Exception& e) {  }
     }
@@ -249,8 +249,8 @@ namespace YODA {
   }
 
   /// @brief Convert a YODA Histo1D to a ROOT 1D histogram as new'd pointer
-  inline TH1D* toNewTH1D(const Histo1D& h, const std::string& rootname) {
-    return (TH1D*) toTH1D(h).Clone(rootname.c_str());
+  inline TH1D* toNewTH1D(const Histo1D& h, const std::string& rootname, bool scalebywidth=false) {
+    return (TH1D*) toTH1D(h, scalebywidth).Clone(rootname.c_str());
   }
 
 
@@ -258,7 +258,7 @@ namespace YODA {
   /// @brief Convert a YODA Histo2D to a ROOT 2D histogram
   ///
   /// @todo Check/improve/extend -- needs SetBinError or not?
-  inline TH2D toTH2D(const Histo2D& h) {
+  inline TH2D toTH2D(const Histo2D& h, bool scalebyarea=false) {
     // Work out bin edges first
     std::vector<double> xedges, yedges;
     xedges.reserve(h.numBins()+1);
@@ -290,7 +290,7 @@ namespace YODA {
         try {
           //const HistoBin2D& b = h.binAt(rtn.GetBinCenter(ix), rtn.GetBinCenter(iy)); // throws if in a gap
           const HistoBin2D& b = h.binAt(rtn.GetXaxis()->GetBinCenter(ix), rtn.GetYaxis()->GetBinCenter(iy)); // throws if in a gap
-          rtn.SetBinContent(i, b.sumW());
+          rtn.SetBinContent(i, b.sumW() / (scalebyarea ? b.area() : 1));
           sumw2s[i] = b.sumW2();
         } catch (const Exception& e) {  }
       }
@@ -309,8 +309,8 @@ namespace YODA {
   }
 
   /// @brief Convert a YODA Histo2D to a ROOT 2D histogram as new'd pointer
-  inline TH2D* toNewTH2D(const Histo2D& h, const std::string& rootname) {
-    return (TH2D*) toTH2D(h).Clone(rootname.c_str());
+  inline TH2D* toNewTH2D(const Histo2D& h, const std::string& rootname, bool scalebyarea=false) {
+    return (TH2D*) toTH2D(h, scalebyarea).Clone(rootname.c_str());
   }
 
 
@@ -445,25 +445,28 @@ namespace YODA {
 
 
   /// @brief Convert a YODA Histo1D to a ROOT TGraphAsymmErrors
-  inline TGraphAsymmErrors toTGraph(const Histo1D& h) {
-    return toTGraph(mkScatter(h));
+  inline TGraphAsymmErrors toTGraph(const Histo1D& h,
+                                    bool usefocus=false, bool widthscale=false) {
+    return toTGraph(mkScatter(h, usefocus, widthscale));
   }
 
   /// @brief Convert a YODA Histo1D to a ROOT TGraphAsymmErrors as new'd pointer
-  inline TGraphAsymmErrors* toNewTGraph(const Histo1D& h, const std::string& rootname) {
-    return (TGraphAsymmErrors*) toTGraph(h).Clone(rootname.c_str());
+  inline TGraphAsymmErrors* toNewTGraph(const Histo1D& h, const std::string& rootname,
+                                        bool usefocus=false, bool widthscale=false) {
+    return (TGraphAsymmErrors*) toTGraph(h, usefocus, widthscale).Clone(rootname.c_str());
   }
 
 
 
   /// @brief Convert a YODA Profile1D to a ROOT TGraphAsymmErrors
-  inline TGraphAsymmErrors toTGraph(const Profile1D& p) {
-    return toTGraph(mkScatter(p));
+  inline TGraphAsymmErrors toTGraph(const Profile1D& p, bool usefocus=false) {
+    return toTGraph(mkScatter(p, usefocus));
   }
 
   /// @brief Convert a YODA Profile1D to a ROOT TGraphAsymmErrors as new'd pointer
-  inline TGraphAsymmErrors* toNewTGraph(const Profile1D& p, const std::string& rootname) {
-    return (TGraphAsymmErrors*) toTGraph(p).Clone(rootname.c_str());
+  inline TGraphAsymmErrors* toNewTGraph(const Profile1D& p, const std::string& rootname,
+                                        bool usefocus=false) {
+    return (TGraphAsymmErrors*) toTGraph(p, usefocus).Clone(rootname.c_str());
   }
 
 
@@ -472,7 +475,7 @@ namespace YODA {
 
 
 
-  //@}
+  /// @}
 
 
 }

@@ -1,3 +1,4 @@
+#! /usr/bin/env cython
 from collections import namedtuple
 from operator import itemgetter
 

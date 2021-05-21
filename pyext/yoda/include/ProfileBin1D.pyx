@@ -40,38 +40,31 @@ cdef class ProfileBin1D(Bin1D_Dbn2D):
     #     self.pb1ptr().scaleY(ay)
 
 
-    #@property
     def mean(self):
         """The mean of the y-values that have filled the bin."""
         return self.pb1ptr().mean()
 
-    #@property
     def variance(self):
         """The variance of the y-values that have filled the bin."""
         return self.pb1ptr().variance()
 
-    #@property
     def stdDev(self):
         """The standard deviation of the y-values that have filled the bin."""
         return self.pb1ptr().stdDev()
 
-    #@property
     def stdErr(self):
         """The standard error of the y-values that have filled the bin."""
         return self.pb1ptr().stdErr()
 
-    #@property
     def rms(self):
         """The RMS of the y-values that have filled the bin."""
         return self.pb1ptr().rms()
 
 
-    #@property
     def sumWY(self):
         """sum(weights * ys)"""
         return self.pb1ptr().sumWY()
 
-    #@property
     def sumWY2(self):
         """sum(weights * ys * ys)"""
         return self.pb1ptr().sumWY2()
@@ -92,3 +85,6 @@ cdef class ProfileBin1D(Bin1D_Dbn2D):
     def __sub__(ProfileBin1D a, ProfileBin1D b):
         return cutil.new_owned_cls(ProfileBin1D,
                                    new c.ProfileBin1D(deref(a.pb1ptr()) - deref(b.pb1ptr())))
+
+    def __repr__(self):
+        return 'ProfileBin1D(%g, %g; sumw=%g)' % (self.xEdges()[0], self.xEdges()[1], self.mean())

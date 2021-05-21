@@ -1,12 +1,13 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_POINT_H
 #define YODA_POINT_H
 
 #include "YODA/AnalysisObject.h"
+#include "YODA/Scatter.h"
 
 namespace YODA {
 
@@ -16,24 +17,28 @@ namespace YODA {
   public:
 
     typedef std::pair<double,double> ValuePair;
-    
+
 
     /// Virtual destructor for inheritance
     virtual ~Point() {};
-    
+
+
+    /// @name Core properties
+    /// @{
+
     /// Space dimension of the point
     virtual size_t dim() = 0;
-    
-    //get the error map for the highest dimension
-    virtual const std::map< std::string, std::pair<double,double>> & errMap() const =0;
-    
-    //Parse the annotation from the parent AO which contains any variations
-    virtual void getVariationsFromParent() const =0;
 
     /// Get the point value for direction @a i
     virtual double val(size_t i) const = 0;
     /// Set the point value for direction @a i
     virtual void setVal(size_t i, double val) = 0;
+
+    /// @}
+
+
+    /// @name Errors
+    /// @{
 
     /// Get error values for direction @a i
     virtual const std::pair<double,double>& errs(size_t i, std::string source="") const = 0;
@@ -64,12 +69,26 @@ namespace YODA {
     // /// Get value plus positive error for direction @a i
     // double max(size_t i) const = 0;
 
-    //@}
+    /// @}
 
-    /// @todo Support multiple errors
+
+    /// @name Uncertainty variations
+    ///
+    /// @todo Resolve the inconsistency between point properties and the parent annotation
+    ///
+    /// @{
+
+    /// Get the error map for the highest dimension
+    virtual const std::map< std::string, std::pair<double,double>> & errMap() const =0;
+
+    /// Parse the variations annotation on the parent scatter
+    virtual void getVariationsFromParent() const = 0;
+
+    /// @}
+
 
     /// @name Combined value and error setters
-    //@{
+    /// @{
 
     /// Set value and symmetric error for direction @a i
     virtual void set(size_t i, double val, double e,  std::string source="") = 0;
@@ -78,31 +97,34 @@ namespace YODA {
     /// Set value and asymmetric error for direction @a i
     virtual void set(size_t i, double val, std::pair<double,double>& e, std::string source="") = 0;
 
-    //@}
+    /// @}
 
 
-    // @name Manipulations
-    //@{
+    /// @name Manipulations
+    /// @{
 
     // /// Scaling of direction @a i
-    // void scale(size_t i, double scale) = 0;
+    virtual void scale(size_t i, double scale) = 0;
 
     /// @todo void transform(size_t i, FN f) = 0;
 
-    //@}
-    
-    void setParentAO(AnalysisObject* parent){
-      _parentAO=parent;
+    /// @}
+
+
+    void setParent(Scatter* parent){
+      _parent = parent;
     }
-    
-    AnalysisObject* getParentAO() const{
-      return _parentAO;
+
+    template <typename T=Scatter>
+    T* getParent() const{
+      return dynamic_cast<T*>(_parent);
     }
-    
+
+
   private:
-    // pointer back to the parent AO which these points belong to.
-    AnalysisObject* _parentAO=0;
-    
+
+    /// Pointer back to the parent AO which these points belong to.
+    Scatter* _parent = nullptr;
 
   };
 

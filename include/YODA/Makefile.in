@@ -198,6 +198,7 @@ CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
 CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
+CYTHON = @CYTHON@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 DLLTOOL = @DLLTOOL@
@@ -252,7 +253,9 @@ PYTHON_CPPFLAGS = @PYTHON_CPPFLAGS@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_EXTRA_LDFLAGS = @PYTHON_EXTRA_LDFLAGS@
 PYTHON_EXTRA_LIBS = @PYTHON_EXTRA_LIBS@
+PYTHON_FULL_VERSION = @PYTHON_FULL_VERSION@
 PYTHON_LIBS = @PYTHON_LIBS@
+PYTHON_MAJOR_VERSION = @PYTHON_MAJOR_VERSION@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
 PYTHON_PREFIX = @PYTHON_PREFIX@
 PYTHON_SITE_PKG = @PYTHON_SITE_PKG@
@@ -331,6 +334,7 @@ top_srcdir = @top_srcdir@
 pkginclude_HEADERS = \
     Exceptions.h  \
     AnalysisObject.h \
+    Fillable.h Binned.h Scatter.h \
     Weights.h \
     Bin.h \
     Dbn0D.h Dbn1D.h Dbn2D.h Dbn3D.h \
@@ -346,6 +350,7 @@ pkginclude_HEADERS = \
     Scatter2D.h Point2D.h \
     Scatter3D.h Point3D.h \
     ScatterND.h PointND.h ErrorND.h \
+    Index.h \
     Writer.h WriterAIDA.h WriterFLAT.h WriterYODA.h \
     Reader.h ReaderAIDA.h ReaderYODA.h ReaderFLAT.h \
     YODA.h IO.h ROOTCnv.h

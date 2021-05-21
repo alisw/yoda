@@ -19,9 +19,50 @@ cdef class Point1D(Point):
 
     # TODO: add clone() as mapping to (not yet existing) C++ newclone()?
 
+
+    def setXErrs(self, *es):
+        """
+        (float,) -> None
+        ([float, float]) -> None
+        (float, float) -> None
+        (float, string) -> None
+        ([float, float], string) -> None
+        (float, float, string) -> None
+
+        Set asymmetric errors on x-axis with an optional string argument to
+        specify which named source of uncertainty in the error breakdown should
+        be set. By default, if no source is provided, the total uncertainty is set.
+
+        TODO: simplify, this is too much for the Python wrapper
+        """
+        source = None
+        es = list(es)
+        if type(es[-1]) is str:
+            source = es[-1]
+            es = es[:-1]
+        errs = es
+        if source is None:
+            source = ""
+        if isinstance(source, str):
+            source = source.encode('utf-8')
+        if len(errs) == 1:
+            if not hasattr(errs[0], "__iter__"):
+                self.setErr(1, errs[0], source) #< duplicate of last line?
+                return
+            errs = errs[0]
+        # assert len(errs) == 2:
+        self.pptr().setErrs(1, tuple(errs), source)
+
     def setXErrs(self, val, source):
-        if source==None: source=""
-        self.p1ptr().setXErrs(util.read_symmetric(val))
+        """(float, string) -> None
+
+        Set symmetric errors on x-axis with an optional string argument to
+        specify which named source of uncertainty in the error breakdown should
+        be set. By default, if no source is provided, the total uncertainty is set"""
+        if source is None:
+            source = ""
+        self.p1ptr().setXErrs(util.read_symmetric(val), source)
+
 
     # property x:
     #     """x coordinate"""
@@ -47,13 +88,13 @@ cdef class Point1D(Point):
     def xErrs(self):
         """The x errors"""
         return util.read_error_pair(self.p1ptr().xErrs())
-    
+
     def xErrsFromSource(self, source):
         """The y errors"""
         if isinstance(source, str):
            source = source.encode('utf-8')
         return util.read_error_pair(self.p1ptr().xErrs(source))
-    
+
     def setXErrs(self, *es):
         """(int, float) -> None
            (int, [float, float]) -> None
@@ -78,12 +119,12 @@ cdef class Point1D(Point):
         if isinstance(source, str):
            source = source.encode('utf-8')
         self.pptr().setErrs(1, tuple(errs), source)
-    
+
     def setYErrs(self, val, source):
         if source is None:
             source = ""
         self.p1ptr().setXErrs(util.read_symmetric(val))
-    
+
     #@property
     def xMin(self):
         """The minimum x position, i.e. lowest error"""

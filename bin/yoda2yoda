@@ -8,7 +8,7 @@ Like yodacnv, but allows output to stdout since the output format isn't auto-det
 """
 
 import yoda, os, sys, argparse
-from yoda.script_helpers import parse_x2y_args, filter_aos
+from yoda.script_helpers import parse_x2y_args
 
 parser = argparse.ArgumentParser(usage=__doc__)
 parser.add_argument("ARGS", nargs="+", help="infile [outfile]")
@@ -18,7 +18,6 @@ parser.add_argument("-M", "--unmatch", dest="UNMATCH", metavar="PATT", default=N
                     help="exclude histograms whose path matches this regex")
 parser.add_argument("--as-scatters", dest="AS_SCATTERS", action="store_true", default=False,
                     help="convert all input analysis objects to Scatter types")
-# -z/--gzip option?
 
 args = parser.parse_args()
 in_out = parse_x2y_args(args.ARGS, [".yoda", ".yoda.gz"], [".yoda", ".yoda.gz"])
@@ -28,8 +27,7 @@ if not in_out:
 # print(in_out)
 
 for i, o in in_out:
-    analysisobjects = yoda.readYODA(i)
-    filter_aos(analysisobjects, args.MATCH, args.UNMATCH)
+    analysisobjects = yoda.readYODA(i, False, args.MATCH, args.UNMATCH)
     if args.AS_SCATTERS:
         analysisobjects = [ao.mkScatter() for ao in analysisobjects]
     yoda.writeYODA(analysisobjects, o)

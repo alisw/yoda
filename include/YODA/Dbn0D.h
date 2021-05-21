@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Dbn0D_h
 #define YODA_Dbn0D_h
@@ -29,7 +29,7 @@ namespace YODA {
   public:
 
     /// @name Constructors
-    //@{
+    /// @{
 
     /// Default constructor of a new distribution.
     Dbn0D() {
@@ -67,11 +67,11 @@ namespace YODA {
       return *this;
     }
 
-    //@}
+    /// @}
 
 
     /// @name Modifiers
-    //@{
+    /// @{
 
     /// @brief Contribute a weight @a weight.
     ///
@@ -97,11 +97,11 @@ namespace YODA {
       _sumW2 *= scalefactor*scalefactor;
     }
 
-    //@}
+    /// @}
 
 
     /// @name Raw distribution running sums
-    //@{
+    /// @{
 
     /// Number of entries (number of times @c fill was called, ignoring weights)
     double numEntries() const {
@@ -124,11 +124,11 @@ namespace YODA {
       return _sumW2;
     }
 
-    //@}
+    /// @}
 
 
     /// @name Uncertainties on sumW
-    //@{
+    /// @{
 
     /// The absolute error on sumW
     double errW() const;
@@ -136,11 +136,11 @@ namespace YODA {
     /// The relative error on sumW
     double relErrW() const;
 
-    //@}
+    /// @}
 
 
     /// @name Operators
-    //@{
+    /// @{
 
     /// Add two dbns
     Dbn0D& operator += (const Dbn0D& d) {
@@ -152,7 +152,7 @@ namespace YODA {
       return subtract(d);
     }
 
-    //@}
+    /// @}
 
 
   protected:
@@ -167,7 +167,7 @@ namespace YODA {
   private:
 
     /// @name Storage
-    //@{
+    /// @{
 
     /// Number of times fill() has been called on this object
     double _numEntries;
@@ -178,7 +178,7 @@ namespace YODA {
     /// Sum of squared weights
     double _sumW2;
 
-    //@}
+    /// @}
 
   };
 

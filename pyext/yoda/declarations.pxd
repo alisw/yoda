@@ -1,6 +1,7 @@
 from libcpp.map cimport map
 from libcpp.pair cimport pair
 from libcpp.vector cimport vector
+from libcpp.unordered_map cimport unordered_map
 from libcpp cimport bool
 from libcpp.string cimport string
 from cython.operator cimport dereference as deref
@@ -255,6 +256,7 @@ cdef extern from "YODA/Point.h" namespace "YODA":
         # void set(size_t i, double val, double eminus, double eplus) except +yodaerr
         void set(size_t i, double val, pair[double,double]& e) except +yodaerr
         void set(size_t i, double val, pair[double,double]& e, string source) except +yodaerr
+        void scale(size_t i, double scale) except +yodaerr
 
         errMap errMap() except +yodaerr
 
@@ -285,6 +287,7 @@ cdef extern from "YODA/Point1D.h" namespace "YODA":
         double xMax(string source) except +yodaerr
 
         void scaleX(double) except +yodaerr
+        void scale(size_t i, double scale) except +yodaerr
 
         bool operator == (Point1D) except +yodaerr
         bool operator != (Point1D b) except +yodaerr
@@ -334,7 +337,7 @@ cdef extern from "YODA/Point2D.h" namespace "YODA":
         void scaleX(double) except +yodaerr
         void scaleY(double) except +yodaerr
         void scaleXY(double, double) except +yodaerr
-        #void scale(double, double) except +yodaerr
+        void scale(size_t i, double scale) except +yodaerr
 
         bool operator == (Point2D) except +yodaerr
         bool operator != (Point2D b) except +yodaerr
@@ -392,7 +395,7 @@ cdef extern from "YODA/Point3D.h" namespace "YODA":
         void scaleY(double) except +yodaerr
         void scaleZ(double) except +yodaerr
         void scaleXYZ(double, double, double) except +yodaerr
-        #void scale(double, double, double) except +yodaerr
+        void scale(size_t i, double scale) except +yodaerr
 
         bool operator == (Point3D b)
         bool operator != (Point3D b)
@@ -410,6 +413,7 @@ cdef extern from "YODA/Point3D.h" namespace "YODA":
 cdef extern from "YODA/Bin.h" namespace "YODA":
     cdef cppclass Bin:
         int dim() except +yodaerr
+        int fillDim() except +yodaerr
         unsigned long numEntries() except +yodaerr
         double effNumEntries() except +yodaerr
         double sumW() except +yodaerr
@@ -679,6 +683,25 @@ cdef extern from "YODA/AnalysisObject.h" namespace "YODA":
 # }}} AnalysisObject
 
 
+# Fillable#{{{
+cdef extern from "YODA/Fillable.h" namespace "YODA":
+    cdef cppclass Fillable:
+        pass
+#}}}
+
+# Binned#{{{
+cdef extern from "YODA/Binned.h" namespace "YODA":
+    cdef cppclass Binned:
+        pass
+#}}}
+
+# Scatter#{{{
+cdef extern from "YODA/Scatter.h" namespace "YODA":
+    cdef cppclass Scatter:
+        pass
+#}}}
+
+
 cdef extern from "YODA/Utils/sortedvector.h" namespace "YODA::Utils":
     cdef cppclass sortedvector[T](vector):
         sortedvector(vector[T]) except +yodaerr
@@ -689,7 +712,7 @@ cdef extern from "YODA/Utils/sortedvector.h" namespace "YODA::Utils":
 
 # Counter {{{
 cdef extern from "YODA/Counter.h" namespace "YODA":
-    cdef cppclass Counter(AnalysisObject):
+    cdef cppclass Counter(AnalysisObject,Fillable):
         Counter() except +yodaerr
 
         Counter(string path, string title) except +yodaerr
@@ -724,6 +747,7 @@ cdef extern from "YODA/Counter.h" namespace "YODA":
     Scatter1D Counter_div_Counter "divide" (const Counter&, const Counter&) except +yodaerr
     Scatter1D Counter_eff_Counter "efficiency" (const Counter&, const Counter&) except +yodaerr
 
+
 cdef extern from "merge.hh":
     void Counter_iadd_Counter "cython_iadd" (Counter*, Counter*)
     void Counter_isub_Counter "cython_isub" (Counter*, Counter*)
@@ -741,7 +765,7 @@ cdef extern from "YODA/Scatter1D.h" namespace "YODA":
 
 # Scatter1D {{{
 cdef extern from "YODA/Scatter1D.h" namespace "YODA":
-    cdef cppclass Scatter1D(AnalysisObject):
+    cdef cppclass Scatter1D(AnalysisObject,Scatter):
         Scatter1D() except +yodaerr
 
         Scatter1D(string path, string title) except +yodaerr
@@ -762,6 +786,7 @@ cdef extern from "YODA/Scatter1D.h" namespace "YODA":
 
         void reset() except +yodaerr
 
+
         size_t numPoints() except +yodaerr
         # TODO: have to ignore exception handling on ref-returning methods until Cython bug is fixed
         vector[Point1D]& points() #except +yodaerr
@@ -773,13 +798,16 @@ cdef extern from "YODA/Scatter1D.h" namespace "YODA":
 
         void addPoints(const sortedvector[Point1D]&) #except +yodaerr
 
+        void rmPoint(size_t) #except +yodaerr
+        void rmPoints(const vector[size_t]) #except +yodaerr
+
         void combineWith(const Scatter1D&) #except +yodaerr
         void combineWith(const vector[Scatter1D]&) #except +yodaerr
 
         void scaleX(double) except +yodaerr
+        void scale(size_t i, double scale) except +yodaerr
 
         void parseVariations() except +yodaerr
-
         vector[string] variations() except +yodaerr
 
         vector[vector[double]] covarianceMatrix(bool) except +yodaerr
@@ -798,7 +826,7 @@ cdef extern from "YODA/Scatter1D.h" namespace "YODA":
 
 # Scatter2D {{{
 cdef extern from "YODA/Scatter2D.h" namespace "YODA":
-    cdef cppclass Scatter2D(AnalysisObject):
+    cdef cppclass Scatter2D(AnalysisObject,Scatter):
         Scatter2D() except +yodaerr
 
         Scatter2D(string path, string title) except +yodaerr
@@ -819,6 +847,7 @@ cdef extern from "YODA/Scatter2D.h" namespace "YODA":
 
         void reset() except +yodaerr
 
+
         size_t numPoints() except +yodaerr
         # TODO: have to ignore exception handling on ref-returning methods until Cython bug is fixed
         vector[Point2D]& points() #except +yodaerr
@@ -831,13 +860,16 @@ cdef extern from "YODA/Scatter2D.h" namespace "YODA":
 
         void addPoints(const sortedvector[Point2D]&) #except +yodaerr
 
+        void rmPoint(size_t) #except +yodaerr
+        void rmPoints(const vector[size_t]) #except +yodaerr
+
         void combineWith(const Scatter2D&) #except +yodaerr
         void combineWith(const vector[Scatter2D]&) #except +yodaerr
 
         void scaleX(double) except +yodaerr
         void scaleY(double) except +yodaerr
         void scaleXY(double, double) except +yodaerr
-        #void scale(double, double) except +yodaerr
+        void scale(size_t i, double scale) except +yodaerr
 
         void parseVariations() except +yodaerr
         vector[string] variations() except +yodaerr
@@ -860,7 +892,7 @@ cdef extern from "YODA/Scatter2D.h" namespace "YODA":
 
 # Scatter3D {{{
 cdef extern from "YODA/Scatter3D.h" namespace "YODA":
-    cdef cppclass Scatter3D(AnalysisObject):
+    cdef cppclass Scatter3D(AnalysisObject,Scatter):
         Scatter3D() except +yodaerr
 
         Scatter3D(string path, string title) except +yodaerr
@@ -882,6 +914,7 @@ cdef extern from "YODA/Scatter3D.h" namespace "YODA":
 
         void reset() except +yodaerr
 
+
         size_t numPoints() except +yodaerr
         # TODO: have to ignore exception handling on ref-returning methods until Cython bug is fixed
         sortedvector[Point3D]& points() #except +yodaerr
@@ -894,6 +927,9 @@ cdef extern from "YODA/Scatter3D.h" namespace "YODA":
 
         void addPoints(const sortedvector[Point3D]&) #except +yodaerr
 
+        void rmPoint(size_t) #except +yodaerr
+        void rmPoints(const vector[size_t]) #except +yodaerr
+
         void combineWith(const Scatter3D&) #except +yodaerr
         void combineWith(const vector[Scatter3D]&) #except +yodaerr
 
@@ -901,7 +937,7 @@ cdef extern from "YODA/Scatter3D.h" namespace "YODA":
         void scaleY(double) except +yodaerr
         void scaleZ(double) except +yodaerr
         void scaleXYZ(double, double, double) except +yodaerr
-        #void scale(double, double, double) except +yodaerr
+        void scale(size_t i, double scale) except +yodaerr
 
         void parseVariations() except +yodaerr
         vector[string] variations() except +yodaerr
@@ -923,12 +959,9 @@ cdef extern from "YODA/Scatter3D.h" namespace "YODA":
     Scatter3D mkScatter_Scatter3D "YODA::mkScatter" (const Scatter3D&) except +yodaerr
 
 
-
-
-
 # Histo1D#{{{
 cdef extern from "YODA/Histo1D.h" namespace "YODA":
-    cdef cppclass Histo1D(AnalysisObject):
+    cdef cppclass Histo1D(AnalysisObject,Fillable,Binned):
         Histo1D() except +yodaerr
 
         Histo1D(string path, string title) except +yodaerr
@@ -969,7 +1002,7 @@ cdef extern from "YODA/Histo1D.h" namespace "YODA":
 
         void addBin(double, double) except +yodaerr
         void addBins(vector[double] edges) except +yodaerr
-        void eraseBin(size_t index) except +yodaerr
+        void rmBin(size_t index) except +yodaerr
 
         vector[double] xEdges() except +yodaerr
 
@@ -1034,7 +1067,7 @@ cdef extern from "YODA/Scatter2D.h" namespace "YODA":
 
 # Histo2D {{{
 cdef extern from "YODA/Histo2D.h" namespace "YODA":
-    cdef cppclass Histo2D(AnalysisObject):
+    cdef cppclass Histo2D(AnalysisObject,Fillable,Binned):
         Histo2D() except +yodaerr
 
         Histo2D(string path, string title) except +yodaerr
@@ -1082,7 +1115,7 @@ cdef extern from "YODA/Histo2D.h" namespace "YODA":
         void addBins(const vector[HistoBin2D]&)
         void addBin(double, double) except +yodaerr
         void addBins(const vector[double]& edges) except +yodaerr
-        # void eraseBin(size_t index) except +yodaerr
+        void rmBin(size_t index) except +yodaerr
 
         vector[double] xEdges() except +yodaerr
         vector[double] yEdges() except +yodaerr
@@ -1142,7 +1175,7 @@ cdef extern from "YODA/Scatter3D.h" namespace "YODA":
 
 # Profile1D {{{
 cdef extern from "YODA/Profile1D.h" namespace "YODA":
-    cdef cppclass Profile1D(AnalysisObject):
+    cdef cppclass Profile1D(AnalysisObject,Fillable,Binned):
         Profile1D() except +yodaerr
 
         Profile1D(string path, string title) except +yodaerr
@@ -1181,7 +1214,7 @@ cdef extern from "YODA/Profile1D.h" namespace "YODA":
 
         void addBin(double, double) except +yodaerr
         void addBins(vector[double] edges) except +yodaerr
-        # TODO: void eraseBin(size_t index) except +yodaerr
+        void rmBin(size_t index) except +yodaerr
 
         vector[double] xEdges() except +yodaerr
 
@@ -1237,7 +1270,7 @@ cdef extern from "YODA/Scatter2D.h" namespace "YODA":
 
 # Profile2D {{{
 cdef extern from "YODA/Profile2D.h" namespace "YODA":
-    cdef cppclass Profile2D(AnalysisObject):
+    cdef cppclass Profile2D(AnalysisObject,Fillable,Binned):
         Profile2D() except +yodaerr
 
         Profile2D(string path, string title) except +yodaerr
@@ -1282,7 +1315,7 @@ cdef extern from "YODA/Profile2D.h" namespace "YODA":
 
         void addBin(const pair[double, double]&, const pair[double, double]&) except +yodaerr
         void addBins(const vector[double]&, const vector[double]&) except +yodaerr
-        # void eraseBin(size_t index) except +yodaerr
+        void rmBin(size_t index) except +yodaerr
 
         vector[double] xEdges() except +yodaerr
         vector[double] yEdges() except +yodaerr
@@ -1339,6 +1372,11 @@ cdef extern from "YODA/Scatter3D.h" namespace "YODA":
 
 # Streams {{{
 
+cdef extern from "<iostream>" namespace "std":
+    cdef cppclass istream:
+        istringstream()
+        string& str(string&)
+
 cdef extern from "<sstream>" namespace "std":
     cdef cppclass istringstream:
         istringstream()
@@ -1350,11 +1388,18 @@ cdef extern from "<sstream>" namespace "std":
 
 cdef extern from "YODA/IO.h" namespace "YODA":
     void IO_read_from_file "YODA::read" (string&, vector[AnalysisObject*]&) except +yodaerr
+    void IO_read_from_stream "YODA::read" (istream&, vector[AnalysisObject*]& aos, string&) except +yodaerr
+
+cdef extern from "YODA/Index.h" namespace "YODA":
+    cdef cppclass Index:
+        unordered_map[string, unordered_map[string, int]] getAOIndex() except +yodaerr
+        string toString() except +yodaerr
 
 cdef extern from "YODA/Reader.h" namespace "YODA":
     cdef cppclass Reader:
         void read(istringstream&, vector[AnalysisObject*]&) except +yodaerr
         void read_from_file "YODA::Reader::read" (string&, vector[AnalysisObject*]&) except +yodaerr
+        Index& make_index "YODA::Reader::mkIndex" (string&)
 
 cdef extern from "YODA/ReaderYODA.h" namespace "YODA":
     Reader& ReaderYODA_create "YODA::ReaderYODA::create" ()

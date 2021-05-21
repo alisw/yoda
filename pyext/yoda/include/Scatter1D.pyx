@@ -40,7 +40,11 @@ cdef class Scatter1D(AnalysisObject):
         return "<%s '%s' %d points>" % (self.__class__.__name__, self.path(), len(self.points()))
 
 
-    #@property
+    def reset(self):
+        "Reset the scatter, removing all points"
+        self.s1ptr().reset()
+
+
     def numPoints(self):
         """() -> int
         Number of points in this scatter."""
@@ -50,10 +54,9 @@ cdef class Scatter1D(AnalysisObject):
         return self.numPoints()
 
 
-    #@property
     def points(self):
         """Access the ordered list of points."""
-        return [self.point(i) for i in xrange(self.numPoints())]
+        return [self.point(i) for i in range(self.numPoints())]
 
     def point(self, size_t i):
         """Access the i'th point."""
@@ -89,6 +92,12 @@ cdef class Scatter1D(AnalysisObject):
           except TypeError:
             self.addPoint(row)
 
+    def rmPoint(self, idx):
+        self.s1ptr().rmPoint(idx)
+
+    def rmPoints(self, idxs):
+        self.s1ptr().rmPoints(idxs)
+
     def combineWith(self, others):
         """Try to add points from other Scatter1Ds into this one."""
         cdef Scatter1D other
@@ -115,6 +124,12 @@ cdef class Scatter1D(AnalysisObject):
         """(float) -> None
         Scale the x values and errors of the points in this scatter by factor a."""
         self.s1ptr().scaleX(a)
+
+
+    def scale(self, i, scale):
+        """(int, float) -> None
+        Scale values on axis i"""
+        self.s1ptr().scale(i, scale)
 
 
     def transformX(self, f):

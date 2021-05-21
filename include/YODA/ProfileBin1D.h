@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_ProfileBin1D_h
 #define YODA_ProfileBin1D_h
@@ -24,7 +24,7 @@ namespace YODA {
   public:
 
     /// @name Constructors
-    //@{
+    /// @{
 
     /// Constructor giving bin low and high edges.
     ProfileBin1D(double lowedge, double highedge)
@@ -58,11 +58,11 @@ namespace YODA {
       return *this;
     }
 
-    //@}
+    /// @}
 
 
     /// @name Modifiers
-    //@{
+    /// @{
 
     /// Fill histo by x and y values and weight.
     ///
@@ -78,11 +78,11 @@ namespace YODA {
       fill(xMid(), y, weight, fraction);
     }
 
-    //@}
+    /// @}
 
 
     /// @name Bin scaling (x scaling is inherited)
-    //@{
+    /// @{
 
     /// Scale the y (profiled) dimension
     ///
@@ -99,13 +99,13 @@ namespace YODA {
       scaleY(ay);
     }
 
-    //@}
+    /// @}
 
 
   public:
 
     /// @name Bin content info
-    //@{
+    /// @{
 
     /// The mean of the y distribution
     double mean() const {
@@ -137,11 +137,11 @@ namespace YODA {
       return _dbn.yRMS();
     }
 
-    //@}
+    /// @}
 
 
     /// @name Raw y distribution statistics
-    //@{
+    /// @{
 
     /// The sum of y*weight
     double sumWY() const {
@@ -153,7 +153,7 @@ namespace YODA {
       return _dbn.sumWY2();
     }
 
-    //@}
+    /// @}
 
 
   public:

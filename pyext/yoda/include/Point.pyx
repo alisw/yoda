@@ -24,6 +24,7 @@ cdef class Point(util.Base):
     #@property
     def dim(self):
         """None -> int
+
         Space dimension of the point (should match containing Scatter)"""
         return self.pptr().dim()
 
@@ -35,31 +36,50 @@ cdef class Point(util.Base):
 
     def setVal(self, i, val):
         """(int, float) -> None
+
         Value on axis i"""
         self.pptr().setVal(i, val)
 
 
     def errs(self, i, source=""):
-        """int -> float
-        Errors on axis i"""
+        """int, string -> float
+
+        Errors on axis i. Optional string argument allows to
+        access a particular named uncertainty source from the
+        breakdown.
+        """
         if source is None: source = ""
         if isinstance(source, str):
            source = source.encode('utf-8')
         return util.read_error_pair(self.pptr().errs(i,source))
 
     def setErr(self, i, e, source=""):
-        """(int, float) -> None
-        Set symmetric errors on axis i"""
+        """(int, float, string) -> None
+
+        Set symmetric errors on axis i, with optional string argument
+        to specify which named uncertainty source from the breakdown to
+        change. By default, the total uncertainty is changed.
+        """
         if source is None: source = ""
         if isinstance(source, str):
            source = source.encode('utf-8')
         self.pptr().setErr(i, e, source)
 
     def setErrs(self, i, *es):
-        """(int, float) -> None
-           (int, [float, float]) -> None
-           (int, float, float) -> None
-        Set asymmetric errors on axis i"""
+        """
+        (int, float) -> None
+        (int, [float, float]) -> None
+        (int, float, float) -> None
+        (int, float, string) -> None
+        (int, [float, float], string) -> None
+        (int, float, float, string) -> None
+
+        Set asymmetric errors on axis i.
+
+        Optional string argument to specify which named uncertainty
+        source from the breakdown to change. By default, the total
+        uncertainty is changed.
+        """
         source=None
         es=list(es)
         if type(es[-1]) is str:
@@ -85,16 +105,28 @@ cdef class Point(util.Base):
 
 
     def errMinus(self, i, source=""):
-        """int -> float
-        Minus error on axis i"""
+        """int, string -> float
+
+        Minus error on axis i.
+
+        Optional string argument to specify which named uncertainty
+        source from the breakdown to change. By default, the total
+        uncertainty is changed.
+        """
         if source is None: source = ""
         if isinstance(source, str):
            source = source.encode('utf-8')
         return self.pptr().errMinus(i ,source)
 
     def setErrMinus(self, i, e, source=""):
-        """(int, float) -> None
-        Set minus error on axis i"""
+        """(int, float, string) -> None
+
+        Set minus error on axis i.
+
+        Optional string argument to specify which named uncertainty
+        source from the breakdown to change. By default, the total
+        uncertainty is changed.
+        """
         if source is None: source = ""
         if isinstance(source, str):
            source = source.encode('utf-8')
@@ -102,16 +134,28 @@ cdef class Point(util.Base):
 
 
     def errPlus(self, i, source=""):
-        """int -> float
-        Plus error on axis i"""
+        """int, string -> float
+
+        Plus error on axis i.
+
+        Optional string argument to specify which named uncertainty
+        source from the breakdown to access. By default, the total
+        uncertainty is accessed.
+        """
         if source is None: source = ""
         if isinstance(source, str):
            source = source.encode('utf-8')
         return self.pptr().errPlus(i, source)
 
     def setErrPlus(self, i, e, source=""):
-        """(int, float) -> None
-        Set plus error on axis i"""
+        """(int, float, string) -> None
+
+        Set plus error on axis i.
+
+        Optional string argument to specify which named uncertainty
+        source from the breakdown to change. By default, the total
+        uncertainty is changed.
+        """
         if source is None: source = ""
         if isinstance(source, str):
            source = source.encode('utf-8')
@@ -120,7 +164,13 @@ cdef class Point(util.Base):
 
     def errAvg(self, i, source=""):
         """int -> float
-        Average error on axis i"""
+
+        Average error on axis i.
+
+        Optional string argument to specify which named uncertainty
+        source from the breakdown to access. By default, the total
+        uncertainty is accessed.
+        """
         if source is None: source = ""
         if isinstance(source, str):
            source = source.encode('utf-8')
@@ -128,10 +178,20 @@ cdef class Point(util.Base):
 
 
     def set(self, i, val, *es, source=""):
-        """(int, float, float) -> None
-           (int, float, [float, float]) -> None
-           (int, float, float, float) -> None
-        Set value and errors on axis i"""
+        """
+        (int, float, float) -> None
+        (int, float, [float, float]) -> None
+        (int, float, float, float) -> None
+        (int, float, float, string) -> None
+        (int, float, [float, float],string) -> None
+        (int, float, float, float,string) -> None
+
+        Set value and errors on axis i.
+
+        Optional string argument to specify which named uncertainty
+        source from the breakdown to change. By default, the total
+        uncertainty is changed.
+        """
         errs = es
         if source is None: source = ""
         if len(es) == 1:
@@ -146,8 +206,18 @@ cdef class Point(util.Base):
 
     def errMap(self):
         """None -> {string: [float,float]}
-        error map of this point"""
+
+        Error map of this point
+        """
         return self.pptr().errMap()
+
+
+    def scale(self, i, scale):
+        """(int, float) -> None
+
+        Scale values on axis i
+        """
+        self.pptr().scale(i, scale)
 
 
     # def __repr__(self):

@@ -16,20 +16,20 @@ namespace YODA {
       rtn.setAnnotation(a, c.annotation(a));
     rtn.setAnnotation("Type", c.type()); // might override the copied ones
     Point1D pt(c.val(), c.err());
-    pt.setParentAO(&rtn);
+    pt.setParent(&rtn);
     rtn.addPoint(pt);
     return rtn;
   }
-  
-  
+
+
   void Scatter1D::parseVariations() {
-    if (this-> _variationsParsed) { return;}
+    if (this->_variationsParsed) { return;}
     if (!(this->hasAnnotation("ErrorBreakdown"))) { return; }
     YAML::Node errorBreakdown;
     errorBreakdown = YAML::Load(this->annotation("ErrorBreakdown"));
 
     if (errorBreakdown.size()) {
-      for (unsigned int thisPointIndex=0 ; thisPointIndex< this->numPoints() ; ++thisPointIndex){
+      for (size_t thisPointIndex = 0; thisPointIndex < this->numPoints(); ++thisPointIndex) {
         Point1D &thispoint = this->_points[thisPointIndex];
         YAML::Node variations = errorBreakdown[thisPointIndex];
         for (const auto& variation : variations) {
@@ -42,18 +42,21 @@ namespace YODA {
       this-> _variationsParsed =true;
     }
   }
-  
-  const std::vector<std::string> Scatter1D::variations() const  {
+
+
+  /// @todo Reduce duplication between Scatter types
+  std::vector<std::string> Scatter1D::variations() const  {
+    /// @todo Auto-run parseVariations? Why expose the machinery to the user?
     std::vector<std::string> vecvariations;
-    for (auto &point : this->_points){
-      for (auto &it : point.errMap()){
-        //if the variation is not already in the vector, add it !
-        if (std::find(vecvariations.begin(), vecvariations.end(), it.first) == vecvariations.end()){
+    for (auto& point : this->_points) {
+      for (auto& it : point.errMap()) {
+        // if the variation is not already in the vector, add it!
+        if (std::find(vecvariations.begin(), vecvariations.end(), it.first) == vecvariations.end()) {
           vecvariations.push_back(it.first);
         }
       }
     }
     return vecvariations;
   }
-  
+
 }

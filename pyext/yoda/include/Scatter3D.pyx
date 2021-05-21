@@ -39,7 +39,11 @@ cdef class Scatter3D(AnalysisObject):
         return "<%s '%s' %d points>" % (self.__class__.__name__, self.path(), len(self.points()))
 
 
-    #@property
+    def reset(self):
+        "Reset the scatter, removing all points"
+        self.s3ptr().reset()
+
+
     def numPoints(self):
         """() -> int
         Number of points in this scatter."""
@@ -49,10 +53,9 @@ cdef class Scatter3D(AnalysisObject):
         return self.numPoints()
 
 
-    #@property
     def points(self):
         """Access the ordered list of points."""
-        return [self.point(i) for i in xrange(self.numPoints())]
+        return [self.point(i) for i in range(self.numPoints())]
 
     def point(self, size_t i):
         """Access the i'th point."""
@@ -87,6 +90,12 @@ cdef class Scatter3D(AnalysisObject):
             self.addPoint(*row)
           except TypeError:
             self.addPoint(row)
+
+    def rmPoint(self, idx):
+        self.s3ptr().rmPoint(idx)
+
+    def rmPoints(self, idxs):
+        self.s3ptr().rmPoints(idxs)
 
     def combineWith(self, others):
         """Try to add points from other Scatter3Ds into this one."""
@@ -130,12 +139,10 @@ cdef class Scatter3D(AnalysisObject):
         Scale the values and errors of the points in this scatter by factors ax, ay, az."""
         self.s3ptr().scaleXYZ(ax, ay, az)
 
-    # TODO: remove
-    def scale(self, ax=1, ay=1, az=1):
-        """(float=1, float=1, float=1) -> None
-        DEPRECATED: USE scaleXYZ
-        Scale the values and errors of the points in this scatter by factors ax, ay, az."""
-        self.scaleXYZ(ax, ay, az)
+    def scale(self, i, scale):
+        """(int, float) -> None
+        Scale values on axis i"""
+        self.s3ptr().scale(i, scale)
 
 
     def transformX(self, f):

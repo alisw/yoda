@@ -39,7 +39,11 @@ cdef class Scatter2D(AnalysisObject):
         return "<%s '%s' %d points>" % (self.__class__.__name__, self.path(), len(self.points()))
 
 
-    #@property
+    def reset(self):
+        "Reset the scatter, removing all points"
+        self.s2ptr().reset()
+
+
     def numPoints(self):
         """() -> int
         Number of points in this scatter."""
@@ -49,10 +53,9 @@ cdef class Scatter2D(AnalysisObject):
         return self.numPoints()
 
 
-    #@property
     def points(self):
         """Access the ordered list of points."""
-        return [self.point(i) for i in xrange(self.numPoints())]
+        return [self.point(i) for i in range(self.numPoints())]
 
     def point(self, size_t i):
         """Access the i'th point."""
@@ -87,6 +90,12 @@ cdef class Scatter2D(AnalysisObject):
             self.addPoint(*row)
           except TypeError:
             self.addPoint(row)
+
+    def rmPoint(self, idx):
+        self.s2ptr().rmPoint(idx)
+
+    def rmPoints(self, idxs):
+        self.s2ptr().rmPoints(idxs)
 
     def combineWith(self, others):
         """Try to add points from other Scatter2Ds into this one."""
@@ -125,12 +134,10 @@ cdef class Scatter2D(AnalysisObject):
         Scale the values and errors of the points in this scatter by factors ax, ay."""
         self.s2ptr().scaleXY(ax, ay)
 
-    # TODO: remove
-    def scale(self, ax=1.0, ay=1.0):
-        """(float=1, float=1) -> None
-        DEPRECATED: USE scaleXY
-        Scale the values and errors of the points in this scatter by factors ax, ay."""
-        self.scaleXY(ax, ay)
+    def scale(self, i, scale):
+        """(int, float) -> None
+        Scale values on axis i"""
+        self.s2ptr().scale(i, scale)
 
 
     def transformX(self, f):
@@ -154,16 +161,16 @@ cdef class Scatter2D(AnalysisObject):
             raise RuntimeError("Callback is not of type (double) -> double")
         fptr = (<c.dbl_dbl_fptr*><size_t>ctypes.addressof(callback))[0]
         c.Scatter2D_transformY(deref(self.s2ptr()), fptr)
-    
+
     def parseVariations(self):
         """None -> None
-        Parse the YAML which contains the variations stored in the poins of the Scatter.
+        Parse the YAML which contains the variations stored in the points of the Scatter.
         Only needs to be done once!"""
         return self.s2ptr().parseVariations()
 
     def variations(self):
         """None -> vector[string]
-        Get the list of variations stored in the poins of the Scatter"""
+        Get the list of variations stored in the points of the Scatter"""
         return self.s2ptr().variations()
 
     def _mknp(self, xs):
@@ -196,7 +203,7 @@ cdef class Scatter2D(AnalysisObject):
             counter += 1
             binErrs = p.errMap()
             if len(binErrs) < 2:
-                return False	      
+                return False
             binTotal = [0.,0.]
             for sys, err in binErrs.iteritems():
                 binTotal[0] = (binTotal[0]**2 + err[0]**2)**0.5
@@ -243,7 +250,7 @@ cdef class Scatter2D(AnalysisObject):
     def xErrAvgs(self):
         """All x average errors"""
         # TODO: add extra dimensionality for multiple errors?
-        return self._mknp([p.xAvgErr() for p in self.points()])
+        return self._mknp([p.xErrAvg() for p in self.points()])
 
     def xMin(self):
         """Lowest x value."""

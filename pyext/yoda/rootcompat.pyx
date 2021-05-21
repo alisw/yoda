@@ -1,3 +1,4 @@
+#! /usr/bin/env cython
 cimport rootcompat as croot
 import yoda
 cimport yoda.declarations as cyoda
@@ -37,7 +38,7 @@ cdef _TH2toS3(croot.TH2D* th2, areascale):
 #     return cutil.new_owned_cls(yoda.Scatter3D, croot.toNewScatter3D(tg2))
 
 
-def to_yoda(root_obj, widthscale=True):
+def to_yoda(root_obj, widthscale=False):
     cdef croot.TObject* ptr = py_to_root(root_obj)
     if isinstance(root_obj, ROOT.TProfile):
         return _TP1toS2(<croot.TProfile*>ptr)
@@ -55,14 +56,14 @@ def to_yoda(root_obj, widthscale=True):
 
 
 
-cdef _H1toTH1D(cyoda.Histo1D* h1d):
-    return ROOT.TH1D(root_to_py(new croot.TH1D(croot.toTH1D(deref(h1d)))))
+cdef _H1toTH1D(cyoda.Histo1D* h1d, widthscale):
+    return ROOT.TH1D(root_to_py(new croot.TH1D(croot.toTH1D(deref(h1d), widthscale))))
 
 cdef _P1toTProfile(cyoda.Profile1D* p1d):
     return ROOT.TProfile(root_to_py(new croot.TProfile(croot.toTProfile(deref(p1d)))))
 
-cdef _H2toTH2D(cyoda.Histo2D* h2d):
-    return ROOT.TH2D(root_to_py(new croot.TH2D(croot.toTH2D(deref(h2d)))))
+cdef _H2toTH2D(cyoda.Histo2D* h2d, areascale):
+    return ROOT.TH2D(root_to_py(new croot.TH2D(croot.toTH2D(deref(h2d), areascale))))
 
 # cdef _P2toTProfile2D(cyoda.Profile2D* p2d):
 #     return ROOT.TProfile2D(root_to_py(new croot.TProfile2D(croot.toTProfile2D(deref(p2d)))))
@@ -71,11 +72,11 @@ cdef _H2toTH2D(cyoda.Histo2D* h2d):
 cdef _S2toTGraph(cyoda.Scatter2D* s2d):
     return ROOT.TGraphAsymmErrors(root_to_py(new croot.TGraphAsymmErrors(croot.toTGraph(deref(s2d)))))
 
-cdef _H1toTGraph(cyoda.Histo1D* h1d):
-    return ROOT.TGraphAsymmErrors(root_to_py(new croot.TGraphAsymmErrors(croot.toTGraph(deref(h1d)))))
+cdef _H1toTGraph(cyoda.Histo1D* h1d, usefocus, widthscale):
+    return ROOT.TGraphAsymmErrors(root_to_py(new croot.TGraphAsymmErrors(croot.toTGraph(deref(h1d), usefocus, widthscale))))
 
-cdef _P1toTGraph(cyoda.Profile1D* p1d):
-    return ROOT.TGraphAsymmErrors(root_to_py(new croot.TGraphAsymmErrors(croot.toTGraph(deref(p1d)))))
+cdef _P1toTGraph(cyoda.Profile1D* p1d, usefocus):
+    return ROOT.TGraphAsymmErrors(root_to_py(new croot.TGraphAsymmErrors(croot.toTGraph(deref(p1d), usefocus))))
 
 
 # cdef _S3toTGraph(cyoda.Scatter3D* s3d):
@@ -88,15 +89,21 @@ cdef _P1toTGraph(cyoda.Profile1D* p1d):
 #     return ROOT.TGraph2D(root_to_py(new croot.TGraph2D(croot.toTGraph(deref(p2d)))))
 
 
-def to_root(cutil.Base yoda_obj, asgraph=False):
+def to_root(cutil.Base yoda_obj, asgraph=False, usefocus=False, widthscale=False):
     cdef void* ptr = yoda_obj.ptr()
     if isinstance(yoda_obj, yoda.Histo1D):
-        return _H1toTGraph(<cyoda.Histo1D*> ptr) if asgraph else _H1toTH1D(<cyoda.Histo1D*> ptr)
+        if asgraph:
+            return _H1toTGraph(<cyoda.Histo1D*> ptr, usefocus, widthscale)
+        else:
+            return _H1toTH1D(<cyoda.Histo1D*> ptr, widthscale)
     elif isinstance(yoda_obj, yoda.Profile1D):
-        return _P1toTGraph(<cyoda.Profile1D*> ptr) if asgraph else _P1toTProfile(<cyoda.Profile1D*> ptr)
+        if asgraph:
+            return _P1toTGraph(<cyoda.Profile1D*> ptr, usefocus)
+        else:
+            return _P1toTProfile(<cyoda.Profile1D*> ptr)
     elif isinstance(yoda_obj, yoda.Histo2D):
         #return _H2toTGraph(<cyoda.Histo2D*> ptr) if asgraph else _H2toTH2D(<cyoda.Histo2D*> ptr)
-        return _H2toTH2D(<cyoda.Histo2D*> ptr)
+        return _H2toTH2D(<cyoda.Histo2D*> ptr, widthscale)
     # elif isinstance(yoda_obj, yoda.Profile2D):
     #     return _P2toTGraph(<cyoda.Profile2D*> ptr) if asgraph else _P2toTProfile2D(<cyoda.Profile2D*> ptr)
     elif isinstance(yoda_obj, yoda.Scatter2D):

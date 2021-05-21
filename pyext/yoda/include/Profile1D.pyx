@@ -101,21 +101,18 @@ cdef class Profile1D(AnalysisObject):
         self.p1ptr().fillBin(ix, y, weight, fraction)
 
 
-    #@property
     def totalDbn(self):
         """() -> Dbn2D
         The Dbn2D representing the total distribution."""
         return cutil.new_borrowed_cls(
             Dbn2D, &self.p1ptr().totalDbn(), self)
 
-    #@property
     def underflow(self):
         """() -> Dbn2D
         The Dbn2D representing the underflow distribution."""
         return cutil.new_borrowed_cls(
             Dbn2D, &self.p1ptr().underflow(), self)
 
-    #@property
     def overflow(self):
         """() -> Dbn2D
         The Dbn2D representing the overflow distribution."""
@@ -181,17 +178,14 @@ cdef class Profile1D(AnalysisObject):
         self.p1ptr().scaleY(f)
 
 
-    #@property
     def xMin(self):
         """Low x edge of the histo."""
         return self.p1ptr().xMin()
 
-    #@property
     def xMax(self):
         """High x edge of the histo."""
         return self.p1ptr().xMax()
 
-    #@property
     def numBins(self):
         """() -> int
         Number of bins (not including overflows)."""
@@ -202,7 +196,6 @@ cdef class Profile1D(AnalysisObject):
         Number of bins on the x-axis (not including overflows)."""
         return self.p1ptr().numBinsX()
 
-    #@property
     def bins(self):
         """Access the ordered bins list."""
         return list(self)
@@ -307,6 +300,7 @@ cdef class Profile1D(AnalysisObject):
 
     # TODO: xyVals,Errs properties should be in a common Drawable2D (?) type (hmm, need a consistent nD convention...)
     # TODO: x bin properties should be in a common Binned1D type
+    # TODO: add "useoverflows" optional args, move most into C++
 
     def _mknp(self, xs):
         try:
@@ -315,7 +309,9 @@ cdef class Profile1D(AnalysisObject):
         except ImportError:
             return xs
 
-    #@property
+
+    ## Geometric properties in x
+
     def xEdges(self):
         """All x edges of the histo."""
         return self._mknp(self.p1ptr().xEdges())
@@ -331,6 +327,9 @@ cdef class Profile1D(AnalysisObject):
     def xMids(self):
         """All x bin midpoints of the histo."""
         return self._mknp([b.xMid() for b in self.bins()])
+
+
+    ## Filling properties in x
 
     def xFoci(self):
         """All x bin foci of the histo."""
@@ -354,9 +353,14 @@ cdef class Profile1D(AnalysisObject):
         return max(self.xMaxs())
 
 
+    def sumWs(self):
+        """All sumW values of the histo."""
+        rtn = self._mknp([b.sumW() for b in self.bins()])
+        return rtn
+
     def yMeans(self):
         """All y heights y means."""
-        return self._mknp([b.yMean() for b in self.bins()])
+        return self._mknp([b.mean() for b in self.bins()])
 
     def yVals(self):
         return self.yMeans()
@@ -364,11 +368,11 @@ cdef class Profile1D(AnalysisObject):
 
     def yStdErrs(self):
         """All standard errors on the y means."""
-        return self._mknp([b.yStdErr() for b in self.bins()])
+        return self._mknp([b.stdErr() for b in self.bins()])
 
     def yStdDevs(self):
         """All standard deviations of the y distributions."""
-        return self._mknp([b.yStdDev() for b in self.bins()])
+        return self._mknp([b.stdDev() for b in self.bins()])
 
     def yErrs(self, sd=False):
         return self.yStdDevs() if sd else self.yStdErrs()

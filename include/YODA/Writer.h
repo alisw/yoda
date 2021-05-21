@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Writer_h
 #define YODA_Writer_h
@@ -33,7 +33,7 @@ namespace YODA {
 
 
     /// @name Writing a single analysis object.
-    //@{
+    /// @{
 
     /// Write out object @a ao to file @a filename.
     void write(const std::string& filename, const AnalysisObject& ao);
@@ -59,11 +59,11 @@ namespace YODA {
       write(filename, *ao);
     }
 
-    //@}
+    /// @}
 
 
     /// @name Writing multiple analysis objects by collection.
-    //@{
+    /// @{
 
     /// Write out a vector of AO pointers (untemplated=exact type-match) to the given stream
     ///
@@ -91,11 +91,11 @@ namespace YODA {
       write(filename, std::begin(aos), std::end(aos));
     }
 
-    //@}
+    /// @}
 
 
     /// @name Writing multiple analysis objects by iterator range.
-    //@{
+    /// @{
 
     /// Write out the objects specified by start iterator @a begin and end
     /// iterator @a end to output stream @a stream.
@@ -144,7 +144,7 @@ namespace YODA {
 
     }
 
-    //@}
+    /// @}
 
 
     /// Set precision of numerical quantities in this writer's output.
@@ -161,7 +161,7 @@ namespace YODA {
   protected:
 
     /// @name Main writer elements
-    //@{
+    /// @{
 
     /// Write any opening boilerplate required by the format to @a stream
     virtual void writeHead(std::ostream&) {}
@@ -181,11 +181,11 @@ namespace YODA {
     /// Write any closing boilerplate required by the format to @a stream
     virtual void writeFoot(std::ostream& stream) { stream << std::flush; }
 
-    //@}
+    /// @}
 
 
     /// @name Specific AO type writer implementations, to be implemented in derived classes
-    //@{
+    /// @{
 
     virtual void writeCounter(std::ostream& stream, const Counter& c) = 0;
     virtual void writeHisto1D(std::ostream& os, const Histo1D& h) = 0;
@@ -196,7 +196,7 @@ namespace YODA {
     virtual void writeScatter2D(std::ostream& os, const Scatter2D& s) = 0;
     virtual void writeScatter3D(std::ostream& os, const Scatter3D& s) = 0;
 
-    //@}
+    /// @}
 
 
     /// Output precision

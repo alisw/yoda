@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Bin1D_h
 #define YODA_Bin1D_h
@@ -28,7 +28,7 @@ namespace YODA {
   public:
 
     /// @name Constructors
-    //@{
+    /// @{
 
     // /// Make a new, empty bin with a pair of edges.
     // Bin1D(double lowedge, double highedge)
@@ -76,17 +76,25 @@ namespace YODA {
       return *this;
     }
 
-    //@}
+    /// @}
 
 
+    /// @name Dimensions
+    /// @{
 
     /// Dimension of the fill space
+    ///
+    /// @todo Convert to total dimension
     size_t dim() { return 1; }
 
+    /// Dimension of the fill space
+    size_t fillDim() { return 1; }
+
+    /// @}
 
 
     /// @name Modifiers
-    //@{
+    /// @{
 
     /// Reset this bin
     virtual void reset() {
@@ -109,13 +117,13 @@ namespace YODA {
       _dbn.scaleX(factor);
     }
 
-    //@}
+    /// @}
 
 
   public:
 
     /// @name X-axis info
-    //@{
+    /// @{
 
     /// Get the {low,high} edges as an STL @c pair.
     std::pair<double,double> xEdges() const {
@@ -154,11 +162,11 @@ namespace YODA {
       return (!isZero(sumW())) ? xMean() : xMid();
     }
 
-    //@}
+    /// @}
 
 
     /// @name X distribution statistics
-    //@{
+    /// @{
 
     /// Mean value of x-values in the bin.
     double xMean() const {
@@ -185,13 +193,13 @@ namespace YODA {
       return _dbn.xRMS();
     }
 
-    //@}
+    /// @}
 
 
   public:
 
     /// @name Raw distribution statistics
-    //@{
+    /// @{
 
     /// Statistical distribution in this bin (non-const)
     DBN& dbn() {
@@ -234,13 +242,13 @@ namespace YODA {
       return _dbn.sumWX2();
     }
 
-    //@}
+    /// @}
 
 
   public:
 
     /// @name Operators
-    //@{
+    /// @{
 
     /// Add two bins
     Bin1D<DBN>& operator += (const Bin1D<DBN>& b) {
@@ -252,11 +260,11 @@ namespace YODA {
       return subtract(b);
     }
 
-    //@}
+    /// @}
 
 
     /// @name Named operators
-    //@{
+    /// @{
 
     /// Merge two adjacent bins
     Bin1D<DBN>& merge(const Bin1D<DBN>& b) {
@@ -301,7 +309,7 @@ namespace YODA {
       return *this;
     }
 
-    //@}
+    /// @}
 
 
   protected:

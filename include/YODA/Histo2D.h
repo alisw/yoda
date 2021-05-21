@@ -1,12 +1,14 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Histo2D_h
 #define YODA_Histo2D_h
 
 #include "YODA/AnalysisObject.h"
+#include "YODA/Fillable.h"
+#include "YODA/Binned.h"
 #include "YODA/HistoBin2D.h"
 #include "YODA/Dbn2D.h"
 #include "YODA/Axis2D.h"
@@ -26,8 +28,8 @@ namespace YODA {
   typedef Axis2D<HistoBin2D, Dbn2D> Histo2DAxis;
 
 
-  /// A two-dimensional histogram.
-  class Histo2D : public AnalysisObject {
+  /// A two-dimensional histogram
+  class Histo2D : public AnalysisObject, public Fillable, public Binned {
   public:
 
     /// Convenience typedefs
@@ -42,7 +44,7 @@ namespace YODA {
 
 
     /// @name Constructors
-    //@{
+    /// @{
 
     /// Default constructor
     Histo2D(const std::string& path="", const std::string& title="")
@@ -118,15 +120,20 @@ namespace YODA {
       return new Histo2D(*this);
     }
 
-    //@}
+    /// @}
 
+
+    /// @brief Fill dimension of this data object
+    ///
+    /// @todo Change this to the total dimension (in v2)
+    size_t dim() const { return 2; }
 
     /// Fill dimension of this data object
-    size_t dim() const { return 2; }
+    size_t fillDim() const { return 2; }
 
 
     /// @name Modifiers
-    //@{
+    /// @{
 
     /// Fill histo with weight at (x,y)
     virtual void fill(double x, double y, double weight=1.0, double fraction=1.0);
@@ -172,6 +179,11 @@ namespace YODA {
       _axis.scaleXY(scaleX, scaleY);
     }
 
+    /// @}
+
+
+    /// @name Bin adding and removing
+    /// @{
 
     /// @brief Bin addition operator
     ///
@@ -229,17 +241,15 @@ namespace YODA {
     // }
 
 
-    void eraseBin(size_t index) {
+    void rmBin(size_t index) {
       _axis.eraseBin(index);
     }
 
-    //@}
+    /// @}
 
-
-  public:
 
     /// @name Bin accessors
-    //@{
+    /// @{
 
     /// All bin edges on this histo's x axis
     ///
@@ -332,11 +342,11 @@ namespace YODA {
     //   return _axis.outflow(ix, iy);
     // }
 
-    //@}
+    /// @}
 
 
     /// @name Whole histo data
-    //@{
+    /// @{
 
     /// Get the total volume of the histogram
     double integral(bool includeoverflows=true) const { return sumW(includeoverflows); }
@@ -387,11 +397,11 @@ namespace YODA {
     /// Get the RMS in y
     double yRMS(bool includeoverflows=true) const;
 
-    //@}
+    /// @}
 
 
     /// @name Adding and subtracting histograms
-    //@{
+    /// @{
 
     /// @brief Add another histogram to this one
     ///
@@ -419,11 +429,11 @@ namespace YODA {
         return ! operator == (other);
     }
 
-    //@}
+    /// @}
 
 
     // /// @name Slicing operators
-    // //@{
+    // /// @{
 
     // /// @brief Create a Histo2D for the bin slice parallel to the x axis at the specified y coordinate
     // ///
@@ -446,7 +456,7 @@ namespace YODA {
 
     // /// Y-wise Profile1D creator from Histo2D
     // Profile1D mkProfileY();
-    // //@}
+    // /// @}
 
 
   protected:
@@ -458,12 +468,12 @@ namespace YODA {
   private:
 
     /// @name Bin data
-    //@{
+    /// @{
 
     /// Definition of bin edges and contents
     Axis2D<HistoBin2D, Dbn2D> _axis;
 
-    //@}
+    /// @}
 
   };
 
@@ -473,7 +483,7 @@ namespace YODA {
 
 
   /// @name Combining histos: global operators
-  //@{
+  /// @{
 
   /// Add two histograms
   inline Histo2D add(const Histo2D& first, const Histo2D& second) {
@@ -540,7 +550,7 @@ namespace YODA {
     return (a-b) / (a+b);
   }
 
-  //@}
+  /// @}
 
 
 }

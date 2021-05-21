@@ -1,9 +1,11 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
 #include "YODA/ReaderYODA.h"
+#include "YODA/Reader.h"
+#include "YODA/Index.h"
 #include "YODA/Utils/StringUtils.h"
 #include "YODA/Utils/getline.h"
 #include "YODA/Exceptions.h"
@@ -93,13 +95,13 @@ namespace YODA {
   }
 
 
-  void ReaderYODA::read(istream& stream_, vector<AnalysisObject*>& aos) {
+  void ReaderYODA::read(istream& inputStream, vector<AnalysisObject*>& aos) {
 
     #ifdef HAVE_LIBZ
     // NB. zstr auto-detects if file is deflated or plain-text
-    zstr::istream stream(stream_);
+    zstr::istream stream(inputStream);
     #else
-    istream& stream = stream_;
+    istream& stream = inputStream;
     #endif
     // Data format parsing states, representing current data type
     /// @todo Extension to e.g. "bar" or multi-counter or binned-value types, and new formats for extended Scatter types
@@ -264,17 +266,17 @@ namespace YODA {
             p2binscurr.clear();
             break;
           case SCATTER1D:
-            for (auto &p : pt1scurr)  { p.setParentAO(s1curr); }
+            for (auto& p : pt1scurr) p.setParent(s1curr);
             s1curr->addPoints(pt1scurr);
             pt1scurr.clear();
             break;
           case SCATTER2D:
-            for (auto &p : pt2scurr)  { p.setParentAO(s2curr); }
+            for (auto& p : pt2scurr) p.setParent(s2curr);
             s2curr->addPoints(pt2scurr);
             pt2scurr.clear();
             break;
           case SCATTER3D:
-            for (auto &p : pt3scurr)  { p.setParentAO(s3curr); }
+            for (auto& p : pt3scurr) p.setParent(s3curr);
             s3curr->addPoints(pt3scurr);
             pt3scurr.clear();
             break;
@@ -292,7 +294,7 @@ namespace YODA {
               YAML::Emitter em;
               em << YAML::Flow << it.second; //< use single-line formatting, for lists & maps
               const string val = em.c_str();
-             // if (!(key.find("ErrorBreakdown") != string::npos)) 
+             // if (!(key.find("ErrorBreakdown") != string::npos))
               aocurr->setAnnotation(key, val);
             }
           } catch (...) {
@@ -362,7 +364,7 @@ namespace YODA {
         aiss.reset(s);
         // double sumw(0), sumw2(0), sumwx(0), sumwx2(0), sumwy(0), sumwy2(0), sumwz(0), sumwz2(0), sumwxy(0), sumwxz(0), sumwyz(0), n(0);
         switch (context) {
-        
+
         case COUNTER:
           {
             double sumw(0), sumw2(0), n(0);
@@ -370,7 +372,7 @@ namespace YODA {
             cncurr->setDbn(Dbn0D(n, sumw, sumw2));
           }
           break;
-        
+
         case HISTO1D:
           {
             string xoflow1, xoflow2; double xmin(0), xmax(0);
@@ -392,7 +394,7 @@ namespace YODA {
             else h1binscurr.push_back(HistoBin1D(std::make_pair(xmin,xmax), dbn));
           }
           break;
-        
+
         case HISTO2D:
           {
             string xoflow1, xoflow2, yoflow1, yoflow2; double xmin(0), xmax(0), ymin(0), ymax(0);
@@ -419,7 +421,7 @@ namespace YODA {
             }
           }
           break;
-        
+
         case PROFILE1D:
           {
             string xoflow1, xoflow2; double xmin(0), xmax(0);
@@ -442,7 +444,7 @@ namespace YODA {
             else p1binscurr.push_back(ProfileBin1D(std::make_pair(xmin,xmax), dbn));
           }
           break;
-        
+
         case PROFILE2D:
           {
             string xoflow1, xoflow2, yoflow1, yoflow2; double xmin(0), xmax(0), ymin(0), ymax(0);
@@ -469,7 +471,7 @@ namespace YODA {
             }
           }
           break;
-        
+
         case SCATTER1D:
           {
             double x(0), exm(0), exp(0);
@@ -489,7 +491,7 @@ namespace YODA {
             pt1scurr.push_back(thispoint);
           }
           break;
-        
+
         case SCATTER2D:
           {
             double x(0), y(0), exm(0), exp(0), eym(0), eyp(0);
@@ -502,7 +504,7 @@ namespace YODA {
             pt2scurr.push_back(thispoint);
           }
           break;
-        
+
         case SCATTER3D:
           {
             double x(0), y(0), z(0), exm(0), exp(0), eym(0), eyp(0), ezm(0), ezp(0);
@@ -524,5 +526,164 @@ namespace YODA {
         }
      }
   }
-}
 
+  Index ReaderYODA::mkIndex(std::istream& inputStream) {
+    Index::AOIndex hmap;
+    hmap.insert({"Histo1D", unordered_map<string, int>()});
+    hmap.insert({"Histo2D", unordered_map<string, int>()});
+    hmap.insert({"Profile1D", unordered_map<string, int>()});
+    hmap.insert({"Profile2D", unordered_map<string, int>()});
+    hmap.insert({"Scatter1D", unordered_map<string, int>()});
+    hmap.insert({"Scatter2D", unordered_map<string, int>()});
+    hmap.insert({"Scatter3D", unordered_map<string, int>()});
+    hmap.insert({"Counter", unordered_map<string, int>()});
+
+    //#ifdef HAVE_LIBZ
+    //// NB. zstr auto-detects if file is deflated or plain-text
+    // zstr::istream stream(inputStream);
+    //#else
+    istream& stream = inputStream;
+    //#endif
+    enum Context {
+      NONE,
+      SCATTER1D,
+      SCATTER2D,
+      SCATTER3D,
+      COUNTER,
+      HISTO1D,
+      HISTO2D,
+      PROFILE1D,
+      PROFILE2D
+    };
+
+    /// State of the parser: line number, line, parser context, and pointer(s)
+    /// to the object currently being assembled
+    unsigned int nline = 0;
+    string s;
+    Context context = NONE;
+    std::string curpath = "";
+    int nbins = 0;
+
+    // Loop over all lines of the input file
+    bool in_anns = false;
+    string fmt = "1";
+    while (std::getline(stream, s)) {
+      nline += 1;
+      if (!in_anns) {
+        Utils::itrim(s);
+        if (s.empty())
+          continue;
+        if (s.find("#") == 0 && s.find("BEGIN") == string::npos &&
+            s.find("END") == string::npos)
+          continue;
+      }
+      if (context == NONE) {
+        if (s.find("BEGIN ") == string::npos) {
+          stringstream ss;
+          ss << "Unexpected line in YODA format parsing when BEGIN expected: '"
+             << s << "' on line " << nline;
+          throw ReadError(ss.str());
+        }
+        while (s.find("#") == 0)
+          s = Utils::trim(s.substr(1));
+        vector<string> parts;
+        istringstream iss(s);
+        string tmp;
+        while (iss >> tmp)
+          parts.push_back(tmp);
+
+        if (parts.size() < 2 || parts[0] != "BEGIN") {
+          stringstream ss;
+          ss << "Unexpected BEGIN line structure when BEGIN expected: '" << s
+             << "' on line " << nline;
+          throw ReadError(ss.str());
+        }
+        const string ctxstr = parts[1];
+        curpath = (parts.size() >= 3) ? parts[2] : "";
+        nbins = 0;
+        if (Utils::startswith(ctxstr, "YODA_COUNTER")) {
+          context = COUNTER;
+        } else if (Utils::startswith(ctxstr, "YODA_SCATTER1D")) {
+          context = SCATTER1D;
+        } else if (Utils::startswith(ctxstr, "YODA_SCATTER2D")) {
+          context = SCATTER2D;
+        } else if (Utils::startswith(ctxstr, "YODA_SCATTER3D")) {
+          context = SCATTER3D;
+        } else if (Utils::startswith(ctxstr, "YODA_HISTO1D")) {
+          context = HISTO1D;
+        } else if (Utils::startswith(ctxstr, "YODA_HISTO2D")) {
+          context = HISTO2D;
+        } else if (Utils::startswith(ctxstr, "YODA_PROFILE1D")) {
+          context = PROFILE1D;
+        } else if (Utils::startswith(ctxstr, "YODA_PROFILE2D")) {
+          context = PROFILE2D;
+        }
+        const size_t vpos = ctxstr.find_last_of("V");
+        fmt = vpos != string::npos ? ctxstr.substr(vpos + 1) : "1";
+        if (fmt != "1")
+          in_anns = true;
+      } else { //< not a BEGIN line
+        if (s.find("BEGIN ") != string::npos)
+          throw ReadError("Unexpected BEGIN line in YODA format parsing before "
+                          "ending current BEGIN..END block");
+        // FINISHING THE CURRENT CONTEXT
+        if (s.find("END ") != string::npos) {
+          if (context == HISTO1D) {
+            hmap["Histo1D"].insert({curpath, nbins});
+          } else if (context == HISTO2D) {
+            hmap["Histo2D"].insert({curpath, nbins});
+          } else if (context == PROFILE1D) {
+            hmap["Profile1D"].insert({curpath, nbins});
+          } else if (context == PROFILE2D) {
+            hmap["Profile2D"].insert({curpath, nbins});
+          } else if (context == SCATTER1D) {
+            hmap["Scatter1D"].insert({curpath, nbins});
+          } else if (context == SCATTER2D) {
+            hmap["Scatter2D"].insert({curpath, nbins});
+          } else if (context == SCATTER3D) {
+            hmap["Scatter3D"].insert({curpath, nbins});
+          } else if (context == COUNTER) {
+            hmap["Counter"].insert({curpath, nbins});
+          }
+          in_anns = false;
+          context = NONE;
+          continue;
+        }
+        // ANNOTATIONS PARSING
+        if (fmt == "1") {
+          // First convert to one-key-per-line YAML syntax
+          const size_t ieq = s.find("=");
+          if (ieq != string::npos)
+            s.replace(ieq, 1, ": ");
+          // Special-case treatment for syntax clashes
+          const size_t icost = s.find(": *");
+          if (icost != string::npos) {
+            s.replace(icost, 1, ": '*");
+            s += "'";
+          }
+          // Store reformatted annotation
+          const size_t ico = s.find(":");
+          if (ico != string::npos)
+            continue;
+        } else if (in_anns) {
+          if (s == "---")
+            in_anns = false;
+          continue;
+        }
+
+        if ((context == HISTO1D) || (context == HISTO2D) ||
+            (context == PROFILE1D) || (context == PROFILE2D)) {
+          if (s.find("Total") != string::npos ||
+              s.find("Underflow") != string::npos ||
+              s.find("Overflow") != string::npos)
+            continue;
+          nbins++;
+        } else if ((context == SCATTER1D) || (context == SCATTER2D) ||
+                   (context == SCATTER3D)) {
+          nbins++;
+        }
+      }
+    }
+    return Index(hmap);
+  }
+}

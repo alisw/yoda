@@ -17,10 +17,14 @@ dist_pkgconfig_DATA = yoda.pc
 if WITH_DOXYGEN
 
 .PHONY: dox
-
 dox:
 	@echo "Running Doxygen..."
 	$(DOXYGEN) $(top_srcdir)/Doxyfile
+
+.PHONY: pydoc
+pydoc:
+	@echo "Running pydoc..."
+	cd pydoc && $(MAKE) html
 
 all-local: #dox
 	@true

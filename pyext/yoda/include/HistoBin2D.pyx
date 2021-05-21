@@ -42,5 +42,5 @@ cdef class HistoBin2D(Bin2D_Dbn2D):
         return cutil.new_owned_cls(HistoBin2D, new c.HistoBin2D(deref(a.hb2ptr()) - deref(b.hb2ptr())))
 
     def __repr__(self):
-        return 'HistoBin2D(%g, %g; %g, %g; sumw=%g)' % (self.xEdges[0], self.xEdges[1],
-                                                        self.yEdges[0], self.yEdges[1], self.sumW)
+        return 'HistoBin2D(%g, %g; %g, %g; sumw=%g)' % (self.xEdges()[0], self.xEdges()[1],
+                                                        self.yEdges()[0], self.yEdges()[1], self.sumW())

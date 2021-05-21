@@ -86,43 +86,54 @@ cdef class Point3D(Point):
     def zErrs(self):
         """The z errors"""
         return util.read_error_pair(self.p3ptr().zErrs())
-    
+
     def zErrsFromSource(self, source):
         """The z errors"""
         if isinstance(source, str):
            source = source.encode('utf-8')
         return util.read_error_pair(self.p3ptr().zErrs(source))
-    # def setZErrs(self, val):
-    #     """Set the z errors"""
-    #     self.p3ptr().setZErrs(util.read_symmetric(val))
+
     def setZErrs(self, *es):
-        """(int, float) -> None
-           (int, [float, float]) -> None
-           (int, float, float) -> None
-        Set asymmetric errors on axis i"""
+        """
+        (float,) -> None
+        ([float, float]) -> None
+        (float, float) -> None
+        (float, string) -> None
+        ([float, float], string) -> None
+        (float, float, string) -> None
+
+        Set asymmetric errors on z-axis with an optional string argument to
+        specify which named source of uncertainty in the error breakdown should
+        be set. By default, if no source is provided, the total uncertainty is set.
+
+        TODO: simplify, this is too much for the Python wrapper
+        """
         source = None
         es = list(es)
         if type(es[-1]) is str:
             source = es[-1]
             es = es[:-1]
-        else:
-            pass
         errs = es
         if source is None:
             source = ""
+        if isinstance(source, str):
+            source = source.encode('utf-8')
         if len(errs) == 1:
             if not hasattr(errs[0], "__iter__"):
-                self.setErr(3,errs[0], source)
+                self.setErr(3, errs[0], source)
                 return
             errs = errs[0]
         # assert len(errs) == 2:
-        if isinstance(source, str):
-           source = source.encode('utf-8')
         self.pptr().setErrs(3, tuple(errs), source)
+
     def setZErrs(self, val, source):
+        """(float, string) -> None
+        Set symmetric errors on z-axis with an optional string argument to
+        specify which named source of uncertainty in the error breakdown should
+        be set. By default, if no source is provided, the total uncertainty is set"""
         if source is None:
             source = ""
-        self.p3ptr().setZErrs(util.read_symmetric(val))
+        self.p3ptr().setZErrs(util.read_symmetric(val), source)
 
     def zMin(self):
         """The minimum z position, i.e. lowest error"""

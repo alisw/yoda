@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_SCATTERND_H
 #define YODA_SCATTERND_H
@@ -32,7 +32,7 @@ namespace YODA {
 
 
     /// @name Constructors
-    //@{
+    /// @{
 
     /// Empty constructor
     Scatter(const std::string& path="", const std::string& title="")
@@ -115,11 +115,11 @@ namespace YODA {
       return new Scatter<N>(*this);
     }
 
-    //@}
+    /// @}
 
 
     /// @name Modifiers
-    //@{
+    /// @{
 
     /// Clear all points
     void reset() {
@@ -131,14 +131,14 @@ namespace YODA {
       for (Point<N>& p : _points) p.scale(scales);
     }
 
-    //@}
+    /// @}
 
 
     ///////////////////////////////////////////////////
 
 
     /// @name Point accessors
-    //@{
+    /// @{
 
     /// Number of points in the scatter
     size_t numPoints() const {
@@ -169,11 +169,11 @@ namespace YODA {
       return _points.at(index);
     }
 
-    //@}
+    /// @}
 
 
     /// @name Point inserters
-    //@{
+    /// @{
 
     /// Insert a new point
     Scatter<N>& addPoint(const Point<N>& pt) {
@@ -195,11 +195,11 @@ namespace YODA {
       return *this;
     }
 
-    //@}
+    /// @}
 
 
     /// @name Combining sets of scatter points
-    //@{
+    /// @{
 
     /// @todo Better name?
     Scatter<N>& combineWith(const Scatter<N>& other) {
@@ -213,7 +213,7 @@ namespace YODA {
       return *this;
     }
 
-    //@}
+    /// @}
 
 
   private:
@@ -224,7 +224,7 @@ namespace YODA {
 
 
   /// @name Combining scatters by merging sets of points
-  //@{
+  /// @{
 
   template <int N>
   inline Scatter<N> combine(const Scatter<N>& a, const Scatter<N>& b) {
@@ -240,14 +240,14 @@ namespace YODA {
     return rtn;
   }
 
-  //@}
+  /// @}
 
 
   //////////////////////////////////
 
 
   // /// @name Combining scatters: global operators, assuming aligned points
-  // //@{
+  // /// @{
 
   // /// Add two scatters
   // template <int N>
@@ -284,7 +284,7 @@ namespace YODA {
   //   return divide(numer, denom);
   // }
 
-  // //@}
+  // /// @}
 
 
 }

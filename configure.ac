@@ -1,7 +1,7 @@
 ## Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([YODA],[1.8.2],[yoda@projects.hepforge.org],[YODA])
+AC_INIT([YODA],[1.9.0],[yoda@projects.hepforge.org],[YODA])
 
 ## Check and block installation into the src/build dir
 if test "$prefix" = "$PWD"; then
@@ -39,7 +39,6 @@ AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory])
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_DISABLE_STATIC
-AC_LIBTOOL_DLOPEN
 AC_PROG_LIBTOOL
 
 ## Work out library suffix for the build
@@ -68,8 +67,8 @@ AC_ARG_ENABLE([root], [AC_HELP_STRING(--disable-root,
 if test "x$enable_root" = "xyes"; then
   AC_PATH_PROG(ROOTCONFIG, [root-config])
   if test "x$ROOTCONFIG" = "x"; then
-    AC_MSG_WARN([root-config not found -- not building extra ROOT compatibility tools])
     enable_root=no;
+    AC_MSG_WARN([root-config not found -- not building extra ROOT compatibility tools])
   else
     AC_MSG_CHECKING([ROOT version])
     ROOT_VERSION=`$ROOTCONFIG --version`
@@ -77,23 +76,20 @@ if test "x$enable_root" = "xyes"; then
     ROOT_MINOR_VERSION=`echo $ROOT_VERSION | cut -d. -f2 | cut -d/ -f1`
     ROOT_MICRO_VERSION=`echo $ROOT_VERSION | cut -d. -f2 | cut -d/ -f2`
     AC_MSG_RESULT([$ROOT_VERSION ($ROOT_MAJOR_VERSION,$ROOT_MINOR_VERSION,$ROOT_MICRO_VERSION)])
-    if test "$ROOT_MAJOR_VERSION" -lt 5; then
+    if test "$ROOT_MAJOR_VERSION" -lt 6; then
       enable_root=no;
-      AC_MSG_WARN([ROOT major version is < 5 -- not building extra ROOT compatibility tools])
-    elif test "$ROOT_MAJOR_VERSION" -eq 5; then
-      if test "$ROOT_MINOR_VERSION" -lt 33; then
-        enable_root=no;
-        AC_MSG_WARN([ROOT version is less than 5.33 -- not building extra ROOT compatibility tools])
-      elif test "$ROOT_MINOR_VERSION" -eq 33 && test "$ROOT_MICRO_VERSION" -lt 2; then
-        enable_root=no;
-        AC_MSG_WARN([ROOT version is less than 5.33/02 -- not building extra ROOT compatibility tools])
-      fi
+      AC_MSG_WARN([ROOT major version is < 6 -- not building extra ROOT compatibility tools])
     fi
     # TODO: Test for existence of TPython, instance_from_void API, etc.
     #AM_CXXFLAGS="$AM_CXXFLAGS -Wno-long-long"
     ROOT_CXXFLAGS=`$ROOTCONFIG --cflags`
     ROOT_LDFLAGS=`$ROOTCONFIG --ldflags`
     ROOT_LIBS=`$ROOTCONFIG --libs`
+    if test "$ROOT_MAJOR_VERSION" -eq 6 && test "$ROOT_MINOR_VERSION" -lt 22; then
+      ROOT_LIBS="$ROOT_LIBS -lPyROOT"
+    else
+      ROOT_LIBS="$ROOT_LIBS -lROOTTPython"
+    fi
     AC_SUBST(ROOT_CXXFLAGS)
     AC_SUBST(ROOT_LDFLAGS)
     AC_SUBST(ROOT_LIBS)
@@ -114,7 +110,11 @@ AC_ARG_ENABLE(pyext, [AC_HELP_STRING(--disable-pyext,
 ## Basic Python checks
 if test x$enable_pyext = xyes; then
   AX_PYTHON_DEVEL([>= '2.7.3'])
+  PYTHON_FULL_VERSION=`$PYTHON -c 'from __future__ import print_function; import platform; print(platform.python_version())'`
+  PYTHON_MAJOR_VERSION=`$PYTHON -c 'from __future__ import print_function; import sys; print(sys.version_info.major)'`
   AC_SUBST(PYTHON_VERSION)
+  AC_SUBST(PYTHON_FULL_VERSION)
+  AC_SUBST(PYTHON_MAJOR_VERSION)
   YODA_PYTHONPATH=`$PYTHON -c "from __future__ import print_function; import distutils.sysconfig; print(distutils.sysconfig.get_python_lib(prefix='$prefix', plat_specific=True));"`
   AC_SUBST(YODA_PYTHONPATH)
   if test -z "$PYTHON"; then
@@ -133,9 +133,12 @@ AM_CONDITIONAL(ENABLE_PYEXT, [test x$enable_pyext == xyes])
 if test x$enable_pyext == xyes; then
   AM_CHECK_CYTHON([0.24], [:], [:])
   if test x$CYTHON_FOUND = xyes; then
-    AC_MSG_NOTICE([Cython >= 0.24 found: Python extension source can be rebuilt (for developers)])
-    # Force rebuild since we have a sufficient Cython
-    test -f pyext/yoda/core.pyx && touch pyext/yoda/core.pyx
+    AC_PATH_PROGS(CYTHON, [cython-$PYTHON_MAJOR_VERSION cython])
+    if test x$CYTHON != x; then
+        AC_MSG_NOTICE([Cython >= 0.24 found at $CYTHON: Python extension source can be rebuilt (for developers)])
+        # Force rebuild since we have a sufficient Cython
+        test -f pyext/yoda/core.pyx && touch pyext/yoda/core.pyx
+    fi
   fi
 
   AC_CHECK_FILE([pyext/yoda/core.cpp],
@@ -160,11 +163,9 @@ AM_CPPFLAGS="-I\$(top_srcdir)/include -I\$(top_builddir)/include"
 AC_SUBST(AM_CPPFLAGS)
 AC_SUBST(AM_CXXFLAGS)
 
-dnl
-dnl setup.py puts its build artifacts into a labelled path
-dnl this helps the test scripts to find them locally instead of
-dnl having to install first
-dnl
+## setup.py puts its build artifacts into a labelled path
+## this helps the test scripts to find them locally instead of
+## having to install first
 YODA_SETUP_PY_PATH=$(${PYTHON} -c 'from __future__ import print_function; import distutils.util as u, sys; vi=sys.version_info; print("lib.%s-%s.%s" % (u.get_platform(),vi.major, vi.minor))')
 AC_SUBST(YODA_SETUP_PY_PATH)
 

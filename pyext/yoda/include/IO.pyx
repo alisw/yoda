@@ -10,6 +10,8 @@ potential memory limits.
 """
 
 import sys
+from libcpp.unordered_map cimport unordered_map
+from cython.operator cimport preincrement as inc
 
 ## Check if a string matches any of the given patterns, and that it doesn't match any unpatterns (for path filtering)
 def _pattern_check(name, patterns, unpatterns):
@@ -56,9 +58,33 @@ cdef dict _aobjects_to_dict(vector[c.AnalysisObject*]* aobjects, patterns, unpat
             out[newao.path()] = newao
     return out
 
-# ## Set a istringstream's string from a C/Python string
-# cdef void _make_iss(c.istringstream &iss, string s):
-#     iss.str(s)
+## Make a Python dict of dicts for file index from a C++ unordered_map of unordered_maps
+cdef dict _idxMap_to_dict(unordered_map[string, unordered_map[string, int]]* idxMap):
+    cdef dict out = {}
+    cdef unordered_map[string, unordered_map[string, int]].iterator it = idxMap.begin()
+    cdef dict innerDict = {}
+    cdef unordered_map[string, int].iterator it_inner
+
+    while(it != idxMap.end()):
+        objType = deref(it).first
+        nestedMap = deref(it).second
+        innerDict = {}
+        it_inner = nestedMap.begin()
+
+        while(it_inner != nestedMap.end()):
+            path = deref(it_inner).first
+            binNum = deref(it_inner).second
+            innerDict[path] = binNum
+            inc(it_inner)
+
+        out[objType] = innerDict
+        inc(it)
+
+    return out
+
+## Set a istringstream's string from a C/Python string
+cdef void _make_iss(c.istringstream &iss, string s):
+    iss.str(s)
 
 ## Read a file's contents as a returned string
 ## The file argument can either be a file object, filename, or special "-" reference to stdin
@@ -120,12 +146,12 @@ def read(filename, asdict=True, patterns=None, unpatterns=None):
             import collections
             return collections.OrderedDict(sorted(d.items()))
         except:
-            return d	
+            return d
     else:
         return _aobjects_to_list(&aobjects, patterns, unpatterns)
 
 
-def readYODA(filename, asdict=True, patterns=None, unpatterns=None):
+def readYODA(file_or_filename, asdict=True, patterns=None, unpatterns=None):
     """
     Read data objects from the provided YODA-format file.
 
@@ -137,12 +163,15 @@ def readYODA(filename, asdict=True, patterns=None, unpatterns=None):
 
     Returns a dict or list of analysis objects depending on the asdict argument.
     """
-    # cdef c.istringstream iss
+    cdef c.istringstream iss
     cdef vector[c.AnalysisObject*] aobjects
-    # s = _str_from_file(file_or_filename)
-    # _make_iss(iss, s.encode('utf-8'))
-    # c.ReaderYODA_create().read(iss, aobjects)
-    c.ReaderYODA_create().read_from_file(filename.encode('utf-8'), aobjects)
+    s = _str_from_file(file_or_filename)
+    _make_iss(iss, s.encode('utf-8'))
+    c.ReaderYODA_create().read(iss, aobjects)
+    # if type(file_or_filename) is str:
+    #     c.ReaderYODA_create().read_from_file(file_or_filename.encode('utf-8'), aobjects)
+    # else:
+    #     c.ReaderYODA_create().read(file_or_filename, aobjects)
     return _aobjects_to_dict(&aobjects, patterns, unpatterns) if asdict \
         else _aobjects_to_list(&aobjects, patterns, unpatterns)
 
@@ -208,7 +237,7 @@ def write(ana_objs, filename):
     aolist = [ao for key,ao in sorted(ana_objs.items())] if hasattr(ana_objs, "items") \
               else ana_objs if hasattr(ana_objs, "__iter__") else [ana_objs]
     for a in aolist:
-        vec.push_back(a._AnalysisObject())
+        vec.push_back(a.aoptr())
     c.IO_write_to_file(filename.encode('utf-8'), vec)
     #_str_to_file(oss.str(), filename)
 
@@ -223,7 +252,7 @@ def writeYODA(ana_objs, file_or_filename):
     aolist = ana_objs.values() if hasattr(ana_objs, "values") else ana_objs \
              if hasattr(ana_objs, "__iter__") else [ana_objs]
     for a in aolist:
-        vec.push_back(a._AnalysisObject())
+        vec.push_back(a.aoptr())
     if type(file_or_filename) is str:
         c.WriterYODA_create().write_to_file(file_or_filename.encode('utf-8'), vec)
     else:
@@ -241,7 +270,7 @@ def writeFLAT(ana_objs, file_or_filename):
     aolist = ana_objs.values() if hasattr(ana_objs, "values") else ana_objs \
              if hasattr(ana_objs, "__iter__") else [ana_objs]
     for a in aolist:
-        vec.push_back(a._AnalysisObject())
+        vec.push_back(a.aoptr())
     if type(file_or_filename) is str:
         c.WriterFLAT_create().write_to_file(file_or_filename.encode('utf-8'), vec)
     else:
@@ -259,9 +288,102 @@ def writeAIDA(ana_objs, file_or_filename):
     aolist = ana_objs.values() if hasattr(ana_objs, "values") else ana_objs \
              if hasattr(ana_objs, "__iter__") else [ana_objs]
     for a in aolist:
-        vec.push_back(a._AnalysisObject())
+        vec.push_back(a.aoptr())
     if type(file_or_filename) is str:
         c.WriterAIDA_create().write_to_file(file_or_filename.encode('utf-8'), vec)
     else:
         c.WriterAIDA_create().write(oss, vec)
         _str_to_file(oss.str(), file_or_filename)
+
+##
+## Indexers
+##
+
+class Index:
+    """
+    Index of a file.
+    """
+    def __init__(self, index_map, repr_string):
+        self.index_map = index_map
+        self.repr_string = repr_string
+
+    def toDict(self):
+        """
+        Get dictionary containing index of the file.
+
+        Returns:
+            dict of str: dict of str: int : dictionary which holds
+                analysis object types (str) as keys and
+                dictionaries as values which in turn hold
+                paths (str) as keys and bin counts (int) as values.
+
+        Example:
+            {
+                "Histo1D": {
+                    "/RAW/ATLAS_2017_I1514251/d21-x01-y01": 5,
+                    "/RAW/ATLAS_2017_I1514251/d33-x01-y01": 16
+                },
+                "Scatter2D": {
+                    "/ATLAS_2017_I1514251/d09-x01-y01": 3
+                }
+            }
+        """
+        return self.index_map
+
+    def __repr__(self):
+        """
+        Get string representation of file index.
+
+        Returns:
+            str: formatted string.
+                Example:
+                    "
+                    OBJECT TYPE: Scatter1D
+                        ----------
+                        PATH:      /RAW/_XSEC[WeightNormalisation]
+                        BIN COUNT: 1
+                        ----------
+                    "
+        """
+        return self.repr_string.replace("\\n","\n")
+
+
+cdef dict mkIndex(c.Reader& reader, string filename):
+    """Generate index for file.
+
+    Generates index object for specified filename, extracts
+    map and string representation from c.Index object, converts
+    index map to Python dictionary.
+
+    Args:
+        reader (c.Reader): object supporting Reader interface
+        filename (str):    path to a file for index generation
+
+    Returns:
+        dict of str: dict of str: dict of str: int  : Dictionary containing
+            two keys ["dict", "str"].
+
+            Value of "dict" key contains dictionary which holds
+                analysis object types (str) as keys and
+                dictionaries as values which in turn hold
+                paths (str) as keys and bin counts (int) as values.
+
+            Value of "str" key contains string representation (str) of index map.
+    """
+    cdef c.Index idx = c.ReaderYODA_create().make_index(filename)
+    cdef unordered_map[string,unordered_map[string,int]] AOidx
+
+    AOidx = idx.getAOIndex()
+    indexDict = _idxMap_to_dict(&AOidx)
+    indexStr = idx.toString()
+
+    return {"dict" : indexDict, "str" : indexStr}
+
+def mkIndexYODA(filename):
+    """
+    Generate Index object for the provided YODA-format file.
+    """
+    if type(filename) is str:
+      filename=filename.encode('utf-8')
+    idx = mkIndex(c.ReaderYODA_create(), filename)
+    return Index(idx["dict"], str(idx["str"]))

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Bin_h
 #define YODA_Bin_h
@@ -24,20 +24,30 @@ namespace YODA {
     virtual ~Bin() { }
 
     /// @name Miscellaneous
-    //@{
+    /// @{
 
     /// Reset this bin
     virtual void reset() = 0;
 
-    //@}
+    /// @}
 
+
+    /// @name Dimensions
+    /// @{
 
     /// Dimension of the fill space
+    ///
+    /// @todo Convert to be the total dimension
     virtual size_t dim() = 0;
+
+    /// Dimension of the fill space
+    virtual size_t fillDim() = 0;
+
+    /// @}
 
 
     /// @name Fill statistics
-    //@{
+    /// @{
 
     /// The number of entries (fractional fills are possible)
     virtual double numEntries() const = 0;
@@ -51,7 +61,7 @@ namespace YODA {
     /// The sum of weights squared
     virtual double sumW2() const = 0;
 
-    //@}
+    /// @}
 
 
     /// @todo Add integer ID access to axis quantities (i.e. min, max, mid, focus)
