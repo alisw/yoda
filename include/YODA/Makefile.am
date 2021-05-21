@@ -1,6 +1,7 @@
 pkginclude_HEADERS = \
     Exceptions.h  \
     AnalysisObject.h \
+    Fillable.h Binned.h Scatter.h \
     Weights.h \
     Bin.h \
     Dbn0D.h Dbn1D.h Dbn2D.h Dbn3D.h \
@@ -16,6 +17,7 @@ pkginclude_HEADERS = \
     Scatter2D.h Point2D.h \
     Scatter3D.h Point3D.h \
     ScatterND.h PointND.h ErrorND.h \
+    Index.h \
     Writer.h WriterAIDA.h WriterFLAT.h WriterYODA.h \
     Reader.h ReaderAIDA.h ReaderYODA.h ReaderFLAT.h \
     YODA.h IO.h ROOTCnv.h

@@ -71,19 +71,19 @@ EXTRA_DIST = $(STATIC_SRC) $(BUILT_SRC)
 if WITH_CYTHON
 
 core.cpp core.h: $(CYTHON_SRC) .made_pyx_templates
-	cython $(srcdir)/core.pyx --cplus \
+	$(CYTHON) $(srcdir)/core.pyx --cplus -2 \
        -I $(srcdir) -I $(srcdir)/include \
        -I $(builddir) -I $(builddir)/include \
        -o $@
 
 util.cpp: util.pxd util.pyx .made_pyx_templates
-	cython $(srcdir)/util.pyx --cplus \
+	$(CYTHON) $(srcdir)/util.pyx --cplus -2 \
        -I $(srcdir) -I $(srcdir)/include \
        -I $(builddir) -I $(builddir)/include \
        -o $@
 
 rootcompat.cpp: util.pxd rootcompat.pxd rootcompat.pyx .made_pyx_templates
-	cython $(srcdir)/rootcompat.pyx --cplus \
+	$(CYTHON) $(srcdir)/rootcompat.pyx --cplus -2 \
        -I $(srcdir) -I $(srcdir)/include \
        -I $(builddir) -I $(builddir)/include \
        -o $@

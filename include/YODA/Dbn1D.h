@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Dbn1D_h
 #define YODA_Dbn1D_h
@@ -29,7 +29,7 @@ namespace YODA {
   public:
 
     /// @name Constructors
-    //@{
+    /// @{
 
     /// Default constructor of a new distribution.
     Dbn1D() {
@@ -67,11 +67,11 @@ namespace YODA {
       return *this;
     }
 
-    //@}
+    /// @}
 
 
     /// @name Modifiers
-    //@{
+    /// @{
 
     /// @brief Contribute a sample at @a val with weight @a weight.
     void fill(double val, double weight=1.0, double fraction=1.0) {
@@ -103,13 +103,13 @@ namespace YODA {
       _sumWX2 *= factor*factor;
     }
 
-    //@}
+    /// @}
 
   public:
 
 
     /// @name Distribution statistics
-    //@{
+    /// @{
 
     /// The absolute error on sumW
     double errW() const { return _dbnW.errW(); }
@@ -132,11 +132,11 @@ namespace YODA {
     /// Weighted RMS, \f$ \sqrt{ \sum{w x^2}/\sum{w} } \f$, of distribution.
     double xRMS() const;
 
-    //@}
+    /// @}
 
 
     /// @name Raw distribution running sums
-    //@{
+    /// @{
 
     /// Number of entries (number of times @c fill was called, ignoring weights)
     double numEntries() const {
@@ -168,11 +168,11 @@ namespace YODA {
       return _sumWX2;
     }
 
-    //@}
+    /// @}
 
 
     /// @name Operators
-    //@{
+    /// @{
 
     /// Add two dbns
     Dbn1D& operator += (const Dbn1D& d) {
@@ -184,7 +184,7 @@ namespace YODA {
       return subtract(d);
     }
 
-    //@}
+    /// @}
 
 
   protected:
@@ -199,7 +199,7 @@ namespace YODA {
   private:
 
     /// @name Storage
-    //@{
+    /// @{
 
     /// The pure weight moments are stored in a 0D distribution
     Dbn0D _dbnW;
@@ -210,7 +210,7 @@ namespace YODA {
     /// The 2nd order weighted x moment
     double _sumWX2;
 
-    //@}
+    /// @}
 
   };
 

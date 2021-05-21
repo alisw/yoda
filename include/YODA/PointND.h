@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_POINTND_H
 #define YODA_POINTND_H
@@ -29,7 +29,7 @@ namespace YODA {
 
 
     /// @name Constructors
-    //@{
+    /// @{
 
     // Default constructor
     Point() {
@@ -73,11 +73,11 @@ namespace YODA {
       : _pos(pos), _errs(errs)
     {    }
 
-    //@}
+    /// @}
 
 
     /// @name Modifiers
-    //@{
+    /// @{
 
     /// Clear the point values and errors
     void clear() {
@@ -87,13 +87,13 @@ namespace YODA {
 
     /// @todo addError, addErrors, setErrors
 
-    //@}
+    /// @}
 
 
   public:
 
     /// @name Coordinate accessors
-    //@{
+    /// @{
 
     /// Get the coordinate vector
     NdVal& pos() { return _pos; }
@@ -106,11 +106,11 @@ namespace YODA {
       _pos = pos;
     }
 
-    //@}
+    /// @}
 
 
     /// @name Error accessors
-    //@{
+    /// @{
 
     /// Get error values
     Errors& errs() {
@@ -127,11 +127,11 @@ namespace YODA {
       _errs = errs;
     }
 
-    //@}
+    /// @}
 
 
     /// @name Scaling and transformations
-    //@{
+    /// @{
 
     /// Uniform scaling
     void scale(const NdVal& scales) {
@@ -148,25 +148,25 @@ namespace YODA {
     //     rf.transformErrs(_pos, e);
     // }
 
-    //@}
+    /// @}
 
 
   protected:
 
     /// @name Value and error variables
-    //@{
+    /// @{
 
     NdVal _pos;
     Errors _errs;
 
-    //@}
+    /// @}
 
   };
 
 
 
   /// @name Comparison operators
-  //@{
+  /// @{
 
   /// Equality test
   template <int N>
@@ -222,7 +222,7 @@ namespace YODA {
     return !(a < b);
   }
 
-  //@}
+  /// @}
 
 
 }

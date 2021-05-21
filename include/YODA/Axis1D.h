@@ -21,7 +21,7 @@ namespace YODA {
   public:
 
     /// Typedefs
-    //@{
+    /// @{
 
     /// Bin type
     typedef BIN1D Bin;
@@ -29,10 +29,10 @@ namespace YODA {
     /// A vector containing 1D bins. Not used for searching.
     typedef typename std::vector<Bin> Bins;
 
-    //@}
+    /// @}
 
     /// @name Constructors
-    //@{
+    /// @{
 
     /// Empty constructor
     Axis1D()
@@ -81,7 +81,7 @@ namespace YODA {
     }
 
     /// @name Statistics accessor functions
-    //@{
+    /// @{
 
     /// Get the number of bins on the axis
     size_t numBins() const {
@@ -191,11 +191,11 @@ namespace YODA {
       _overflow = dbn;
     }
 
-    //@}
+    /// @}
 
 
     /// @name Modifiers and helpers
-    //@{
+    /// @{
 
     /// Reset all the bin statistics on the axis
     void reset() {
@@ -448,11 +448,11 @@ namespace YODA {
       for (size_t i = 0; i < _bins.size(); ++i) _bins[i].scaleW(scalefactor);
     }
 
-    //@}
+    /// @}
 
 
     /// @name Comparisons to other Axis objects
-    //@{
+    /// @{
 
     bool sameBinning(const Axis1D& other) const {
       if (numBins() != other.numBins()) return false;
@@ -467,11 +467,11 @@ namespace YODA {
       return !_binsearcher.shared_edges(other._binsearcher).empty();
     }
 
-    //@}
+    /// @}
 
 
     /// @name Operators
-    //@{
+    /// @{
 
     /// Check if two of the Axis have the same binning, within numeric tolerance
     bool operator == (const Axis1D& other) const {
@@ -514,7 +514,7 @@ namespace YODA {
       return *this;
     }
 
-    //@}
+    /// @}
 
 
   private:
@@ -559,7 +559,7 @@ namespace YODA {
   private:
 
     /// @name Data structures
-    //@{
+    /// @{
 
     /// Bins vector
     Bins _bins;
@@ -579,7 +579,7 @@ namespace YODA {
     /// Whether modifying bin edges is permitted
     bool _locked;
 
-    //@}
+    /// @}
 
   };
 

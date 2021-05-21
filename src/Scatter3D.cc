@@ -56,7 +56,7 @@ namespace YODA {
 
 
       Point3D pt(x, y, z, exminus, explus, eyminus, eyplus, ez, ez);
-      pt.setParentAO(&rtn);
+      pt.setParent(&rtn);
       rtn.addPoint(pt);
     }
 
@@ -119,14 +119,15 @@ namespace YODA {
     return rtn;
   }
 
+
   void Scatter3D::parseVariations()   {
-    if (this-> _variationsParsed) { return; }
-    if (!(this->hasAnnotation("ErrorBreakdown"))) { return;}
+    if (this->_variationsParsed) { return; }
+    if (!(this->hasAnnotation("ErrorBreakdown"))) { return; }
     YAML::Node errorBreakdown;
     errorBreakdown = YAML::Load(this->annotation("ErrorBreakdown"));
     if (errorBreakdown.size()) {
-      for (unsigned int thisPointIndex=0 ; thisPointIndex< this->numPoints() ; ++thisPointIndex){
-        Point3D &thispoint = this->_points[thisPointIndex];
+      for (size_t thisPointIndex = 0; thisPointIndex < this->numPoints(); ++thisPointIndex) {
+        Point3D& thispoint = this->_points[thisPointIndex];
         YAML::Node variations = errorBreakdown[thisPointIndex];
         for (const auto& variation : variations) {
           const std::string variationName = variation.first.as<std::string>();
@@ -135,17 +136,18 @@ namespace YODA {
           thispoint.setZErrs(eym,eyp,variationName);
         }
       }
-      this-> _variationsParsed =true;
+      this->_variationsParsed = true;
     }
   }
 
 
-  const std::vector<std::string> Scatter3D::variations() const  {
+  /// @todo Reduce duplication between Scatter types
+  std::vector<std::string> Scatter3D::variations() const  {
     std::vector<std::string> vecvariations;
-    for (auto &point : this->_points){
-      for (auto &it : point.errMap()){
-        //if the variation is not already in the vector, add it !
-        if (std::find(vecvariations.begin(), vecvariations.end(), it.first) == vecvariations.end()){
+    for (auto& point : this->_points) {
+      for (auto& it : point.errMap()) {
+        // if the variation is not already in the vector, add it!
+        if (std::find(vecvariations.begin(), vecvariations.end(), it.first) == vecvariations.end()) {
           vecvariations.push_back(it.first);
         }
       }

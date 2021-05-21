@@ -105,7 +105,7 @@ function _yodamerge() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
-    opts="--help -h --output -o --assume-normalized"
+    opts="--help -h --output -o --match -m --unmatch -M -v --verbose -q --quiet"
 
     if [[ ${cur} = -* ]] ; then
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
@@ -118,6 +118,30 @@ function _yodamerge() {
 
 
 complete -F _yodamerge -o default yodamerge
+
+
+##############################
+
+
+function _yodastack() {
+    local cur prev commands options command
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+    opts="--help -h --output -o --match -m --unmatch -M -v --verbose -q --quiet"
+
+    if [[ ${cur} = -* ]] ; then
+        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+        if test -n "$COMPREPLY"; then return 0; fi
+    fi
+
+    _filedir "yoda|yoda.gz"
+    return 0
+}
+
+
+complete -F _yodastack -o default yodastack
 
 
 ##############################

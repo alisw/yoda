@@ -57,46 +57,56 @@ cdef class Point2D(Point):
         self.p2ptr().setY(y)
 
     def yErrs(self):
-        """The y errors"""
+        """The (total) y errors"""
         return util.read_error_pair(self.p2ptr().yErrs())
-    
+
     def yErrsFromSource(self, source):
-        """The y errors"""
+        """The y errors from a particular named source of uncertainty in the breakdown"""
         if isinstance(source, str):
            source = source.encode('utf-8')
         return util.read_error_pair(self.p2ptr().yErrs(source))
-    # def setYErrs(self, val):
-    #     """Set the y errors"""
-    #     self.p2ptr().setYErrs(util.read_symmetric(val))
+
     def setYErrs(self, *es):
-        """(int, float) -> None
-           (int, [float, float]) -> None
-           (int, float, float) -> None
-        Set asymmetric errors on axis i"""
+        """
+        (float,) -> None
+        ([float, float]) -> None
+        (float, float) -> None
+        (float, string) -> None
+        ([float, float], string) -> None
+        (float, float, string) -> None
+
+        Set asymmetric errors on y-axis with an optional string argument to
+        specify which named source of uncertainty in the error breakdown should
+        be set. By default, if no source is provided, the total uncertainty is set.
+
+        TODO: simplify, this is too much for the Python wrapper
+        """
         source = None
         es = list(es)
         if type(es[-1]) is str:
             source = es[-1]
             es = es[:-1]
-        else:
-            pass
         errs = es
         if source is None:
             source = ""
+        if isinstance(source, str):
+            source = source.encode('utf-8')
         if len(errs) == 1:
             if not hasattr(errs[0], "__iter__"):
                 self.setErr(2,errs[0], source)
                 return
             errs = errs[0]
         # assert len(errs) == 2:
-        if isinstance(source, str):
-           source = source.encode('utf-8')
         self.pptr().setErrs(2, tuple(errs), source)
-    
+
     def setYErrs(self, val, source):
+        """(float, string) -> None
+        Set symmetric errors on y-axis with an optional string argument to
+        specify which named source of uncertainty in the error breakdown should
+        be set. By default, if no source is provided, the total uncertainty is set"""
         if source is None:
             source = ""
-        self.p2ptr().setYErrs(util.read_symmetric(val))
+        self.p2ptr().setYErrs(util.read_symmetric(val), source)
 
     def yMin(self):
         """The minimum y position, i.e. lowest error"""
@@ -118,16 +128,6 @@ cdef class Point2D(Point):
     #         self.x, self.y = val
 
 
-
-    # # TODO: How does this fit into the multi-error API? Still useful, but just reports first errs... how to get _all_ +- err pairs?
-    # # LC: I think it's Ok to leave this like this, for most users the nominal is what they want anyway,
-    # # and for those who want multi-errs, they can set using a method eg setErrs(dim,(ed,eu),source) and access using errs(dim,(ed,eu),source)
-    # property yErrs:
-    #     """The y errors"""
-    #     def __get__(self):
-    #         return util.read_error_pair(self.p2ptr().yErrs())
-    #     def __set__(self, val):
-    #         self.p2ptr().setYErrs(util.read_symmetric(val))
 
 
     def scaleX(self, a):

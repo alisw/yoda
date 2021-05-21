@@ -3,7 +3,7 @@ dist_bin_SCRIPTS = yoda-config
 if ENABLE_PYEXT
 
 ## YODA file listing, diffing and modifying
-dist_bin_SCRIPTS += yodals yodadiff yodamerge yodascale
+dist_bin_SCRIPTS += yodals yodadiff yodamerge yodastack yodascale
 
 ## Histogramming from an ASCII stream of unbinned data
 dist_bin_SCRIPTS += yodahist
@@ -24,10 +24,5 @@ endif
 endif
 
 ## bash completion
-dist_pkgdata_DATA = yoda-completion
-bashcomp_dir = $(DESTDIR)$(prefix)/etc/bash_completion.d
-install-data-local:
-	if [[ -d "$(bashcomp_dir)" && -w "$(bashcomp_dir)" ]]; then \
-      $(install_sh_DATA) yoda-completion $(bashcomp_dir)/; fi
-uninstall-local:
-	rm -f $(bashcomp_dir)/yoda-completion
+bashcompdir = $(sysconfdir)/bash_completion.d
+dist_bashcomp_DATA = yoda-completion

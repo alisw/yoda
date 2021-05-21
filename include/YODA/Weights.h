@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Weights_h
 #define YODA_Weights_h
@@ -23,7 +23,7 @@ namespace YODA {
   public:
 
     /// @name Constructors
-    //@{
+    /// @{
 
     Weights(const Weights& other)
       : _values(other._values)
@@ -58,7 +58,7 @@ namespace YODA {
       }
     }
 
-    //@}
+    /// @}
 
   public:
 
@@ -66,7 +66,7 @@ namespace YODA {
     /// @todo Sorted iterators of pair<std::string, double>
 
     /// @name Accessors
-    //@{
+    /// @{
 
     typedef std::map<std::string, double>::iterator iterator;
     typedef std::map<std::string, double>::const_iterator const_iterator;
@@ -127,11 +127,11 @@ namespace YODA {
       return rtn;
     }
 
-    //@}
+    /// @}
 
 
     /// @name Arithmetic operators as members
-    //@{
+    /// @{
 
     /// Add another weights to this
     Weights& operator += (const Weights& toAdd) {
@@ -205,11 +205,11 @@ namespace YODA {
       return rtn;
     }
 
-    //@}
+    /// @}
 
 
     /// @name Comparison operators
-    //@{
+    /// @{
 
     /// Equals
     bool operator == (const Weights& other) const {
@@ -221,7 +221,7 @@ namespace YODA {
       return !(*this == other);
     }
 
-    //@}
+    /// @}
 
 
     /// @todo Allow implicit casting to double, if single-entried? Or too dangerous and not useful enough?
@@ -248,7 +248,7 @@ namespace YODA {
 
 
   /// @name Combining weights: global operators
-  //@{
+  /// @{
 
   /// Add two weights
   inline Weights operator + (const Weights& first, const Weights& second) {
@@ -306,7 +306,7 @@ namespace YODA {
     return tmp;
   }
 
-  //@}
+  /// @}
 
 
   /// Standard text representaion

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_ProfileBin2D_h
 #define YODA_ProfileBin2D_h
@@ -24,7 +24,7 @@ namespace YODA {
   public:
 
     /// @name Constructors
-    //@{
+    /// @{
 
     /// Make a new, empty bin with two pairs of edges.
     ProfileBin2D(double xmin, double xmax, double ymin, double ymax)
@@ -56,11 +56,11 @@ namespace YODA {
       return *this;
     }
 
-    //@}
+    /// @}
 
 
     /// @name Modifiers
-    //@{
+    /// @{
 
     /// Fill by x, y, z values and weight
     ///
@@ -88,11 +88,11 @@ namespace YODA {
       Bin2D<Dbn3D>::reset();
     }
 
-    //@}
+    /// @}
 
 
     /// @name Bin scaling (x,y scaling is inherited)
-    //@{
+    /// @{
 
     /// Scale the z (profiled) dimension
     ///
@@ -109,11 +109,11 @@ namespace YODA {
       scaleZ(az);
     }
 
-    //@}
+    /// @}
 
 
     /// @name Bin content info
-    //@{
+    /// @{
 
     /// The mean of the z distribution
     double mean() const {
@@ -145,10 +145,10 @@ namespace YODA {
       return _dbn.zRMS();
     }
 
-    //@}
+    /// @}
 
     /// @name Raw z distribution statistics
-    //@{
+    /// @{
 
     ///@todo: Check if it is correct
 
@@ -161,7 +161,7 @@ namespace YODA {
       return _dbn.sumWZ2();
     }
 
-    //@}
+    /// @}
 
   public:
 

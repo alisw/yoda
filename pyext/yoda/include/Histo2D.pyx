@@ -217,50 +217,42 @@ cdef class Histo2D(AnalysisObject):
         self.h2ptr().normalize(normto, includeoverflows)
 
 
-    #@property
     def xMin(self):
         """Low x edge of the histo."""
         return self.h2ptr().xMin()
 
-    #@property
     def xMax(self):
         """High x edge of the histo."""
         return self.h2ptr().xMax()
 
-    #@property
     def yMin(self):
         """Low y edge of the histo."""
         return self.h2ptr().yMin()
 
-    #@property
     def yMax(self):
         """High y edge of the histo."""
         return self.h2ptr().yMax()
 
 
-    #@property
     def numBins(self):
         """() -> int
         Number of bins (not including overflows)."""
         return self.h2ptr().numBins()
 
-    #@property
     def numBinsX(self):
         """() -> int
         Number of bins (edges) along the x axis."""
         return self.h2ptr().numBinsX()
 
-    #@property
     def numBinsY(self):
         """() -> int
         Number of bins (edges) along the y axis."""
         return self.h2ptr().numBinsY()
 
 
-    #@property
     def bins(self):
         """Access the ordered bins list."""
-        return [self.bin(i) for i in xrange( self.h2ptr().numBins())]
+        return [self.bin(i) for i in range( self.h2ptr().numBins())]
 
     def bin(self, i):
         """Get the i'th bin"""
@@ -292,12 +284,30 @@ cdef class Histo2D(AnalysisObject):
                                pair[double, double](ylow, yhigh))
         return self
 
-    def addBins(self, bounds):
+    def addBins(self, bins):
         """Add several bins."""
-        # TODO: simplify / make consistent
-        for xlow, xhigh, ylow, yhigh in bounds:
-            self.h2ptr().addBin(pair[double, double](xlow, xhigh),
-                                pair[double, double](ylow, yhigh))
+        cdef vector[c.HistoBin2D] cbins
+        cdef c.HistoBin2D *cbin
+        for elem in bins:
+            if type(elem) is tuple:
+                xlow, xhigh, ylow, yhigh = elem
+                # Allocating on the stack requires a default constructor [1]
+                # which HistoBin2D doesn't have.
+                #
+                # [1] https://github.com/cython/cython/wiki/WrappingCPlusPlus#declare-a-var-with-the-wrapped-c-class
+                cbin = new c.HistoBin2D(xlow, xhigh, ylow, yhigh)
+                # Assuming this doesn't throw exceptions, or we are going to
+                # leak memory
+                cbins.push_back(deref(cbin))
+                del cbin
+            elif type(elem) is HistoBin2D:
+                cbin = (<HistoBin2D>elem).hb2ptr()
+                cbins.push_back(deref(cbin))
+            else:
+                raise ValueError(
+                    "Unsupported bin of type {}".format(type(elem))
+                )
+        self.h2ptr().addBins(cbins)
 
     # def mergeBins(self, size_t a, size_t b):
     #     self.h2ptr().mergeBins(a, b)
@@ -355,10 +365,8 @@ cdef class Histo2D(AnalysisObject):
 
 
     ## Functions for array-based plotting, chi2 calculations, etc.
-
-    # def sumWs(self):
-    #     """All sumWs of the histo."""
-    #     return [b.sumW for b in self.bins()]
+    #
+    # TODO: add "useoverflows" optional args, move most into C++
 
     def _mknp(self, xs):
         try:
@@ -367,104 +375,185 @@ cdef class Histo2D(AnalysisObject):
         except ImportError:
             return xs
 
+
+    ## Geometric properties in x
+
     def xEdges(self):
-        """All x edges of the histo."""
+        """Unique x edges of the histo."""
         return self._mknp(self.h2ptr().xEdges())
 
-    def xMins(self):
-        """All x low edges of the histo."""
-        return self._mknp([b.xMin() for b in self.bins()])
+    def xMin(self):
+        """Lowest x value."""
+        return self.xEdges()[0]
 
-    def xMins(self):
-        """All x low edges of the histo."""
-        return self._mknp([b.xMin() for b in self.bins()])
+    def xMax(self):
+        """Highest x value."""
+        return self.xEdges()[-1]
 
-    def xMaxs(self):
-        """All x high edges of the histo."""
-        return self._mknp([b.xMax() for b in self.bins()])
-
-    def xMids(self):
-        """All x bin midpoints of the histo."""
-        return self._mknp([b.xMid() for b in self.bins()])
-
-    def xFoci(self):
-        """All x bin foci of the histo."""
-        return self._mknp([b.xFocus() for b in self.bins()])
-
-    def xVals(self, foci=False):
-        return self.xFoci() if foci else self.xMids()
-
-    def xErrs(self, foci=False):
-        if foci:
-            return [(b.xFocus()-b.xMin(), b.xMax()-b.xFocus()) for b in self.bins()]
+    def xMins(self, unique=True, asgrid=False):
+        """Unique/all x low edges of the histo."""
+        if unique:
+            rtn = self.xEdges()[:-1]
         else:
-            return [(b.xMid()-b.xMin(), b.xMax()-b.xMid()) for b in self.bins()]
+            rtn = self._mknp([b.xMin() for b in self.bins()])
+        if asgrid:
+            rtn = rtn.reshape(self.numBinsX(), self.numBinsY())
+        return rtn
 
-    # def xMin(self):
-    #     """Lowest x value."""
-    #     return min(self.xMins())
+    def xMaxs(self, unique=True, asgrid=False):
+        """Unique/all x high edges of the histo."""
+        if unique:
+            rtn = self.xEdges()[1:]
+        else:
+            rtn = self._mknp([b.xMax() for b in self.bins()])
+        if asgrid:
+            rtn = rtn.reshape(self.numBinsX(), self.numBinsY())
+        return rtn
 
-    # def xMax(self):
-    #     """Highest x value."""
-    #     return max(self.xMaxs())
+    def xMids(self, unique=True, asgrid=False):
+        """Unique/all x bin midpoints of the histo."""
+        if unique:
+            rtn = (self.xMins() + self.xMaxs())/ 2.
+        else:
+            rtn = self._mknp([b.xMid() for b in self.bins()])
+        if asgrid:
+            rtn = rtn.reshape(self.numBinsX(), self.numBinsY())
+        return rtn
+
+
+    ## Filling properties in x
+
+    def xFoci(self, asgrid=False):
+        """All x bin foci of the histo."""
+        rtn = self._mknp([b.xFocus() for b in self.bins()])
+        if asgrid:
+            rtn = rtn.reshape(self.numBinsX(), self.numBinsY())
+        return rtn
+
+    def xVals(self, foci=False, asgrid=False):
+        """All x values of the histo."""
+        return self.xFoci(asgrid) if foci else self.xMids(False, asgrid)
+
+    def xErrs(self, foci=False, asgrid=False):
+        """All x errors of the histo."""
+        # TODO: rewrite using xFoci/xMids/xMins/xMaxs
+        if foci:
+            rtn = [(b.xFocus()-b.xMin(), b.xMax()-b.xFocus()) for b in self.bins()]
+        else:
+            rtn = [(b.xMid()-b.xMin(), b.xMax()-b.xMid()) for b in self.bins()]
+        if asgrid:
+            rtn = rtn.reshape(self.numBinsX(), self.numBinsY())
+        return rtn
+
+
+    ## Geometric properties in y
 
     def yEdges(self):
-        """All y edges of the histo."""
+        """Unique y edges of the histo."""
         return self._mknp(self.h2ptr().yEdges())
 
-    def yMins(self):
-        """All y low edges of the histo."""
-        return self._mknp([b.yMin() for b in self.bins()])
+    def yMin(self):
+        """Lowest y value."""
+        return self.yEdges()[0]
 
-    def yMaxs(self):
-        """All y high edges of the histo."""
-        return self._mknp([b.yMax() for b in self.bins()])
+    def yMax(self):
+        """Highest y value."""
+        return self.yEdges()[-1]
 
-    def yMids(self):
-        """All y bin midpoints of the histo."""
-        return self._mknp([b.yMid() for b in self.bins()])
-
-    def yFoci(self):
-        """All y bin foci of the histo."""
-        return self._mknp([b.yFocus() for b in self.bins()])
-
-    def yVals(self, foci=False):
-        return self.yFoci() if foci else self.yMids()
-
-    def yErrs(self, foci=False):
-        if foci:
-            return [(b.yFocus()-b.yMin(), b.yMax()-b.yFocus()) for b in self.bins()]
+    def yMins(self, unique=True, asgrid=False):
+        """Unique/all y low edges of the histo."""
+        if unique:
+            rtn = self.yEdges()[:-1]
         else:
-            return [(b.yMid()-b.yMin(), b.yMax()-b.yMid()) for b in self.bins()]
+            rtn = self._mknp([b.yMin() for b in self.bins()])
+        if asgrid:
+            rtn = rtn.reshape(self.numBinsX(), self.numBinsY())
+        return rtn
 
-    # def yMin(self):
-    #     """Lowest y value."""
-    #     return min(self.yMins())
+    def yMaxs(self, unique=True, asgrid=False):
+        """Unique/all y high edges of the histo."""
+        if unique:
+            rtn = self.yEdges()[1:]
+        else:
+            rtn = self._mknp([b.yMax() for b in self.bins()])
+        if asgrid:
+            rtn = rtn.reshape(self.numBinsX(), self.numBinsY())
+        return rtn
 
-    # def yMax(self):
-    #     """Highest y value."""
-    #     return max(self.yMaxs())
+    def yMids(self, unique=True, asgrid=False):
+        """Unique/all y bin midpoints of the histo."""
+        if unique:
+            rtn = (self.yMins() + self.yMaxs())/ 2.
+        else:
+            rtn = self._mknp([b.yMid() for b in self.bins()])
+        if asgrid:
+            rtn = rtn.reshape(self.numBinsX(), self.numBinsY())
+        return rtn
 
 
-    def heights(self):
+
+    ## Filling properties in y
+
+    def yFoci(self, asgrid=False):
+        """All y bin foci of the histo."""
+        rtn = self._mknp([b.yFocus() for b in self.bins()])
+        if asgrid:
+            rtn = rtn.reshape(self.numBinsX(), self.numBinsY())
+        return rtn
+
+    def yVals(self, foci=False, asgrid=False):
+        """All y values of the histo."""
+        return self.yFoci(asgrid) if foci else self.yMids(False, asgrid)
+
+    def yErrs(self, foci=False, asgrid=False):
+        """All y errors of the histo."""
+        # TODO: rewrite using yFoci/yMids/yMins/yMaxs
+        if foci:
+            rtn = [(b.yFocus()-b.yMin(), b.yMax()-b.yFocus()) for b in self.bins()]
+        else:
+            rtn = [(b.yMid()-b.yMin(), b.yMax()-b.yMid()) for b in self.bins()]
+        if asgrid:
+            rtn = rtn.reshape(self.numBinsX(), self.numBinsY())
+        return rtn
+
+
+    ## Filling properties in general
+
+    def sumWs(self, asgrid=False):
+        """All sumW values of the histo."""
+        rtn = self._mknp([b.sumW() for b in self.bins()])
+        if asgrid:
+            rtn = rtn.reshape(self.numBinsX(), self.numBinsY())
+        return rtn
+
+    def heights(self, asgrid=False):
         """All y heights of the histo."""
-        return self._mknp([b.height() for b in self.bins()])
+        rtn = self._mknp([b.height() for b in self.bins()])
+        if asgrid:
+            rtn = rtn.reshape(self.numBinsX(), self.numBinsY())
+        return rtn
 
-    def volumes(self):
-        """All areas of the histo."""
-        return self._mknp([b.area() for b in self.bins()])
+    def volumes(self, asgrid=False):
+        """All volumes of the histo."""
+        rtn = self._mknp([b.volume() for b in self.bins()])
+        if asgrid:
+            rtn = rtn.reshape(self.numBinsX(), self.numBinsY())
+        return rtn
 
-    def zVals(self, vol=False):
-        return self.volumes() if vol else self.heights()
+    def zVals(self, vol=False, asgrid=False):
+        return self.volumes(asgrid) if vol else self.heights(asgrid)
 
-    def heightErrs(self): #, asymm=False):
+    def heightErrs(self, asymm=False, asgrid=False):
         """All height errors of the histo.
 
-        TODO: asymm arg / heightErrsMinus/Plus?
+        TODO: asymm arg / heightErrsMinus/Plus
         """
-        return self._mknp([b.heightErr() for b in self.bins()])
+        rtn = self._mknp([b.heightErr() for b in self.bins()])
+        if asgrid:
+            rtn = rtn.reshape(self.numBinsX(), self.numBinsY())
+        return rtn
 
-    def volumeErrs(self): #, asymm=False):
+    def volumeErrs(self, asymm=False, asgrid=False):
         """All volume errors of the histo.
 
         TODO: asymm arg / areaErrsMinus/Plus?
@@ -473,21 +562,40 @@ cdef class Histo2D(AnalysisObject):
         # if asymm:
         #    pass
         #else:
-        return self._mknp([b.volumeErr() for b in self.bins()])
+        rtn = self._mknp([b.volumeErr() for b in self.bins()])
+        if asgrid:
+            rtn = rtn.reshape(self.numBinsX(), self.numBinsY())
+        return rtn
 
-    def zErrs(self, vol=False):
-        return self.volErrs() if vol else self.heightErrs()
+    def relErrs(self, asymm=False, asgrid=False):
+        """All relative errors of the histo.
+
+        TODO: asymm arg / areaErrsMinus/Plus?
+        """
+        rtn = self._mknp([b.relErr() for b in self.bins()])
+        if asgrid:
+            rtn = rtn.reshape(self.numBinsX(), self.numBinsY())
+        return rtn
+
+    def zErrs(self, vol=False, asgrid=False):
+        return self.volErrs(asgrid) if vol else self.heightErrs(asgrid)
 
 
-    def zMins(self, area=False):
+    def zMins(self, area=False, asgrid=False):
         zs = self.zVals(area)
         es = self.zErrs(area)
-        return self._mknp([z-e for (z,e) in zip(zs,es)])
+        rtn = self._mknp([z-e for (z,e) in zip(zs,es)])
+        if asgrid:
+            rtn = rtn.reshape(self.numBinsX(), self.numBinsY())
+        return rtn
 
-    def zMaxs(self, area=False):
+    def zMaxs(self, area=False, asgrid=False):
         zs = self.zVals(area)
         es = self.zErrs(area)
-        return self._mknp([z+e for (z,e) in zip(zs,es)])
+        rtn = self._mknp([z+e for (z,e) in zip(zs,es)])
+        if asgrid:
+            rtn = rtn.reshape(self.numBinsX(), self.numBinsY())
+        return rtn
 
     def zMin(self, area=False):
         """Lowest z value."""

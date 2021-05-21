@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
 #include "YODA/Dbn1D.h"
 
@@ -23,8 +23,8 @@ namespace YODA {
     // see http://en.wikipedia.org/wiki/Weighted_mean
     if (effNumEntries() == 0) {
       throw LowStatsError("Requested variance of a distribution with no net fill weights");
-    } else if (fuzzyLessEquals(effNumEntries(), 1.0)) {
-      throw LowStatsError("Requested variance of a distribution with only one effective entry");
+    } else if (effNumEntries() <= 1.0) { //fuzzyLessEquals(effNumEntries(), 1.0)) {
+      throw LowStatsError("Requested variance of a distribution with <= 1 effective entry");
     }
     const double num = sumWX2()*sumW() - sqr(sumWX());
     const double den = sqr(sumW()) - sumW2();

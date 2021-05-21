@@ -1,12 +1,13 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
-#ifndef YODA_SCATTER1D_H
-#define YODA_SCATTER1D_H
+#ifndef YODA_Scatter1D_h
+#define YODA_Scatter1D_h
 
 #include "YODA/AnalysisObject.h"
+#include "YODA/Scatter.h"
 #include "YODA/Point1D.h"
 #include "YODA/Utils/sortedvector.h"
 #include <utility>
@@ -20,7 +21,9 @@ namespace YODA {
 
 
   /// A very generic data type which is just a collection of 1D data points with errors
-  class Scatter1D : public AnalysisObject {
+  ///
+  /// @todo Add a generic Scatter base class, providing reset(), rmPoint(), etc.
+  class Scatter1D : public AnalysisObject, public Scatter {
   public:
 
     /// Type of the native Point1D collection
@@ -30,7 +33,7 @@ namespace YODA {
 
 
     /// @name Constructors
-    //@{
+    /// @{
 
     /// Empty constructor
     Scatter1D(const std::string& path="", const std::string& title="")
@@ -116,7 +119,7 @@ namespace YODA {
       return new Scatter1D(*this);
     }
 
-    //@}
+    /// @}
 
 
     /// Dimension of this data object
@@ -124,7 +127,7 @@ namespace YODA {
 
 
     /// @name Modifiers
-    //@{
+    /// @{
 
     /// Clear all points
     void reset() {
@@ -136,18 +139,26 @@ namespace YODA {
       for (Point1D& p : _points) p.scaleX(scalex);
     }
 
-    //@}
+    /// Scaling along direction @a i
+    void scale(size_t i, double scale) {
+      switch (i) {
+      case 1: scaleX(scale); break;
+      default: throw RangeError("Invalid axis int, must be in range 1..dim");
+      }
+    }
+
+    /// @}
 
 
     ///////////////////////////////////////////////////
-    
-    void parseVariations() ;
+
+    void parseVariations();
 
     /// Get the list of variations stored in the points
-    const std::vector<std::string> variations() const ;
+    std::vector<std::string> variations() const;
 
     /// @name Point accessors
-    //@{
+    /// @{
 
     /// Number of points in the scatter
     size_t numPoints() const {
@@ -180,11 +191,11 @@ namespace YODA {
       return _points.at(index);
     }
 
-    //@}
+    /// @}
 
 
     /// @name Point inserters
-    //@{
+    /// @{
 
     /// Insert a new point
     void addPoint(const Point1D& pt) {
@@ -193,29 +204,29 @@ namespace YODA {
 
     /// Insert a new point, defined as the x value and no errors
     void addPoint(double x) {
-      Point1D thisPoint=Point1D(x);
-      thisPoint.setParentAO(this); 
+      Point1D thisPoint = Point1D(x);
+      thisPoint.setParent(this);
       _points.insert(thisPoint);
     }
 
     /// Insert a new point, defined as the x value and symmetric errors
     void addPoint(double x, double ex) {
-      Point1D thisPoint=Point1D(x, ex);
-      thisPoint.setParentAO(this); 
+      Point1D thisPoint = Point1D(x, ex);
+      thisPoint.setParent(this);
       _points.insert(thisPoint);
     }
 
     /// Insert a new point, defined as the x value and an asymmetric error pair
     void addPoint(double x, const std::pair<double,double>& ex) {
-      Point1D thisPoint=Point1D(x, ex);
-      thisPoint.setParentAO(this); 
+      Point1D thisPoint = Point1D(x, ex);
+      thisPoint.setParent(this);
       _points.insert(thisPoint);
     }
 
     /// Insert a new point, defined as the x value and explicit asymmetric errors
     void addPoint(double x, double exminus, double explus) {
-      Point1D thisPoint=Point1D(x, exminus, explus);
-      thisPoint.setParentAO(this); 
+      Point1D thisPoint = Point1D(x, exminus, explus);
+      thisPoint.setParent(this);
       _points.insert(thisPoint);
     }
 
@@ -224,11 +235,29 @@ namespace YODA {
       for (const Point1D& pt : pts) addPoint(pt);
     }
 
-    //@}
+    /// @}
+
+
+    /// @name Point removers
+    /// @{
+
+    /// Remove the point with index @a index
+    void rmPoint(size_t index) {
+      _points.erase(_points.begin()+index);
+    }
+
+    // /// Remove the points with indices @a indices
+    // void rmPoints(std::vector<size_t> indices) {
+    //   // reverse-sort so the erasure-loop doesn't invalidate the indices
+    //   std::sort(indices.begin(), indices.end(), std::greater<size_t>());
+    //   for (size_t i : indices) rmPoint(i);
+    // }
+
+    /// @}
 
 
     /// @name Combining sets of scatter points
-    //@{
+    /// @{
 
     /// @todo Better name?
     void combineWith(const Scatter1D& other) {
@@ -241,7 +270,7 @@ namespace YODA {
       for (const Scatter1D& s : others) combineWith(s);
     }
 
-    //@}
+    /// @}
 
 
     /// Equality operator
@@ -262,7 +291,7 @@ namespace YODA {
   private:
 
     Points _points;
-    
+
     bool _variationsParsed =false ;
 
   };
@@ -273,7 +302,7 @@ namespace YODA {
 
 
   /// @name Combining scatters by merging sets of points
-  //@{
+  /// @{
 
   inline Scatter1D combine(const Scatter1D& a, const Scatter1D& b) {
     Scatter1D rtn = a;
@@ -287,13 +316,13 @@ namespace YODA {
     return rtn;
   }
 
-  //@}
+  /// @}
 
   //////////////////////////////////
 
 
   /// @name Conversion functions from other data types
-  //@{
+  /// @{
 
   /// Make a Scatter1D representation of a Histo1D
   Scatter1D mkScatter(const Counter& c);
@@ -304,14 +333,14 @@ namespace YODA {
     return Scatter1D(s);
   }
 
-  //@}
-   
+  /// @}
+
 
   /////////////////////////////////
 
 
   /// @name Transforming operations on Scatter1D
-  //@{
+  /// @{
 
   /// @brief Apply transformation fx(x) to all values and error positions (operates in-place on @a s)
   ///
@@ -334,8 +363,8 @@ namespace YODA {
     }
   }
 
-  //@}
-  
+  /// @}
+
 
 }
 

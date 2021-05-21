@@ -86,3 +86,6 @@ cdef class HistoBin1D(Bin1D_Dbn1D):
     def __sub__(HistoBin1D a, HistoBin1D b):
         return cutil.new_owned_cls(HistoBin1D,
                                    new c.HistoBin1D(deref(a.hb1ptr()) - deref(b.hb1ptr())))
+
+    def __repr__(self):
+        return 'HistoBin1D(%g, %g; sumw=%g)' % (self.xEdges()[0], self.xEdges()[1], self.sumW())

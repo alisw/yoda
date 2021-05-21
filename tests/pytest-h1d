@@ -20,6 +20,8 @@ for i in range(NUM_SAMPLES):
     h3.fill(val);
 print(h1.xMean(), "+-", h1.xStdDev())
 print(h1)
+print(h1.bins())
+print(h1.bin(2))
 print(h2)
 print(h3)
 

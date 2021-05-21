@@ -51,4 +51,5 @@ cdef class ProfileBin2D(Bin2D_Dbn3D):
         return cutil.new_owned_cls(ProfileBin2D, new c.ProfileBin2D(deref(a.pb2ptr()) - deref(b.pb2ptr())))
 
     def __repr__(self):
+        # TODO: Urk
         return 'ProfileBin2D(%g, %g, %g, %g)' % (self.edges.x + self.edges.y)

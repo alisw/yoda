@@ -89,10 +89,10 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@ENABLE_PYEXT_TRUE@am__append_1 = yodals yodadiff yodamerge yodascale \
-@ENABLE_PYEXT_TRUE@	yodahist yodacmp yodaplot yodacnv yoda2yoda \
-@ENABLE_PYEXT_TRUE@	yoda2flat yoda2aida aida2yoda aida2flat \
-@ENABLE_PYEXT_TRUE@	flat2yoda
+@ENABLE_PYEXT_TRUE@am__append_1 = yodals yodadiff yodamerge yodastack \
+@ENABLE_PYEXT_TRUE@	yodascale yodahist yodacmp yodaplot yodacnv \
+@ENABLE_PYEXT_TRUE@	yoda2yoda yoda2flat yoda2aida aida2yoda \
+@ENABLE_PYEXT_TRUE@	aida2flat flat2yoda
 @ENABLE_PYEXT_TRUE@@ENABLE_ROOT_TRUE@am__append_2 = yoda2root root2yoda
 subdir = bin
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -107,7 +107,7 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/ax_check_zlib.m4 \
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(am__dist_bin_SCRIPTS_DIST) \
-	$(dist_pkgdata_DATA) $(am__DIST_COMMON)
+	$(dist_bashcomp_DATA) $(am__DIST_COMMON)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/include/YODA/Config/DummyConfig.h \
 	$(top_builddir)/include/YODA/Config/YodaConfig.h \
@@ -115,9 +115,9 @@ CONFIG_HEADER = $(top_builddir)/include/YODA/Config/DummyConfig.h \
 CONFIG_CLEAN_FILES = yoda-config
 CONFIG_CLEAN_VPATH_FILES =
 am__dist_bin_SCRIPTS_DIST = yoda-config yodals yodadiff yodamerge \
-	yodascale yodahist yodacmp yodaplot yodacnv yoda2yoda \
-	yoda2flat yoda2aida aida2yoda aida2flat flat2yoda yoda2root \
-	root2yoda
+	yodastack yodascale yodahist yodacmp yodaplot yodacnv \
+	yoda2yoda yoda2flat yoda2aida aida2yoda aida2flat flat2yoda \
+	yoda2root root2yoda
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -145,7 +145,7 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(pkgdatadir)"
+am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(bashcompdir)"
 SCRIPTS = $(dist_bin_SCRIPTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -166,7 +166,7 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-DATA = $(dist_pkgdata_DATA)
+DATA = $(dist_bashcomp_DATA)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/yoda-config.in
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -190,6 +190,7 @@ CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
 CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
+CYTHON = @CYTHON@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 DLLTOOL = @DLLTOOL@
@@ -244,7 +245,9 @@ PYTHON_CPPFLAGS = @PYTHON_CPPFLAGS@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_EXTRA_LDFLAGS = @PYTHON_EXTRA_LDFLAGS@
 PYTHON_EXTRA_LIBS = @PYTHON_EXTRA_LIBS@
+PYTHON_FULL_VERSION = @PYTHON_FULL_VERSION@
 PYTHON_LIBS = @PYTHON_LIBS@
+PYTHON_MAJOR_VERSION = @PYTHON_MAJOR_VERSION@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
 PYTHON_PREFIX = @PYTHON_PREFIX@
 PYTHON_SITE_PKG = @PYTHON_SITE_PKG@
@@ -321,8 +324,8 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 dist_bin_SCRIPTS = yoda-config $(am__append_1) $(am__append_2)
-dist_pkgdata_DATA = yoda-completion
-bashcomp_dir = $(DESTDIR)$(prefix)/etc/bash_completion.d
+bashcompdir = $(sysconfdir)/bash_completion.d
+dist_bashcomp_DATA = yoda-completion
 all: all-am
 
 .SUFFIXES:
@@ -398,27 +401,27 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
-install-dist_pkgdataDATA: $(dist_pkgdata_DATA)
+install-dist_bashcompDATA: $(dist_bashcomp_DATA)
 	@$(NORMAL_INSTALL)
-	@list='$(dist_pkgdata_DATA)'; test -n "$(pkgdatadir)" || list=; \
+	@list='$(dist_bashcomp_DATA)'; test -n "$(bashcompdir)" || list=; \
 	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(pkgdatadir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(pkgdatadir)" || exit 1; \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(bashcompdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(bashcompdir)" || exit 1; \
 	fi; \
 	for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  echo "$$d$$p"; \
 	done | $(am__base_list) | \
 	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pkgdatadir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pkgdatadir)" || exit $$?; \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(bashcompdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(bashcompdir)" || exit $$?; \
 	done
 
-uninstall-dist_pkgdataDATA:
+uninstall-dist_bashcompDATA:
 	@$(NORMAL_UNINSTALL)
-	@list='$(dist_pkgdata_DATA)'; test -n "$(pkgdatadir)" || list=; \
+	@list='$(dist_bashcomp_DATA)'; test -n "$(bashcompdir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(pkgdatadir)'; $(am__uninstall_files_from_dir)
+	dir='$(DESTDIR)$(bashcompdir)'; $(am__uninstall_files_from_dir)
 tags TAGS:
 
 ctags CTAGS:
@@ -460,7 +463,7 @@ check-am: all-am
 check: check-am
 all-am: Makefile $(SCRIPTS) $(DATA)
 installdirs:
-	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(pkgdatadir)"; do \
+	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(bashcompdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -513,7 +516,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-data-local install-dist_pkgdataDATA
+install-data-am: install-dist_bashcompDATA
 
 install-dvi: install-dvi-am
 
@@ -557,8 +560,7 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-dist_binSCRIPTS uninstall-dist_pkgdataDATA \
-	uninstall-local
+uninstall-am: uninstall-dist_bashcompDATA uninstall-dist_binSCRIPTS
 
 .MAKE: install-am install-strip
 
@@ -566,24 +568,18 @@ uninstall-am: uninstall-dist_binSCRIPTS uninstall-dist_pkgdataDATA \
 	cscopelist-am ctags-am distclean distclean-generic \
 	distclean-libtool distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am \
-	install-data-local install-dist_binSCRIPTS \
-	install-dist_pkgdataDATA install-dvi install-dvi-am \
-	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags-am uninstall \
-	uninstall-am uninstall-dist_binSCRIPTS \
-	uninstall-dist_pkgdataDATA uninstall-local
+	install-dist_bashcompDATA install-dist_binSCRIPTS install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
+	install-html-am install-info install-info-am install-man \
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags-am uninstall uninstall-am uninstall-dist_bashcompDATA \
+	uninstall-dist_binSCRIPTS
 
 .PRECIOUS: Makefile
 
-install-data-local:
-	if [[ -d "$(bashcomp_dir)" && -w "$(bashcomp_dir)" ]]; then \
-      $(install_sh_DATA) yoda-completion $(bashcomp_dir)/; fi
-uninstall-local:
-	rm -f $(bashcomp_dir)/yoda-completion
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

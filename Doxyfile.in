@@ -783,6 +783,7 @@ RECURSIVE              = YES
 # run.
 
 EXCLUDE                = src/tinyxml \
+                         src/yamlcpp \
                          src/ReaderYODA.cc \
                          src/ReaderFLAT.cc
 

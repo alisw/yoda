@@ -1,4 +1,10 @@
 cimport util
+
+# cdef class Binned(AnalysisObject):
+#     pass
+# cdef class Fillable(AnalysisObject):
+#     pass
+
 cdef class Histo1D(AnalysisObject):
     """
     1D histogram, with distinction between bin areas and heights.
@@ -103,19 +109,16 @@ cdef class Histo1D(AnalysisObject):
         self.h1ptr().fillBin(ix, weight, fraction)
 
 
-    #@property
     def totalDbn(self):
         """None -> Dbn1D
         The Dbn1D representing the total distribution."""
         return cutil.new_borrowed_cls(Dbn1D, &self.h1ptr().totalDbn(), self)
 
-    #@property
     def underflow(self):
         """None -> Dbn1D
         The Dbn1D representing the underflow distribution."""
         return cutil.new_borrowed_cls(Dbn1D, &self.h1ptr().underflow(), self)
 
-    #@property
     def overflow(self):
         """None -> Dbn1D
         The Dbn1D representing the overflow distribution."""
@@ -196,17 +199,14 @@ cdef class Histo1D(AnalysisObject):
         self.h1ptr().normalize(normto, includeoverflows)
 
 
-    #@property
     def xMin(self):
         """Low x edge of the histo."""
         return self.h1ptr().xMin()
 
-    #@property
     def xMax(self):
         """High x edge of the histo."""
         return self.h1ptr().xMax()
 
-    #@property
     def numBins(self):
         """() -> int
         Number of bins (not including overflows)."""
@@ -217,7 +217,6 @@ cdef class Histo1D(AnalysisObject):
         Number of x-axis bins (not including overflows)."""
         return self.h1ptr().numBinsX()
 
-    #@property
     def bins(self):
         """Access the ordered bins list."""
         return list(self)
@@ -420,7 +419,6 @@ cdef class Histo1D(AnalysisObject):
         except ImportError:
             return xs
 
-    #@property
     def xEdges(self):
         """All x edges of the histo."""
         return self._mknp(self.h1ptr().xEdges())
@@ -459,6 +457,10 @@ cdef class Histo1D(AnalysisObject):
         return max(self.xMaxs())
 
 
+    def sumWs(self):
+        """All sumW values of the histo."""
+        rtn = self._mknp([b.sumW() for b in self.bins()])
+        return rtn
 
     def heights(self):
         """All y heights of the histo."""
@@ -489,6 +491,13 @@ cdef class Histo1D(AnalysisObject):
         #    pass
         #else:
         return self._mknp([b.areaErr() for b in self.bins()])
+
+    def relErrs(self): #, asymm=False):
+        """All relative errors of the histo.
+
+        TODO: asymm arg / areaErrsMinus/Plus?
+        """
+        return self._mknp([b.relErr() for b in self.bins()])
 
     def yErrs(self, area=False):
         return self.areaErrs() if area else self.heightErrs()

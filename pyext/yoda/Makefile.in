@@ -148,6 +148,7 @@ CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
 CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
+CYTHON = @CYTHON@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 DLLTOOL = @DLLTOOL@
@@ -202,7 +203,9 @@ PYTHON_CPPFLAGS = @PYTHON_CPPFLAGS@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_EXTRA_LDFLAGS = @PYTHON_EXTRA_LDFLAGS@
 PYTHON_EXTRA_LIBS = @PYTHON_EXTRA_LIBS@
+PYTHON_FULL_VERSION = @PYTHON_FULL_VERSION@
 PYTHON_LIBS = @PYTHON_LIBS@
+PYTHON_MAJOR_VERSION = @PYTHON_MAJOR_VERSION@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
 PYTHON_PREFIX = @PYTHON_PREFIX@
 PYTHON_SITE_PKG = @PYTHON_SITE_PKG@
@@ -533,19 +536,19 @@ uninstall-am:
 	@true
 
 @WITH_CYTHON_TRUE@core.cpp core.h: $(CYTHON_SRC) .made_pyx_templates
-@WITH_CYTHON_TRUE@	cython $(srcdir)/core.pyx --cplus \
+@WITH_CYTHON_TRUE@	$(CYTHON) $(srcdir)/core.pyx --cplus -2 \
 @WITH_CYTHON_TRUE@       -I $(srcdir) -I $(srcdir)/include \
 @WITH_CYTHON_TRUE@       -I $(builddir) -I $(builddir)/include \
 @WITH_CYTHON_TRUE@       -o $@
 
 @WITH_CYTHON_TRUE@util.cpp: util.pxd util.pyx .made_pyx_templates
-@WITH_CYTHON_TRUE@	cython $(srcdir)/util.pyx --cplus \
+@WITH_CYTHON_TRUE@	$(CYTHON) $(srcdir)/util.pyx --cplus -2 \
 @WITH_CYTHON_TRUE@       -I $(srcdir) -I $(srcdir)/include \
 @WITH_CYTHON_TRUE@       -I $(builddir) -I $(builddir)/include \
 @WITH_CYTHON_TRUE@       -o $@
 
 @WITH_CYTHON_TRUE@rootcompat.cpp: util.pxd rootcompat.pxd rootcompat.pyx .made_pyx_templates
-@WITH_CYTHON_TRUE@	cython $(srcdir)/rootcompat.pyx --cplus \
+@WITH_CYTHON_TRUE@	$(CYTHON) $(srcdir)/rootcompat.pyx --cplus -2 \
 @WITH_CYTHON_TRUE@       -I $(srcdir) -I $(srcdir)/include \
 @WITH_CYTHON_TRUE@       -I $(builddir) -I $(builddir)/include \
 @WITH_CYTHON_TRUE@       -o $@

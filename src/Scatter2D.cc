@@ -32,7 +32,7 @@ namespace YODA {
 
       // Attach the point to its parent
       Point2D pt(x, y, ex_m, ex_p, ey, ey);
-      pt.setParentAO(&rtn);
+      pt.setParent(&rtn);
       rtn.addPoint(pt);
     }
 
@@ -67,23 +67,24 @@ namespace YODA {
 
       //const Point2D pt(x, y, ex_m, ex_p, ey, ey);
       Point2D pt(x, y, ex_m, ex_p, ey, ey);
-      pt.setParentAO(&rtn);
+      pt.setParent(&rtn);
       rtn.addPoint(pt);
     }
     assert(p.numBins() == rtn.numPoints());
     return rtn;
   }
 
-  // retrieve variations from annoation, parse them as YAML, and update the points
-  void Scatter2D::parseVariations()  {
-    if (this-> _variationsParsed) { return; }
+
+  // Retrieve variations from annotation, parse them as YAML, and update the points
+  void Scatter2D::parseVariations() {
+    if (this->_variationsParsed) { return; }
     if (!(this->hasAnnotation("ErrorBreakdown"))) { return; }
     YAML::Node errorBreakdown;
     errorBreakdown = YAML::Load(this->annotation("ErrorBreakdown"));
 
     if (errorBreakdown.size()) {
-      for (unsigned int thisPointIndex=0 ; thisPointIndex< this->numPoints() ; ++thisPointIndex){
-        Point2D &thispoint = this->_points[thisPointIndex];
+      for (size_t thisPointIndex = 0; thisPointIndex < this->numPoints(); ++thisPointIndex) {
+        Point2D& thispoint = this->_points[thisPointIndex];
         YAML::Node variations = errorBreakdown[thisPointIndex];
         for (const auto& variation : variations) {
           const std::string variationName = variation.first.as<std::string>();
@@ -96,12 +97,14 @@ namespace YODA {
     }
   }
 
-  const std::vector<std::string> Scatter2D::variations() const  {
+
+  /// @todo Reduce duplication between Scatter types
+  std::vector<std::string> Scatter2D::variations() const {
     std::vector<std::string> vecVariations;
-    for (auto &point : this->_points){
-      for (auto &it : point.errMap()){
-        //if the variation is not already in the vector, add it !
-        if (std::find(vecVariations.begin(), vecVariations.end(), it.first) == vecVariations.end()){
+    for (auto& point : this->_points) {
+      for (auto& it : point.errMap()) {
+        // if the variation is not already in the vector, add it!
+        if (std::find(vecVariations.begin(), vecVariations.end(), it.first) == vecVariations.end()) {
           vecVariations.push_back(it.first);
         }
       }
@@ -110,49 +113,50 @@ namespace YODA {
   }
 
 
-  std::vector<std::vector<double> > Scatter2D::covarianceMatrix( bool ignoreOffDiagonalTerms)   {
-    int nPoints= this->numPoints();
-    //double covM[nPoints][nPoints] ={};
+  std::vector<std::vector<double> > Scatter2D::covarianceMatrix(bool ignoreOffDiagonalTerms) {
+    int nPoints = this->numPoints();
+    //double covM[nPoints][nPoints] = {};
     std::vector<std::vector<double> > covM;
 
 
-    // initialose cov matrix to be the right shape!
-    for (int i=0; i<nPoints ; i++) {
-      std::vector< double> row;
+    // initialise cov matrix to be the right shape
+    for (int i = 0; i < nPoints; i++) {
+      std::vector<double> row;
       row.resize(nPoints);
       covM.push_back(row);
     }
 
     // case where only have nominal, ie total uncertainty, labelled "" (empty string)
-    if (this->variations().size()==1) {
-      for (int i=0; i<nPoints ; i++) {
-        covM[i][i]= pow(((this->_points[i].yErrs().first+this->_points[i].yErrs().second)/2),2);
-        if (covM[i][i]==0 )  covM[i][i]=1;
+    if (this->variations().size() == 1) {
+      for (int i = 0; i < nPoints; i++) {
+        covM[i][i] = sqr(((this->_points[i].yErrs().first+this->_points[i].yErrs().second)/2));
+        if (covM[i][i] == 0 ) covM[i][i] = 1;
       }
       return covM;
     }
-    //more interesting case where we actually have some uncertainty breakdown!
+    // more interesting case where we actually have some uncertainty breakdown!
     auto  systList= this->variations();
     for (auto sname : systList){
-      if (sname.length()==0) continue;
-      std::vector< double> systErrs;
+      if (sname.length() == 0) continue;
+      std::vector<double> systErrs;
       systErrs.resize(nPoints);
-      for (int i=0; i<nPoints ; i++) {
+      for (int i = 0; i < nPoints; i++) {
         auto point = this->_points[i];
         try {
-          auto variations=point.errMap().at(sname);
-          systErrs[i]=(fabs(variations.first)+fabs(variations.second))*0.5 ;//up/dn are symmetrized since this method can't handle asymmetric errors
-        } catch (const std::exception& e) { // Missing bin.
-          systErrs[i]=0.0;
+          auto variations = point.errMap().at(sname);
+          // up/dn are symmetrized since this method can't handle asymmetric errors
+          systErrs[i] = (fabs(variations.first)+fabs(variations.second))*0.5;
+        } catch (const std::exception& e) { // missing bin
+          systErrs[i] = 0.0;
         }
       }
-      if (ignoreOffDiagonalTerms ||  sname.find("stat") != std::string::npos ||  sname.find("uncor") != std::string::npos){
-        for (int i=0; i<nPoints ; i++) {
-          covM[i][i] += systErrs[i]*systErrs[i]; // just the diagonal, bins are considered uncorrelated
+      if (ignoreOffDiagonalTerms || sname.find("stat") != std::string::npos || sname.find("uncor") != std::string::npos) {
+        for (int i = 0; i < nPoints; i++) {
+          covM[i][i] += systErrs[i]*systErrs[i]; // just the diagonal; bins are considered uncorrelated
         }
-      }else{
-        for (int i=0; i<nPoints ; i++) {
-          for (int j=0; j<nPoints ; j++) {
+      } else {
+        for (int i = 0; i < nPoints; i++) {
+          for (int j = 0; j < nPoints; j++) {
             covM[i][j] += systErrs[i]*systErrs[j];
           }
         }
@@ -160,5 +164,6 @@ namespace YODA {
     }
     return covM;
   }
+
 
 }

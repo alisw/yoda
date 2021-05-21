@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_AnalysisObject_h
 #define YODA_AnalysisObject_h
@@ -11,7 +11,9 @@
 #include "YODA/Config/BuildConfig.h"
 #include <iomanip>
 #include <string>
+#include <limits>
 #include <map>
+#include <limits>
 
 namespace YODA {
 
@@ -26,7 +28,7 @@ namespace YODA {
 
 
     /// @name Creation and destruction
-    //@{
+    /// @{
 
     /// Default constructor
     AnalysisObject() { }
@@ -67,25 +69,25 @@ namespace YODA {
     /// Make a copy on the heap, via 'new'
     virtual AnalysisObject* newclone() const = 0;
 
-    //@}
+    /// @}
 
 
 
     /// @name Modifiers
-    //@{
+    /// @{
 
     /// Reset this analysis object
     virtual void reset() = 0;
-    
+
     // variation parser
     void parseVariations(){ return ; }
 
-    //@}
+    /// @}
 
 
 
     ///@name Annotations
-    //@{
+    /// @{
 
     /// Get all the annotation names
     /// @todo Change this to return the str->str map, with a separate annotationKeys, etc.
@@ -214,11 +216,11 @@ namespace YODA {
       _annotations.clear();
     }
 
-    //@}
+    /// @}
 
 
     /// @name Standard annotations
-    //@{
+    /// @{
 
     /// @brief Get the AO title.
     ///
@@ -265,13 +267,13 @@ namespace YODA {
       return p.substr(lastslash+1);
     }
 
-    //@}
+    /// @}
 
 
   public:
 
     /// @name Persistency hooks / object type info
-    //@{
+    /// @{
 
     /// Get name of the analysis object type
     virtual std::string type() const {
@@ -282,9 +284,11 @@ namespace YODA {
     ///
     /// @note For fillable types this is the dimension of the fill space (e.g. Histo1D -> dim=1).
     ///    For scatter types, it is the total dimension of the points (e.g. Scatter3D -> dim=3).
+    ///
+    /// @todo Provide a distinct fillDim() method on Fillables, and make dim always report the total dimension
     virtual size_t dim() const = 0;
 
-    //@}
+    /// @}
 
 
   private:

@@ -1,12 +1,14 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Profile1D_h
 #define YODA_Profile1D_h
 
 #include "YODA/AnalysisObject.h"
+#include "YODA/Fillable.h"
+#include "YODA/Binned.h"
 #include "YODA/ProfileBin1D.h"
 #include "YODA/Scatter2D.h"
 #include "YODA/Dbn2D.h"
@@ -29,8 +31,8 @@ namespace YODA {
   typedef Axis1D<ProfileBin1D, Dbn2D> Profile1DAxis;
 
 
-  /// A one-dimensional profile histogram.
-  class Profile1D : public AnalysisObject {
+  /// A one-dimensional profile histogram
+  class Profile1D : public AnalysisObject, public Fillable, public Binned {
   public:
 
     /// Convenience typedefs
@@ -44,7 +46,7 @@ namespace YODA {
 
 
     /// @name Constructors
-    //@{
+    /// @{
 
     /// Default constructor
     Profile1D(const std::string& path="", const std::string& title="")
@@ -115,15 +117,20 @@ namespace YODA {
       return new Profile1D(*this);
     }
 
-    //@}
+    /// @}
 
+
+    /// @brief Fill dimension of this data object
+    ///
+    /// @todo Change this to the total dimension (in v2)
+    size_t dim() const { return 1; }
 
     /// Fill dimension of this data object
-    size_t dim() const { return 1; }
+    size_t fillDim() const { return 1; }
 
 
     /// @name Modifiers
-    //@{
+    /// @{
 
     /// Fill histo by value and weight
     virtual void fill(double x, double y, double weight=1.0, double fraction=1.0);
@@ -187,6 +194,11 @@ namespace YODA {
       rebinTo(newedges);
     }
 
+    /// @}
+
+
+    /// @name Bin adding and removing
+    /// @{
 
     /// Bin addition operator
     void addBin(double xlow, double xhigh) {
@@ -213,11 +225,15 @@ namespace YODA {
       _axis.addBins(bins);
     }
 
-    //@}
+    void rmBin(size_t index) {
+      _axis.eraseBin(index);
+    }
+
+    /// @}
 
 
     /// @name Bin accessors
-    //@{
+    /// @{
 
     /// Number of bins (not counting under/overflow)
     size_t numBins() const { return bins().size(); }
@@ -280,11 +296,11 @@ namespace YODA {
     /// Set overflow distribution, mainly for persistency: CAREFUL!
     void setOverflow(const Dbn2D& dbn) { _axis.setOverflow(dbn); }
 
-    //@}
+    /// @}
 
 
     /// @name Whole histo data
-    //@{
+    /// @{
 
     /// @todo Add integrals? Or are they too ambiguous to make a core function?
 
@@ -311,17 +327,17 @@ namespace YODA {
       return std::sqrt(xVariance(includeoverflows));
     }
 
-    /// Get the standard error on <x>
+    /// Get the standard error on the mean x
     double xStdErr(bool includeoverflows=true) const;
 
     /// Get the RMS in x
     double xRMS(bool includeoverflows=true) const;
 
-    //@}
+    /// @}
 
 
     /// @name Adding and subtracting histograms
-    //@{
+    /// @{
 
     /// Add another profile to this one
     Profile1D& operator += (const Profile1D& toAdd) {
@@ -344,7 +360,7 @@ namespace YODA {
     inline bool operator != (const Profile1D& other){
       return ! operator == (other);
     }
-    //@}
+    /// @}
 
 
   protected:
@@ -356,12 +372,12 @@ namespace YODA {
   private:
 
     /// @name Bin data
-    //@{
+    /// @{
 
     /// The bins contained in this profile histogram
     Axis1D<ProfileBin1D, Dbn2D> _axis;
 
-    //@}
+    /// @}
 
   };
 
@@ -371,7 +387,7 @@ namespace YODA {
 
 
   /// @name Combining profile histos: global operators
-  //@{
+  /// @{
 
 
   /// Add two profile histograms
@@ -413,7 +429,7 @@ namespace YODA {
     return divide(numer, denom);
   }
 
-  //@}
+  /// @}
 
 
 }

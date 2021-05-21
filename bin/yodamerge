@@ -105,194 +105,129 @@ parser = argparse.ArgumentParser(usage=__doc__)
 parser.add_argument("INFILES", nargs="+", help="datafile1 datafile2 [...]")
 parser.add_argument("-o", "--output", default="-", dest="OUTPUT_FILE", metavar="PATH",
                     help="write output to specified path")
-parser.add_argument("--s1d-mode", "--s1dmode", default="assume_mean", dest="S1D_MODE", metavar="MODE",
-                    help="choose strategy for combining Scatter1D objects: one of 'first', 'combine', 'assume_mean', 'add'")
-parser.add_argument("--s2d-mode", "--s2dmode", default="assume_mean", dest="S2D_MODE", metavar="MODE",
-                    help="choose strategy for combining Scatter2D objects: one of 'first', 'combine', 'assume_mean', 'add'")
-parser.add_argument("--s3d-mode", "--s3dmode", default="assume_mean", dest="S3D_MODE", metavar="MODE",
-                    help="choose strategy for combining Scatter3D objects: one of 'first', 'combine', 'assume_mean', 'add'")
-parser.add_argument("--type-mismatch-mode", default="scatter", dest="TYPE_MISMATCH_MODE", metavar="MODE",
-                    help="choose strategy for combining objects whose types mismatch: one of 'first', 'scatter'")
+parser.add_argument("-m", "--match", dest="MATCH", metavar="PATT", default=None,
+                    help="only write out histograms whose path matches this regex")
+parser.add_argument("-M", "--unmatch", dest="UNMATCH", metavar="PATT", default=None,
+                    help="exclude histograms whose path matches this regex")
+parser.add_argument('-v', '--verbose', action="store_const", const=2, default=1, dest='VERBOSITY',
+                    help="print extra merging details")
+parser.add_argument('-q', '--quiet', action="store_const", const=0, default=1, dest='VERBOSITY',
+                    help="only print fatal errors")
 parser.add_argument("--add", "--stack", action="store_true", default=False, dest="STACK",
-                    help="force simple stacking (also forces all scatter modes to 'add')")
-parser.add_argument("--no-veto-empty", action="store_false", default=True, dest="VETO_EMPTY",
-                    help="disable the removal of empty (sumW=0) data objects _before_ applying merge heuristics. You probably want the default!")
-parser.add_argument("--assume-normalized", action="store_true", default=False, dest="ASSUME_NORMALIZED",
-                    help="DEPRECATED, AND DOES NOTHING. This option _used_ to bypass the detection heuristic for unnormalized histograms")
+                    help="DEPRECATED, USE 'yodastack' INSTEAD.")
 args = parser.parse_args()
 
-## Include scatters in "add" mode
 if args.STACK:
-    args.S1D_MODE = "add"
-    args.S2D_MODE = "add"
-    args.S3D_MODE = "add"
+  cmd = "WARNING: deprecated option used! For simple stacking, please run the following command instead:\n  yodastack "
+  cmd += " ".join([ arg for arg in sys.argv[1:] if '--add' not in arg and '--stack' not in arg ])
+  sys.exit(cmd)
 
-## Put the incoming objects into a dict from each path to a list of histos and scalings
-analysisobjects_in = {}
-for fa in args.INFILES:
-    filename, scale = fa, 1.0
-    if ":" in fa:
-        try:
-            filename, scale = fa.rsplit(":", 1)
-            scale = float(scale)
-        except:
-            sys.stderr.write("Error processing arg '%s' with file:scale format\n" % fa)
-    aos = yoda.read(filename)
-    for aopath, ao in aos.items():
-        ao.setAnnotation("yodamerge_scale", scale)
-        analysisobjects_in.setdefault(aopath, []).append(ao)
+#def eq(a, b, tol=5e-2):
+#    if a == 0 and b == 0:
+#        return True
+#    return 2*abs((a-b)/(abs(a)+abs(b))) < tol
 
 
-analysisobjects_out = {}
-for p, aos in analysisobjects_in.items():
+## Loop over all input files
+ntotal = len(args.INFILES)
+aos_tmp, sfs, sources = {}, {}, {}
+for n, filename in enumerate(args.INFILES):
 
-    ## Identify the canonical aotype being handled from the type of the first entry in aos
-    aotype = type(aos[0])
+    ## Update the use on which file is being merged
+    if args.VERBOSITY > 0:
+        msg = "Merging data file {:s} [{:d}/{:d}]".format(filename, n+1, ntotal)
+        sys.stdout.write(msg + "\n")
 
-    ## Check that types match, and just output the first one if they don't
-    if not all(type(ao) is aotype for ao in aos):
-        msg = "WARNING: cannot merge mismatched analysis object types for path %s: " % p
-        scatter_fail = False
-        if args.TYPE_MISMATCH_MODE == "scatter":
-            saos = []
-            for ao in aos:
-                sao = ao.mkScatter()
-                sao.setAnnotation("yodamerge_scale", ao.annotation("yodamerge_scale"))
-                saos.append(sao)
-            saotype = type(saos[0])
-            msg += "converting to %ss" % saotype.__name__
-            if all(type(sao) is saotype for sao in saos):
-                sys.stderr.write(msg + "\n")
-                aos = saos
-                aotype = saotype
-            else:
-                msg += "... failed, "
-                scatter_fail = True
-        if args.TYPE_MISMATCH_MODE == "first" or scatter_fail:
-            sys.stderr.write(msg + "returning first object\n")
-            analysisobjects_out[p] = aos[0]
-            continue
+    ## Put the next batch of incoming objects into a dict from each path to a list of histos and scalings
+    aos_in = yoda.read(filename, True, args.MATCH, args.UNMATCH)
 
+    ## Record internal (histo-scaling) for each AO
+    for aopath, ao in aos_in.items():
+        scaledby = float(ao.annotation("ScaledBy", 0.0))
+        hscale = 1.0/scaledby if scaledby else None
+        sfs.setdefault(aopath, []).append(hscale)
 
-    ## Remove empty fillable data objects, to avoid gotchas where e.g. histos are normalised and hence
-    ## ScaledBy should be set... but isn't because the emptiness blocked rescaling to finite area
-    if args.VETO_EMPTY:
-        # TODO: Add a Fillable interface/ABC and use that for the type matching
+    ## Process each AO in the set from this file
+    for aopath, ao in aos_in.items():
+
+        ## Counter, Histo and Profile (i.e. Fillable) merging
+        # TODO: Add a Fillable interface and use that for the type matching
+        aotype = type(ao)
         if aotype in (yoda.Counter, yoda.Histo1D, yoda.Histo2D, yoda.Profile1D, yoda.Profile2D):
-            aos_nonzero = [ao for ao in aos if ao.sumW() != 0] #< possible that this doesn't mean no fills :-/
-            ## Just output the first histo if they are all empty
-            if not aos_nonzero:
-                analysisobjects_out[p] = aos[0]
-                continue
-            ## Reset aos to only contain non-empty ones
-            aos = aos_nonzero
 
+            ## Undo the normalization scaling if appropriate
+            if sfs[aopath][n] is not None:
+                ao.scaleW( sfs[aopath][-1] )
 
-    ## Counter, Histo and Profile (i.e. Fillable) merging
-    # TODO: Add a Fillable interface/ABC and use that for the type matching
-    if aotype in (yoda.Counter, yoda.Histo1D, yoda.Histo2D, yoda.Profile1D, yoda.Profile2D):
+            ## Initialise or add to the aggregating ((de-)scaled) output histos
+            if aopath not in aos_tmp:
+                aos_tmp[aopath] = ao.clone()
+            else:
+                aotype_ref = type(aos_tmp[aopath])
+                if aotype == aotype_ref:
+                    aos_tmp[aopath] += ao
+                else:
+                    ## If type mismatches, skip this one and mark its weight contribution as null
+                    sys.stderr.write("Unexpected type for analysis object '{}' from {}: {} vs expected {}\n".format(aopath, filename, aotype, aotype_ref))
+                    sfs[aopath][-1] = None
 
-        ## Identify a target rescaling factor from the 1/scalefactor-weighted norms of each run
-        rescale = None
-        if len(aos) > 1 and args.STACK:
-            pass # we're in dumb stacking mode
-        elif all("ScaledBy" in ao.annotations() for ao in aos):
-            try:
-                rescale = 1.0 / sum(float(ao.annotation("yodamerge_scale"))/float(ao.annotation("ScaledBy")) for ao in aos)
-            except ZeroDivisionError:
-                sys.stderr.write("WARNING: Abandoning normalized merge of path %s because ScaledBy attributes are zero.\n" % p)
-        elif all("ScaledBy" not in ao.annotations() for ao in aos):
-            pass
-        else:
-            sys.stderr.write("WARNING: Abandoning normalized merge of path %s because some but not all inputs have ScaledBy attributes\n" % p)
-
-        ## Now that the normalization-identifying heuristic is done, apply user scalings and undo the normalization scaling if appropriate
-        for ao in aos:
-            if rescale:
-                ao.scaleW( 1.0/float(ao.annotation("ScaledBy")) )
-            ao.scaleW( float(ao.annotation("yodamerge_scale")) )
-
-        ## Make a copy of the (scaled & unnormalized) first object as the basis for the output
-        ## and merge for histograms (including weights, normalization, and user scaling)
-        ao_out = aos[0].clone()
-        ao_out.rmAnnotation("yodamerge_scale")
-        for ao in aos[1:]:
-            ao_out += ao
-        if rescale:
-            ao_out.scaleW(rescale)
-
-
-    ## Merge for Scatters, assuming equal run sizes, and applying user scaling
-    else:
-
-        ## Make a copy of the first object as the basis for merging (suitable for all Scatter types)
-        ao_out = aos[0].clone()
-        ao_out.rmAnnotation("yodamerge_scale")
-        ## If there's only one object, there's no need to do any combining
-        if len(aos) == 1:
-            pass
-
+        ## Scatter "merging"
         elif aotype in (yoda.Scatter1D,yoda.Scatter2D,yoda.Scatter3D):
 
-            ## Retrieve dimensionality of the Scatter*D object
-            dim = ao_out.dim()
-            SND_MODE = getattr(args, "S%dD_MODE" % dim)
-            axis = ['','x','y','z']
+            if args.VERBOSITY > 1:
+                sys.stderr.write("WARNING: scatter object '{}' cannot be merged: will perform simple average\n".format(aopath))
 
-            ## Use asymptotic mean+stderr convergence statistics
-            if SND_MODE in ("assume_mean", "add"):
+            ## incremeant counter for average
+            sfs.setdefault(aopath, []).append(1.0)
 
-                msg = "WARNING: Scatter%dD %s merge assumes asymptotic statistics and equal run sizes" % (dim, p)
-                if any(float(ao.annotation("yodamerge_scale")) != 1.0 for ao in aos):
-                    msg += " (+ user scaling)"
-                sys.stderr.write(msg + "\n")
-                npoints = len(ao_out.points())
-                for i in range(npoints):
-                    val_i = scalesum = 0.0
-                    ep_i = {} # will hold the values of the multiple error sources
-                    em_i = {} # will hold the values of the multiple error sources
-                    for ao in aos:
-                        scale = float(ao.annotation("yodamerge_scale"))
-                        variations = ao.variations()
-                        scalesum += scale
-                        val_i += scale * ao.point(i).val(dim)
-                        for var in variations:
-                            if not var in ep_i.keys():
-                                ep_i[var] = 0.
-                                em_i[var] = 0.
-                            ep_i[var] += (scale * ao.point(i).errs(dim,var)[0])**2
-                            em_i[var] += (scale * ao.point(i).errs(dim,var)[1])**2
-                    for var in ep_i.keys():
-                        ep_i[var] = math.sqrt(ep_i[var])
-                        em_i[var] = math.sqrt(em_i[var])
-                    if SND_MODE == "assume_mean":
-                        val_i /= scalesum
-                        for var in ep_i.keys():
-                            ep_i[var] /= scalesum
-                            em_i[var] /= scalesum
-                    ao_out.point(i).setVal(dim, val_i)
-                    for var in ep_i.keys():
-                        #setattr(ao_out.point(i),'set%sErrs' % axis[dim].upper(), ((ep_i[var], em_i[var]),var))
-                        ao_out.point(i).setErrs(dim , (ep_i[var], em_i[var]),var)
-
-            ## Add more points to the output scatter
-            elif SND_MODE == "combine":
-                for ao in aos[1:]:
-                    ao_out.combineWith(ao)
-
-            ## Just return the first AO unmodified & unmerged
-            elif SND_MODE == "first":
-                pass
-
+            ## Initialise or add to the aggregating ((de-)scaled) output histos
+            if aopath not in aos_tmp:
+                aos_tmp[aopath] = ao.clone()
+                sources[aopath] = ao.variations()
             else:
-                raise Exception("Unknown Scatter%dD merging mode:" % dim + args.SND_MODE)
-
+                ## Retrieve dimensionality of the Scatter*D object
+                dim = aos_tmp[aopath].dim()
+                npoints = len(aos_tmp[aopath].points())
+                for i in range(npoints):
+                    val_i = aos_tmp[aopath].point(i).val(dim) + ao.point(i).val(dim)
+                    aos_tmp[aopath].point(i).setVal(dim, val_i)
+                    # update the values of the multiple error sources
+                    for var in ao.variations():
+                        ep_i = 0.
+                        em_i = 0.
+                        if var in sources[aopath]:
+                            ep_i = aos_tmp[aopath].point(i).errs(dim,var)[0]
+                            em_i = aos_tmp[aopath].point(i).errs(dim,var)[1]
+                        else:
+                            sources[aopath].append(var)
+                        ep_i = math.sqrt(ep_i**2 + ao.point(i).errs(dim,var)[0]**2)
+                        em_i = math.sqrt(em_i**2 + ao.point(i).errs(dim,var)[1]**2)
+                        aos_tmp[aopath].point(i).setErrs(dim, (ep_i, em_i), var)
         ## Other data types (just warn, and write out the first object)
         else:
-            sys.stderr.write("WARNING: Analysis object %s of type %s cannot be merged\n" % (p, str(aotype)))
+            if args.VERBOSITY > 0:
+                sys.stderr.write("WARNING: Analysis object %s of type %s cannot be merged\n" % (aopath, str(aotype)))
 
-    ## Put the output AO into the output dict
-    analysisobjects_out[p] = ao_out
+
+## Rescale and output, after reduction
+aos_out = {}
+for aopath, ao in aos_tmp.items():
+
+    ## Re-apply normalisation factors if needed
+    #print(aopath, type(ao))
+    sum_sfs = sum(f for f in sfs[aopath] if f)
+    #print(sum_sfs)
+    if sum_sfs:
+        if type(ao) in (yoda.Counter, yoda.Histo1D, yoda.Histo2D, yoda.Profile1D, yoda.Profile2D):
+            ao.scaleW(1.0 / sum_sfs)
+        else:
+            ao.scale(dim, 1.0 / sum_sfs)
+
+    ## Put in output container
+    aos_out[aopath] = ao
+
 
 ## Write output
-yoda.writeYODA(analysisobjects_out, args.OUTPUT_FILE)
+if args.VERBOSITY > 0:
+    sys.stdout.write("Writing merged data to {}\n".format(args.OUTPUT_FILE))
+yoda.writeYODA(aos_out, args.OUTPUT_FILE)

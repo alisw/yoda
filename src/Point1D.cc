@@ -4,7 +4,9 @@
 namespace YODA {
 
 
-    void Point1D::getVariationsFromParent() const{
-        if (this->getParentAO()) ((Scatter1D*) this->getParentAO())->parseVariations();
-    }
+  void Point1D::getVariationsFromParent() const {
+    if (this->getParent()) this->getParent<Scatter1D>()->parseVariations();
+  }
+
+
 }

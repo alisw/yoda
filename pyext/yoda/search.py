@@ -53,6 +53,7 @@ class PointMatcher(object):
     """\
     System for selecting subsets of bins based on a search range
     syntax extended from Professor weight files:
+
     Path structure: /path/parts/to/histo[syst_variation]@xmin:xmax
                 or: /path/parts/to/histo[syst_variation]#nmin:nmax
 

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_HistoBin1D_h
 #define YODA_HistoBin1D_h
@@ -22,7 +22,7 @@ namespace YODA {
   public:
 
     /// @name Constructor giving bin low and high edges.
-    //@{
+    /// @{
 
     /// Make a new, empty bin with a pair of edges.
     HistoBin1D(double lowedge, double highedge)
@@ -56,15 +56,13 @@ namespace YODA {
       return *this;
     }
 
-    //@}
+    /// @}
 
 
   public:
 
     /// @name Modifiers
-    //@{
-
-
+    /// @{
 
     /// Fill this bin with weight @a weight at position @a x.
     ///
@@ -80,13 +78,13 @@ namespace YODA {
       fill(xMid(), weight, fraction);
     }
 
-    //@}
+    /// @}
 
 
   public:
 
     /// @name Bin content info
-    //@{
+    /// @{
 
     /// The area is the sum of weights in the bin, i.e. the
     /// width of the bin has no influence on this figure.
@@ -99,11 +97,11 @@ namespace YODA {
       return area() / xWidth();
     }
 
-    //@}
+    /// @}
 
 
     /// @name Error info
-    //@{
+    /// @{
 
     /// Error computed using binomial statistics on the sum of bin weights,
     /// i.e. err_area = sqrt{sum{weights}}
@@ -123,7 +121,7 @@ namespace YODA {
       return sumW2() != 0 ? sqrt(sumW2()) / sumW() : 0;
     }
 
-    //@}
+    /// @}
 
 
   public:

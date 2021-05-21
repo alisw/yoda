@@ -22,7 +22,7 @@ namespace YODA {
   public:
 
     /// Typedefs
-    //@{
+    /// @{
 
     /// Bin type
     typedef BIN2D Bin;
@@ -40,10 +40,10 @@ namespace YODA {
     typedef std::vector<DBN> Outflow;
     typedef std::vector<Outflow> Outflows;
 
-    //@}
+    /// @}
 
     /// @name Constructors
-    //@{
+    /// @{
 
     // Empty constructor
     Axis2D()
@@ -120,10 +120,10 @@ namespace YODA {
       return _ny-1;
     }
 
-    //@}
+    /// @}
     //
     /// @name Statistics accessor functions
-    //@{
+    /// @{
 
     /// @brief Get the outflow by x-index and y-index (non-const version)
     ///
@@ -626,7 +626,7 @@ namespace YODA {
 
 
     /// @name Data structures
-    //@{
+    /// @{
 
     /// Bins vector
     Bins _bins;
@@ -651,7 +651,7 @@ namespace YODA {
     /// Whether modifying bin edges is permitted
     bool _locked;
 
-    //@}
+    /// @}
 
   };
 

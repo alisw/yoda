@@ -1,12 +1,13 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
-#ifndef YODA_SCATTER2D_H
-#define YODA_SCATTER2D_H
+#ifndef YODA_Scatter2D_h
+#define YODA_Scatter2D_h
 
 #include "YODA/AnalysisObject.h"
+#include "YODA/Scatter.h"
 #include "YODA/Point2D.h"
 #include "YODA/Utils/sortedvector.h"
 #include <utility>
@@ -21,7 +22,7 @@ namespace YODA {
 
 
   /// A very generic data type which is just a collection of 2D data points with errors
-  class Scatter2D : public AnalysisObject {
+  class Scatter2D : public AnalysisObject, public Scatter {
   public:
 
     /// Type of the native Point2D collection
@@ -31,7 +32,7 @@ namespace YODA {
 
 
     /// @name Constructors
-    //@{
+    /// @{
 
     /// Empty constructor
     Scatter2D(const std::string& path="", const std::string& title="")
@@ -128,7 +129,7 @@ namespace YODA {
       return new Scatter2D(*this);
     }
 
-    //@}
+    /// @}
 
 
     /// Dimension of this data object
@@ -136,7 +137,7 @@ namespace YODA {
 
 
     /// @name Modifiers
-    //@{
+    /// @{
 
     /// Clear all points
     void reset() {
@@ -158,27 +159,30 @@ namespace YODA {
       for (Point2D& p : _points) p.scaleXY(scalex, scaley);
     }
 
-    /// Scaling of both axes
-    /// @deprecated Use scaleXY
-    void scale(double scalex, double scaley) {
-      scaleXY(scalex, scaley);
+    /// Scaling along direction @a i
+    void scale(size_t i, double scale) {
+      switch (i) {
+      case 1: scaleX(scale); break;
+      case 2: scaleY(scale); break;
+      default: throw RangeError("Invalid axis int, must be in range 1..dim");
+      }
     }
 
-    //@}
+    /// @}
 
 
     ///////////////////////////////////////////////////
 
-    void parseVariations() ;
+    void parseVariations();
 
     /// Get the list of variations stored in the points
-    const std::vector<std::string> variations() const;
+    std::vector<std::string> variations() const;
 
     // Construct a covariance matrix from the error breakdown
-    std::vector<std::vector<double> > covarianceMatrix(bool ignoreOffDiagonalTerms=false) ;
+    std::vector<std::vector<double> > covarianceMatrix(bool ignoreOffDiagonalTerms=false);
 
     /// @name Point accessors
-    //@{
+    /// @{
 
     /// Number of points in the scatter
     size_t numPoints() const {
@@ -211,11 +215,11 @@ namespace YODA {
       return _points.at(index);
     }
 
-    //@}
+    /// @}
 
 
     /// @name Point inserters
-    //@{
+    /// @{
 
     /// Insert a new point
     void addPoint(const Point2D& pt) {
@@ -224,24 +228,24 @@ namespace YODA {
 
     /// Insert a new point, defined as the x/y value pair and no errors
     void addPoint(double x, double y) {
-      Point2D thisPoint= Point2D(x, y);
-      thisPoint.setParentAO(this);
+      Point2D thisPoint = Point2D(x, y);
+      thisPoint.setParent(this);
       _points.insert(thisPoint);
     }
 
     /// Insert a new point, defined as the x/y value pair and symmetric errors
     void addPoint(double x, double y,
                   double ex, double ey) {
-      Point2D thisPoint= Point2D(x, y, ex, ey);
-      thisPoint.setParentAO(this);
+      Point2D thisPoint = Point2D(x, y, ex, ey);
+      thisPoint.setParent(this);
       _points.insert(thisPoint);
     }
 
     /// Insert a new point, defined as the x/y value pair and asymmetric error pairs
     void addPoint(double x, double y,
                   const std::pair<double,double>& ex, const std::pair<double,double>& ey) {
-      Point2D thisPoint= Point2D(x, y, ex, ey);
-      thisPoint.setParentAO(this);
+      Point2D thisPoint = Point2D(x, y, ex, ey);
+      thisPoint.setParent(this);
       _points.insert(thisPoint);
     }
 
@@ -249,23 +253,40 @@ namespace YODA {
     void addPoint(double x, double y,
                   double exminus, double explus,
                   double eyminus, double eyplus) {
-      Point2D thisPoint=Point2D(x, y, exminus, explus, eyminus, eyplus);
-      thisPoint.setParentAO(this);
+      Point2D thisPoint = Point2D(x, y, exminus, explus, eyminus, eyplus);
+      thisPoint.setParent(this);
       _points.insert(thisPoint);
     }
 
     /// Insert a collection of new points
     void addPoints(const Points& pts) {
-      for (const Point2D& pt : pts) {
-        addPoint(pt);
-        }
+      for (const Point2D& pt : pts) addPoint(pt);
     }
 
-    //@}
+    /// @}
+
+
+    /// @name Point removers
+    /// @{
+
+    /// Remove the point with index @a index
+    void rmPoint(size_t index) {
+      _points.erase(_points.begin()+index);
+    }
+
+    // /// Remove the points with indices @a indices
+    // void rmPoints(std::vector<size_t> indices) {
+    //   // reverse-sort so the erasure-loop doesn't invalidate the indices
+    //   std::sort(indices.begin(), indices.end(), std::greater<size_t>());
+    //   for (size_t i : indices) rmPoint(i);
+    // }
+
+    /// @}
+
 
 
     /// @name Combining sets of scatter points
-    //@{
+    /// @{
 
     /// @todo Better name? Make this the add operation?
     void combineWith(const Scatter2D& other) {
@@ -280,7 +301,7 @@ namespace YODA {
       //return *this;
     }
 
-    //@}
+    /// @}
 
 
     /// Equality operator
@@ -312,7 +333,7 @@ namespace YODA {
 
 
   /// @name Combining scatters by merging sets of points
-  //@{
+  /// @{
 
   inline Scatter2D combine(const Scatter2D& a, const Scatter2D& b) {
     Scatter2D rtn = a;
@@ -326,14 +347,14 @@ namespace YODA {
     return rtn;
   }
 
-  //@}
+  /// @}
 
 
   //////////////////////////////////
 
 
   /// @name Conversion functions from other data types
-  //@{
+  /// @{
 
   /// Make a Scatter2D representation of a Histo1D
   ///
@@ -357,14 +378,14 @@ namespace YODA {
   // /// @note The usefocus arg is just for consistency and has no effect for Scatter -> Scatter
   // inline Scatter2D mkScatter(const Scatter2D& s, bool) { return mkScatter(s); }
 
-  //@}
+  /// @}
 
 
   //////////////////////////////////
 
 
   /// @name Transforming operations on Scatter2D
-  //@{
+  /// @{
 
   /// @brief Apply transformation fx(x) to all values and error positions (operates in-place on @a s)
   ///
@@ -433,7 +454,7 @@ namespace YODA {
     }
   }
 
-  //@}
+  /// @}
 
 
 }

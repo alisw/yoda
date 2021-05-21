@@ -1,12 +1,13 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
-#ifndef YODA_SCATTER3D_H
-#define YODA_SCATTER3D_H
+#ifndef YODA_Scatter3D_h
+#define YODA_Scatter3D_h
 
 #include "YODA/AnalysisObject.h"
+#include "YODA/Scatter.h"
 #include "YODA/Point3D.h"
 #include "YODA/Utils/sortedvector.h"
 #include <utility>
@@ -21,7 +22,7 @@ namespace YODA {
 
 
   /// A very generic data type which is just a collection of 3D data points with errors
-  class Scatter3D : public AnalysisObject {
+  class Scatter3D : public AnalysisObject, public Scatter {
   public:
 
     /// Types of the native Point3D collection
@@ -31,7 +32,7 @@ namespace YODA {
 
 
     /// @name Constructors
-    //@{
+    /// @{
 
     /// Empty constructor
     Scatter3D(const std::string& path="", const std::string& title="")
@@ -140,7 +141,7 @@ namespace YODA {
       return new Scatter3D(*this);
     }
 
-    //@}
+    /// @}
 
 
     /// Dimension of this data object
@@ -148,7 +149,7 @@ namespace YODA {
 
 
     /// @name Modifiers
-    //@{
+    /// @{
 
     /// Clear all points
     void reset() {
@@ -175,24 +176,28 @@ namespace YODA {
       for (Point3D& p : _points) p.scaleXYZ(scalex, scaley, scalez);
     }
 
-    /// Scaling of all three axes
-    /// @deprecated Use scaleXYZ
-    void scale(double scalex, double scaley, double scalez) {
-      scaleXYZ(scalex, scaley, scalez);
+    /// Scaling along direction @a i
+    void scale(size_t i, double scale) {
+      switch (i) {
+      case 1: scaleX(scale); break;
+      case 2: scaleY(scale); break;
+      case 3: scaleZ(scale); break;
+      default: throw RangeError("Invalid axis int, must be in range 1..dim");
+      }
     }
 
-    //@}
+    /// @}
 
     ///////////////////////////////////////////////////
 
-    void parseVariations() ;
+    void parseVariations();
 
     /// Get the list of variations stored in the points
-    const std::vector<std::string> variations() const;
+    std::vector<std::string> variations() const;
 
 
     /// @name Point accessors
-    //@{
+    /// @{
 
     /// Number of points in the scatter
     size_t numPoints() const {
@@ -225,11 +230,11 @@ namespace YODA {
       return _points.at(index);
     }
 
-    //@}
+    /// @}
 
 
     /// @name Point inserters
-    //@{
+    /// @{
 
     /// Insert a new point
     void addPoint(const Point3D& pt) {
@@ -238,24 +243,24 @@ namespace YODA {
 
     /// Insert a new point, defined as the x/y/z value triplet and no errors
     void addPoint(double x, double y, double z) {
-      Point3D thisPoint=Point3D(x, y, z);
-      thisPoint.setParentAO(this);
+      Point3D thisPoint = Point3D(x, y, z);
+      thisPoint.setParent(this);
       _points.insert(thisPoint);
     }
 
     /// Insert a new point, defined as the x/y/z value triplet and symmetric errors
     void addPoint(double x, double y, double z,
                   double ex, double ey, double ez) {
-      Point3D thisPoint=Point3D(x, y, z, ex, ey, ez);
-      thisPoint.setParentAO(this);
+      Point3D thisPoint = Point3D(x, y, z, ex, ey, ez);
+      thisPoint.setParent(this);
       _points.insert(thisPoint);
     }
 
     /// Insert a new point, defined as the x/y/z value triplet and asymmetric error pairs
     void addPoint(double x, double y, double z,
                   const std::pair<double,double>& ex, const std::pair<double,double>& ey, const std::pair<double,double>& ez) {
-      Point3D thisPoint= Point3D(x, y, z, ex, ey, ez);
-      thisPoint.setParentAO(this);
+      Point3D thisPoint = Point3D(x, y, z, ex, ey, ez);
+      thisPoint.setParent(this);
       _points.insert(thisPoint);
     }
 
@@ -265,7 +270,7 @@ namespace YODA {
                   double eyminus, double eyplus,
                   double ezminus, double ezplus) {
       Point3D thisPoint = Point3D(x, y, z, exminus, explus, eyminus, eyplus, ezminus, ezplus);
-      thisPoint.setParentAO(this);
+      thisPoint.setParent(this);
       _points.insert(thisPoint);
     }
 
@@ -274,7 +279,25 @@ namespace YODA {
       for (const Point3D& pt : pts) addPoint(pt);
     }
 
-    //@}
+    /// @}
+
+
+    /// @name Point removers
+    /// @{
+
+    /// Remove the point with index @a index
+    void rmPoint(size_t index) {
+      _points.erase(_points.begin()+index);
+    }
+
+    // /// Remove the points with indices @a indices
+    // void rmPoints(std::vector<size_t> indices) {
+    //   // reverse-sort so the erasure-loop doesn't invalidate the indices
+    //   std::sort(indices.begin(), indices.end(), std::greater<size_t>());
+    //   for (size_t i : indices) rmPoint(i);
+    // }
+
+    /// @}
 
 
     /// @todo Better name?
@@ -320,7 +343,7 @@ namespace YODA {
 
 
   /// @name Combining scatters by merging sets of points
-  //@{
+  /// @{
 
   inline Scatter3D combine(const Scatter3D& a, const Scatter3D& b) {
     Scatter3D rtn = a;
@@ -334,14 +357,14 @@ namespace YODA {
     return rtn;
   }
 
-  //@}
+  /// @}
 
 
   //////////////////////////////////
 
 
   /// @name Conversion functions from other data types
-  //@{
+  /// @{
 
   /// Make a Scatter3D representation of a Histo2D
   ///
@@ -363,14 +386,14 @@ namespace YODA {
   // /// @note The usefocus arg is just for consistency and has no effect for Scatter -> Scatter
   //inline Scatter3D mkScatter(const Scatter3D& s, bool) { return mkScatter(s); }
 
-  //@}
+  /// @}
 
 
   /////////////////////////////////
 
 
   /// @name Transforming operations on Scatter3D
-  //@{
+  /// @{
 
   /// @brief Apply transformation fx(x) to all values and error positions (operates in-place on @a s)
   ///
@@ -440,7 +463,7 @@ namespace YODA {
 
   /// @todo Add external scale, scaleX, scaleY, scaleZ functions
 
-  //@}
+  /// @}
 
 
 

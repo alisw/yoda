@@ -16,7 +16,7 @@ int main() {
 
 
   MSG_(PAD(70) << "Scaling the scatter: ");
-  s1.scale(2, 3);
+  s1.scaleXY(2, 3);
   if (s1.point(1).x() != 2 || s1.point(1).y() != 3) {
     MSG_RED("FAIL");
     return -1;

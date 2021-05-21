@@ -12,9 +12,11 @@ from yoda.script_helpers import parse_x2y_args, filter_aos
 parser = argparse.ArgumentParser(usage=__doc__)
 parser.add_argument("ARGS", nargs="+", help="infile [outfile]")
 parser.add_argument("-m", "--match", dest="MATCH", metavar="PATT", default=None,
-                    help="Only write out histograms whose path matches this regex")
+                    help="only write out histograms whose path matches this regex")
 parser.add_argument("-M", "--unmatch", dest="UNMATCH", metavar="PATT", default=None,
-                    help="Exclude histograms whose path matches this regex")
+                    help="exclude histograms whose path matches this regex")
+parser.add_argument("-d", "--div-by-binsize", dest="DIVBINSIZE", action="store_true", default=False,
+                    help="divide bin values by bin size (width, area, etc.)")
 
 args = parser.parse_args()
 in_out = parse_x2y_args(args.ARGS, ".root", ".yoda")
@@ -37,7 +39,7 @@ for i, o in in_out:
     def to_yoda(path, ro):
         if path is None or ro is None:
             return None
-        ao = yoda.root.to_yoda(ro)
+        ao = yoda.root.to_yoda(ro, widthscale=args.DIVBINSIZE)
         if ao is not None:
             ao.path = path
         return ao

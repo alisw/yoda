@@ -1,12 +1,14 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Histo1D_h
 #define YODA_Histo1D_h
 
 #include "YODA/AnalysisObject.h"
+#include "YODA/Binned.h"
+#include "YODA/Fillable.h"
 #include "YODA/HistoBin1D.h"
 #include "YODA/Dbn1D.h"
 #include "YODA/Scatter2D.h"
@@ -22,8 +24,8 @@ namespace YODA {
   /// Convenience typedef
   typedef Axis1D<HistoBin1D, Dbn1D> Histo1DAxis;
 
-  /// A  one-dimensional histogram.
-  class Histo1D : public AnalysisObject {
+  /// A one-dimensional histogram
+  class Histo1D : public AnalysisObject, public Binned, public Fillable {
   public:
 
     /// Convenience typedefs
@@ -36,7 +38,7 @@ namespace YODA {
     typedef std::shared_ptr<Histo1D> Ptr;
 
     /// @name Constructors
-    //@{
+    /// @{
 
     /// Default constructor
     Histo1D(const std::string& path="", const std::string& title="")
@@ -115,15 +117,20 @@ namespace YODA {
       return new Histo1D(*this);
     }
 
-    //@}
+    /// @}
 
+
+    /// @brief Fill dimension of this data object
+    ///
+    /// @todo Change this to the total dimension (in v2)
+    size_t dim() const { return 1; }
 
     /// Fill dimension of this data object
-    size_t dim() const { return 1; }
+    size_t fillDim() const { return 1; }
 
 
     /// @name Modifiers
-    //@{
+    /// @{
 
     /// @brief Reset the histogram.
     ///
@@ -183,13 +190,11 @@ namespace YODA {
       rebinTo(newedges);
     }
 
-    //@}
+    /// @}
 
-
-  public:
 
     /// @name Bin accessors
-    //@{
+    /// @{
 
     /// Number of bins (not counting under/overflow)
     size_t numBins() const { return bins().size(); }
@@ -260,6 +265,11 @@ namespace YODA {
     /// Set overflow distribution, mainly for persistency: CAREFUL!
     void setOverflow(const Dbn1D& dbn) { _axis.setOverflow(dbn); }
 
+    /// @}
+
+
+    /// @name Bin adding and removing
+    /// @{
 
     /// Add a new bin specifying its lower and upper bound
     void addBin(double from, double to) { _axis.addBin(from, to); }
@@ -283,13 +293,13 @@ namespace YODA {
     }
 
     /// Remove a bin
-    void eraseBin(size_t index) { _axis.eraseBin(index); }
+    void rmBin(size_t index) { _axis.eraseBin(index); }
 
-    //@}
+    /// @}
 
 
     /// @name Whole histo data
-    //@{
+    /// @{
 
     /// Get the total area (sumW) of the histogram
     double integral(bool includeoverflows=true) const { return sumW(includeoverflows); }
@@ -354,11 +364,11 @@ namespace YODA {
     /// Get the RMS in x
     double xRMS(bool includeoverflows=true) const;
 
-    //@}
+    /// @}
 
 
     /// @name Adding and subtracting histograms
-    //@{
+    /// @{
 
     /// @brief Add another histogram to this one
     ///
@@ -399,7 +409,7 @@ namespace YODA {
       return *this;
     }
 
-    //@}
+    /// @}
 
 
   protected:
@@ -411,12 +421,12 @@ namespace YODA {
   private:
 
     /// @name Bin data
-    //@{
+    /// @{
 
     /// Definition of bin edges and contents
     Axis1D<HistoBin1D, Dbn1D> _axis;
 
-    //@}
+    /// @}
 
   };
 
@@ -426,7 +436,7 @@ namespace YODA {
 
 
   /// @name Combining histos: global operators
-  //@{
+  /// @{
 
   /// Add two histograms
   inline Histo1D add(const Histo1D& first, const Histo1D& second) {
@@ -553,7 +563,7 @@ namespace YODA {
   /// @todo Rename/alias as mkIntegralEff
   Scatter2D toIntegralEfficiencyHisto(const Histo1D& h, bool includeunderflow=true, bool includeoverflow=true);
 
-  //@}
+  /// @}
 
 
 }

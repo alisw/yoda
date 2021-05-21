@@ -10,10 +10,10 @@ cdef class AnalysisObject(util.Base):
     cdef inline c.AnalysisObject* aoptr(self) except NULL:
         return <c.AnalysisObject*> self.ptr()
 
-    # Pointer upcasting mechanism
-    # DEPRECATED
-    cdef inline c.AnalysisObject* _AnalysisObject(self) except NULL:
-        return <c.AnalysisObject*> self.ptr()
+    # # Pointer upcasting mechanism
+    # # DEPRECATED
+    # cdef inline c.AnalysisObject* _AnalysisObject(self) except NULL:
+    #     return <c.AnalysisObject*> self.ptr()
 
     # Deallocator (only needed as a base class)
     def __dealloc__(self):

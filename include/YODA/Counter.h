@@ -1,12 +1,13 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Counter_h
 #define YODA_Counter_h
 
 #include "YODA/AnalysisObject.h"
+#include "YODA/Fillable.h"
 #include "YODA/Dbn0D.h"
 #include "YODA/Scatter1D.h"
 #include "YODA/Exceptions.h"
@@ -20,7 +21,7 @@ namespace YODA {
 
 
   /// A weighted counter.
-  class Counter : public AnalysisObject {
+  class Counter : public AnalysisObject, public Fillable {
   public:
 
 
@@ -28,7 +29,7 @@ namespace YODA {
     typedef std::shared_ptr<Counter> Ptr;
 
     /// @name Constructors
-    //@{
+    /// @{
 
     /// Default constructor
     Counter(const std::string& path="", const std::string& title="")
@@ -80,15 +81,25 @@ namespace YODA {
       return new Counter(*this);
     }
 
-    //@}
+    /// @}
 
+
+    /// @name Dimensions
+    /// @{
+
+    /// @brief Fill dimension of this data object
+    ///
+    /// @todo Change to return total dimension
+    size_t dim() const { return 0; }
 
     /// Fill dimension of this data object
-    size_t dim() const { return 0; }
+    size_t fillDim() const { return 0; }
+
+    /// @}
 
 
     /// @name Modifiers
-    //@{
+    /// @{
 
     /// Fill histo by value and weight
     virtual void fill(double weight=1.0, double fraction=1.0) {
@@ -113,26 +124,26 @@ namespace YODA {
       _dbn.scaleW(scalefactor);
     }
 
-    //@}
+    /// @}
 
 
     /// @name Data access
-    //@{
+    /// @{
 
     /// Get the number of fills
-    double numEntries() const { return _dbn.numEntries(); }
+    double numEntries(bool=false) const { return _dbn.numEntries(); }
 
     /// Get the effective number of fills
-    double effNumEntries() const { return _dbn.effNumEntries(); }
+    double effNumEntries(bool=false) const { return _dbn.effNumEntries(); }
 
     /// Get the sum of weights
-    double sumW() const { return _dbn.sumW(); }
+    double sumW(bool=false) const { return _dbn.sumW(); }
 
     /// Get the sum of squared weights
-    double sumW2() const { return _dbn.sumW2(); }
+    double sumW2(bool=false) const { return _dbn.sumW2(); }
 
     /// Get the value
-    double val() const { return sumW(); }
+    double val(bool=false) const { return sumW(); }
 
     /// Get the uncertainty on the value
     /// @todo Implement on Dbn0D and feed through to this and Dbn1D, 2D, etc.
@@ -147,11 +158,11 @@ namespace YODA {
       return sumW2() != 0 ? err()/sumW() : 0;
     }
 
-    //@}
+    /// @}
 
 
     /// @name Internal state access and modification (mainly for persistency use)
-    //@{
+    /// @{
 
     /// Get the internal distribution object
     const Dbn0D& dbn() const {
@@ -169,11 +180,11 @@ namespace YODA {
     //   setAnnotations(anns);
     // }
 
-    //@}
+    /// @}
 
 
     /// @name Adding and subtracting counters
-    //@{
+    /// @{
 
     /// Add another counter to this
     Counter& operator += (const Counter& toAdd) {
@@ -213,24 +224,24 @@ namespace YODA {
       return *this;
     }
 
-    //@}
+    /// @}
 
 
   private:
 
     /// @name Data
-    //@{
+    /// @{
 
     /// Contained 0D distribution
     Dbn0D _dbn;
 
-    //@}
+    /// @}
 
   };
 
 
   /// @name Combining counters: global operators
-  //@{
+  /// @{
 
   /// Add two counters
   inline Counter add(const Counter& first, const Counter& second) {
@@ -280,7 +291,7 @@ namespace YODA {
   /// @todo Or just return a Point1D?
   Scatter1D efficiency(const Counter& accepted, const Counter& total);
 
-  //@}
+  /// @}
 
 
 }

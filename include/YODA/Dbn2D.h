@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Dbn2D_h
 #define YODA_Dbn2D_h
@@ -17,7 +17,7 @@ namespace YODA {
   public:
 
     /// @name Constructors
-    //@{
+    /// @{
 
     /// Default constructor of a new distribution.
     Dbn2D() {
@@ -56,11 +56,11 @@ namespace YODA {
       return *this;
     }
 
-    //@}
+    /// @}
 
 
     /// @name Modifiers
-    //@{
+    /// @{
 
     /// Fill, providing the fill coordinates as two different numbers.
     void fill(double valX, double valY, double weight=1.0, double fraction=1.0) {
@@ -112,13 +112,13 @@ namespace YODA {
       scaleY(yscale);
     }
 
-    //@}
+    /// @}
 
   public:
 
 
     /// @name Distribution statistics
-    //@{
+    /// @{
 
     /// The absolute error on sumW
     double errW() const { return _dbnX.errW(); }
@@ -156,11 +156,11 @@ namespace YODA {
     /// Weighted RMS, \f$ \sqrt{ \sum{w y^2}/\sum{w} } \f$, of distribution.
     double yRMS() const { return _dbnY.xRMS(); }
 
-    //@}
+    /// @}
 
 
     /// @name Raw distribution running sums
-    //@{
+    /// @{
 
     /// Number of entries (number of times @c fill was called, ignoring weights)
     double numEntries() const {
@@ -207,11 +207,11 @@ namespace YODA {
       return _sumWXY;
     }
 
-    //@}
+    /// @}
 
 
     /// @name Operators
-    //@{
+    /// @{
 
     /// Add two dbns
     Dbn2D& operator += (const Dbn2D& d) {
@@ -247,7 +247,7 @@ namespace YODA {
       Dbn1D ret(_dbnY);
       return ret;
     }
-    //@}
+    /// @}
 
 
   protected:
@@ -272,7 +272,7 @@ namespace YODA {
   private:
 
     /// @name Storage
-    //@{
+    /// @{
 
     /// The x moments and the pure-weight quantities are stored in a 1D "x" distribution
     Dbn1D _dbnX;
@@ -283,7 +283,7 @@ namespace YODA {
     /// The second-order "cross-term" that can't be handled using the 1D distributions
     double _sumWXY;
 
-    //@}
+    /// @}
 
   };
 

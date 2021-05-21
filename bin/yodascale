@@ -57,6 +57,8 @@ TODO:
 
 from __future__ import print_function
 
+from collections import OrderedDict
+
 
 ## Parse command line args
 import argparse
@@ -99,7 +101,6 @@ def parse_specstr(line):
     if not m:
         raise Exception("Invalid scaling spec string: '%s'" % scalespec)
     scalearg, refpatt = m.groups()
-    scaleop = "="
     if not scalearg:
         scalearg = "1x"
     if scalearg.endswith("x"):
@@ -107,6 +108,9 @@ def parse_specstr(line):
         scalearg = float(scalearg[:-1])
     elif scalearg == "UNSCALE":
         scaleop = "x"
+    else:
+        scaleop = "="
+        scalearg = float(scalearg)
     rtn = (PointMatcher(pathpatt), PointMatcher(refpatt), scaleop, scalearg)
     #print(rtn)
     return rtn
@@ -146,7 +150,7 @@ if args.VERBOSITY > 1:
 
 ## Loop over input files for rescaling
 for infile in args.INFILES:
-    aos_out = {}
+    aos_out = OrderedDict()
     aos_in = yoda.read(infile)
     for aopath, ao in sorted(aos_in.items()):
 
@@ -195,7 +199,7 @@ for infile in args.INFILES:
                 print("DEBUG: No scaling spec found for '%s'. Output is unscaled" % aopath)
         else:
             aoref, matcher, mode, factor = aospecs[0]
-            if args.VERBOSITY > 0:
+            if len(aospecs) > 1 and args.VERBOSITY > 1:
                 print("WARNING: Multiple scaling specs found for '%s'. Using first: '%r'" % (aopath, aospecs[0]))
 
 
@@ -236,7 +240,7 @@ for infile in args.INFILES:
                         self.xmin = xmin
                         self.xmax = xmax
 
-                pt = Pt(i, p.xMin, p.xMax)
+                pt = Pt(i, p.xMin(), p.xMax())
                 result = matcher.match_pos(pt)
                 #print(result)
                 return result
@@ -253,10 +257,10 @@ for infile in args.INFILES:
                     print("ERROR: Normalisation of given range is 0; cannot rescale this to a finite value. Result will be unscaled")
                     sf = 1.0
                 elif mode == "=":
-                    sf = float(factor)/norm
+                    sf = factor/norm
                 elif mode == "x":
                     assert(all(len(p.xErrs()) == 2 for p in sref.points()))
-                    refnorm = sum(p.y * sum(p.xErrs()) for i, p in enumerate(sref.points()) if matchpoint(i, p))
+                    refnorm = sum(p.y() * sum(p.xErrs()) for i, p in enumerate(sref.points()) if matchpoint(i, p))
                     sf = factor*refnorm/norm
             #
             elif type(s) is yoda.Scatter3D:
@@ -273,7 +277,7 @@ for infile in args.INFILES:
                     sf = factor/norm
                 elif mode == "x":
                     assert(all(len(p.xErrs()) == 2 and len(p.yErrs()) == 2) for p in sref.points())
-                    refnorm = sum(p.z * sum(p.xErrs()) * sum(p.yErrs()) for p in sref.points())
+                    refnorm = sum(p.z() * sum(p.xErrs()) * sum(p.yErrs()) for p in sref.points())
                     sf = factor*refnorm/norm
 
 
@@ -299,10 +303,6 @@ for infile in args.INFILES:
         aos_out[aopath] = ao
 
     ## Write out rescaled file, possibly in-place (i.e. replace input -- not the default behaviour!)
-    if not args.IN_PLACE:
-        infileparts = os.path.splitext( os.path.basename(infile) )
-        outfile = infileparts[0] + "-scaled.yoda"
-    else:
-        outfile = infile
-    #
-    yoda.write(sorted(aos_out.values()), outfile)
+    outfile = infile if args.IN_PLACE else infile.replace('.yoda', '-scaled.yoda')
+
+    yoda.write(aos_out.values(), outfile)

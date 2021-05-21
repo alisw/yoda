@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_ERRORND_H
 #define YODA_ERRORND_H
@@ -26,7 +26,7 @@ namespace YODA {
 
 
     /// @name Constructors
-    //@{
+    /// @{
 
     // Default constructor
     Error(const std::string& name="")
@@ -61,11 +61,11 @@ namespace YODA {
       }
     }
 
-    //@}
+    /// @}
 
 
     /// @name Modifiers and accessors
-    //@{
+    /// @{
 
     /// Clear the point values and errors
     const std::string& name() const {
@@ -127,12 +127,12 @@ namespace YODA {
       return (_val[dim].first + _val[dim].second)/2.0;
     }
 
-    //@}
+    /// @}
 
 
 
     /// @name Scaling and transformations
-    //@{
+    /// @{
 
     /// Uniform scaling
     void scale(const NdVal& scales) {
@@ -144,25 +144,25 @@ namespace YODA {
 
     /// @todo Generic trf functor support -- need abs position of error bar
 
-    //@}
+    /// @}
 
 
   protected:
 
     /// @name Value and error variables
-    //@{
+    /// @{
 
     std::string _name;
     NdValPair _val;
 
-    //@}
+    /// @}
 
   };
 
 
 
   /// @name Comparison operators
-  //@{
+  /// @{
 
   /// Equality test
   template <int N>
@@ -213,7 +213,7 @@ namespace YODA {
     return !(a < b);
   }
 
-  //@}
+  /// @}
 
 
 }

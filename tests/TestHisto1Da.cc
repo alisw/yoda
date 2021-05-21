@@ -15,6 +15,7 @@ int main() {
     h.fill(num);
   }
 
+  MSG("Path = " << h.path());
   MSG("Mean value = " << h.xMean() << " +- " << h.xStdErr());
   MSG("Total area = " << h.integral());
 

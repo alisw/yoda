@@ -1,18 +1,19 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_Profile2D_h
 #define YODA_Profile2D_h
 
 #include "YODA/AnalysisObject.h"
+#include "YODA/Fillable.h"
+#include "YODA/Binned.h"
 #include "YODA/ProfileBin2D.h"
 #include "YODA/Dbn3D.h"
 #include "YODA/Axis2D.h"
 #include "YODA/Scatter3D.h"
 #include "YODA/Exceptions.h"
-
 #include <vector>
 #include <tuple>
 
@@ -27,8 +28,8 @@ namespace YODA {
   typedef Axis2D<ProfileBin2D, Dbn3D> Profile2DAxis;
 
 
-  /// A two-dimensional profile histogram.
-  class Profile2D : public AnalysisObject {
+  /// A two-dimensional profile histogram
+  class Profile2D : public AnalysisObject, public Fillable, public Binned {
   public:
 
     /// Convenience typedefs
@@ -43,7 +44,7 @@ namespace YODA {
 
 
     /// @name Constructors
-    //@{
+    /// @{
 
     /// Default constructor
     Profile2D(const std::string& path="", const std::string& title="")
@@ -119,15 +120,20 @@ namespace YODA {
       return new Profile2D(*this);
     }
 
-    //@}
+    /// @}
 
+
+    /// @brief Fill dimension of this data object
+    ///
+    /// @todo Change this to the total dimension (in v2)
+    size_t dim() const { return 2; }
 
     /// Fill dimension of this data object
-    size_t dim() const { return 2; }
+    size_t fillDim() const { return 2; }
 
 
     /// @name Modifiers
-    //@{
+    /// @{
 
     /// Fill histo by value and weight
     virtual void fill(double x, double y, double z, double weight=1.0, double fraction=1.0);
@@ -177,6 +183,11 @@ namespace YODA {
     //   //_axis.rebin(n);
     // }
 
+    /// @}
+
+
+    /// @name Bin adding and removing
+    /// @{
 
     // /// @brief Bin addition operator
     // ///
@@ -207,7 +218,7 @@ namespace YODA {
       _axis.addBins(bins);
     }
 
-    /// check if binning is the same as different Profile2D
+    /// Check if binning is the same as different Profile2D
     bool sameBinning(const Profile2D& p2) {
       return _axis == p2._axis;
     }
@@ -222,15 +233,15 @@ namespace YODA {
     //   _axis.addBin(binLimits);
     // }
 
-    void eraseBin(size_t index) {
+    void rmBin(size_t index) {
       _axis.eraseBin(index);
     }
 
-    //@}
+    /// @}
 
 
     /// @name Bin accessors
-    //@{
+    /// @{
 
     /// All bin edges on this histo's x axis
     ///
@@ -319,11 +330,11 @@ namespace YODA {
     //   return _axis.outflow(ix, iy);
     // }
 
-    //@}
+    /// @}
 
 
     /// @name Whole histo data
-    //@{
+    /// @{
 
     /// Get the number of fills (fractional fills are possible)
     double numEntries(bool includeoverflows=true) const;
@@ -359,10 +370,10 @@ namespace YODA {
       return std::sqrt(yVariance(includeoverflows));
     }
 
-    /// Get the standard error on <x>
+    /// Get the standard error on the mean x
     double xStdErr(bool includeoverflows=true) const;
 
-    /// Get the standard error on <y>
+    /// Get the standard error on the mean y
     double yStdErr(bool includeoverflows=true) const;
 
     /// Get the RMS in x
@@ -371,11 +382,11 @@ namespace YODA {
     /// Get the RMS in y
     double yRMS(bool includeoverflows=true) const;
 
-    //@}
+    /// @}
 
 
     /// @name Adding and subtracting histograms
-    //@{
+    /// @{
 
     /// Add another profile to this one
     Profile2D& operator += (const Profile2D& toAdd) {
@@ -398,7 +409,7 @@ namespace YODA {
     inline bool operator != (const Profile2D& other){
       return ! operator == (other);
     }
-    //@}-
+    /// @}-
 
 
   protected:
@@ -410,12 +421,12 @@ namespace YODA {
   private:
 
     /// @name Bin data
-    //@{
+    /// @{
 
     /// The bins contained in this profile histogram
     Axis2D<ProfileBin2D, Dbn3D> _axis;
 
-    //@}
+    /// @}
   };
 
 
@@ -424,7 +435,7 @@ namespace YODA {
 
 
   /// @name Combining profile histos: global operators
-  //@{
+  /// @{
 
   /// Add two profile histograms
   inline Profile2D add(const Profile2D& first, const Profile2D& second) {
@@ -460,7 +471,7 @@ namespace YODA {
     return divide(numer, denom);
   }
 
-  //@}
+  /// @}
 
 }
 

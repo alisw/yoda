@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of YODA -- Yet more Objects for Data Analysis
-// Copyright (C) 2008-2018 The YODA collaboration (see AUTHORS for details)
+// Copyright (C) 2008-2021 The YODA collaboration (see AUTHORS for details)
 //
 #ifndef YODA_POINT1D_H
 #define YODA_POINT1D_H
@@ -19,7 +19,7 @@ namespace YODA {
   public:
 
     /// @name Constructors
-    //@{
+    /// @{
 
     // Default constructor
     Point1D() {  }
@@ -52,8 +52,8 @@ namespace YODA {
     /// Copy constructor
     Point1D(const Point1D& p)
       : _x(p._x), _ex(p._ex)
-    {  
-      this->setParentAO( p.getParentAO());
+    {
+      this->setParent( p.getParent() );
     }
 
 
@@ -61,11 +61,11 @@ namespace YODA {
     Point1D& operator = (const Point1D& p) {
       _x = p._x;
       _ex = p._ex;
-      this->setParentAO( p.getParentAO());
+      this->setParent( p.getParent() );
       return *this;
     }
 
-    //@}
+    /// @}
 
 
   public:
@@ -75,7 +75,7 @@ namespace YODA {
 
 
     /// @name Value accessors
-    //@{
+    /// @{
 
     /// Get x value
     double x() const { return _x; }
@@ -85,11 +85,11 @@ namespace YODA {
 
     /// @todo Uniform "coords" accessor across all Scatters: returning fixed-size tuple?
 
-    //@}
+    /// @}
 
 
     /// @name x error accessors
-    //@{
+    /// @{
 
     /// Get x-error values
     const std::pair<double,double>& xErrs(  std::string source="") const {
@@ -167,11 +167,11 @@ namespace YODA {
       return _x + _ex.at(source).second;
     }
 
-    //@}
+    /// @}
 
 
     /// @name Combined x value and error setters
-    //@{
+    /// @{
 
     /// Set x value and symmetric error
     void setX(double x, double ex, std::string source="") {
@@ -191,11 +191,11 @@ namespace YODA {
       setXErrs(ex, source);
     }
 
-    //@}
+    /// @}
 
 
     // @name Manipulations
-    //@{
+    /// @{
 
     /// Scaling of x axis
     void scaleX(double scalex) {
@@ -205,11 +205,19 @@ namespace YODA {
       }
     }
 
-    //@}
+    /// Scaling along direction @a i
+    void scale(size_t i, double scale) {
+      switch (i) {
+      case 1: scaleX(scale); break;
+      default: throw RangeError("Invalid axis int, must be in range 1..dim");
+      }
+    }
+
+    /// @}
 
 
     /// @name Integer axis accessor equivalents
-    //@{
+    /// @{
 
     /// Get the point value for direction @a i
     double val(size_t i) const {
@@ -227,9 +235,10 @@ namespace YODA {
       getVariationsFromParent();
       return _ex;
     }
-    
+
     // Parse the variations from the parent AO if it exists
     void getVariationsFromParent() const;
+
 
     /// Get error values for direction @a i
     const std::pair<double,double>& errs(size_t i, std::string source="") const {
@@ -295,27 +304,27 @@ namespace YODA {
       setX(val, e, source);
     }
 
-    //@}
+    /// @}
 
 
   protected:
 
     /// @name Value and error variables
-    //@{
+    /// @{
 
     double _x;
     // a map of the errors for each source. Nominal stored under ""
     // to ensure backward compatibility
     std::map< std::string, std::pair<double,double> > _ex;
 
-    //@}
+    /// @}
 
   };
 
 
 
   /// @name Comparison operators
-  //@{
+  /// @{
 
   /// Equality test of x characteristics only
   /// @todo Base on a named fuzzyEquals(a,b,tol=1e-3) unbound function
@@ -361,7 +370,7 @@ namespace YODA {
     return !(a < b);
   }
 
-  //@}
+  /// @}
 
 
 }
