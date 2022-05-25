@@ -98,26 +98,18 @@ check_PROGRAMS = testtraits$(EXEEXT) testannotations$(EXEEXT) \
 	testprofile1Dmodify$(EXEEXT) testscatter2Dcreate$(EXEEXT) \
 	testscatter2Dmodify$(EXEEXT) testhisto2Dcreate$(EXEEXT)
 TESTS = testtraits$(EXEEXT) testannotations$(EXEEXT) \
-	testweights$(EXEEXT) testbinsearcher$(EXEEXT) \
-	testwriter$(EXEEXT) testreader$(EXEEXT) testhisto1Da$(EXEEXT) \
-	testhisto1Db$(EXEEXT) testhisto2Da$(EXEEXT) \
-	testprofile1Da$(EXEEXT) testindexedset$(EXEEXT) \
-	testsortedvector$(EXEEXT) testhisto1Dcreate$(EXEEXT) \
-	testhisto1Dfill$(EXEEXT) testhisto1Dmodify$(EXEEXT) \
-	testprofile1Dcreate$(EXEEXT) testprofile1Dfill$(EXEEXT) \
-	testprofile1Dmodify$(EXEEXT) testscatter2Dcreate$(EXEEXT) \
-	testscatter2Dmodify$(EXEEXT) testhisto2Dcreate$(EXEEXT) \
-	$(am__append_1) $(am__append_2)
-
-### to make distcheck work on macOS, we need a
-### way to prevent the DYLD_LIBRARY_PATH setting
-### from being removed by system integrity protection
-### when /usr/bin/env is called
-### (same for any other app in /usr/bin)
-###
-@WITH_OSX_FALSE@am__append_1 = $(PYTESTS) $(SHTESTS)
-@ENABLE_ROOT_TRUE@am__append_2 = shtest-yoda2root
-@ENABLE_ROOT_TRUE@am__append_3 = test1.root
+	testweights$(EXEEXT) testbinsearcher$(EXEEXT) testwriter.sh \
+	testreader.sh testhisto1Da$(EXEEXT) testhisto1Db$(EXEEXT) \
+	testhisto2Da$(EXEEXT) testprofile1Da$(EXEEXT) \
+	testindexedset$(EXEEXT) testsortedvector$(EXEEXT) \
+	testhisto1Dcreate$(EXEEXT) testhisto1Dfill$(EXEEXT) \
+	testhisto1Dmodify$(EXEEXT) testprofile1Dcreate$(EXEEXT) \
+	testprofile1Dfill$(EXEEXT) testprofile1Dmodify$(EXEEXT) \
+	testscatter2Dcreate$(EXEEXT) testscatter2Dmodify$(EXEEXT) \
+	testhisto2Dcreate$(EXEEXT) $(PYTESTS) $(SHTESTS) \
+	$(am__append_1)
+@ENABLE_ROOT_TRUE@am__append_1 = test-yoda2root.sh
+@ENABLE_ROOT_TRUE@am__append_2 = test1.root
 subdir = tests
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_check_zlib.m4 \
@@ -470,7 +462,6 @@ am__set_TESTS_bases = \
 RECHECK_LOGS = $(TEST_LOGS)
 AM_RECURSIVE_TARGETS = check recheck
 TEST_SUITE_LOG = test-suite.log
-TEST_EXTENSIONS = @EXEEXT@ .test
 LOG_DRIVER = $(SHELL) $(top_srcdir)/test-driver
 LOG_COMPILE = $(LOG_COMPILER) $(AM_LOG_FLAGS) $(LOG_FLAGS)
 am__set_b = \
@@ -485,16 +476,18 @@ am__set_b = \
   esac
 am__test_logs1 = $(TESTS:=.log)
 am__test_logs2 = $(am__test_logs1:@EXEEXT@.log=.log)
-TEST_LOGS = $(am__test_logs2:.test.log=.log)
-TEST_LOG_DRIVER = $(SHELL) $(top_srcdir)/test-driver
-TEST_LOG_COMPILE = $(TEST_LOG_COMPILER) $(AM_TEST_LOG_FLAGS) \
-	$(TEST_LOG_FLAGS)
+am__test_logs3 = $(am__test_logs2:.py.log=.log)
+PY_LOG_DRIVER = $(SHELL) $(top_srcdir)/test-driver
+PY_LOG_COMPILE = $(PY_LOG_COMPILER) $(AM_PY_LOG_FLAGS) $(PY_LOG_FLAGS)
+TEST_LOGS = $(am__test_logs3:.sh.log=.log)
+SH_LOG_DRIVER = $(SHELL) $(top_srcdir)/test-driver
+SH_LOG_COMPILE = $(SH_LOG_COMPILER) $(AM_SH_LOG_FLAGS) $(SH_LOG_FLAGS)
 am__DIST_COMMON = $(srcdir)/Makefile.in $(top_srcdir)/depcomp \
 	$(top_srcdir)/test-driver TODO
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
-AM_CPPFLAGS = @AM_CPPFLAGS@
+AM_CPPFLAGS = @AM_CPPFLAGS@ -DYODA_TESTS_SRC="\"$(srcdir)\""
 AM_CXXFLAGS = @AM_CXXFLAGS@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 AR = @AR@
@@ -645,33 +638,37 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+TEST_EXTENSIONS = .py .sh
 PYTESTS = \
-  pytest-unit \
-  pytest-counter \
-  pytest-h1d \
-  pytest-p1d \
-  pytest-h2d \
-  pytest-p2d \
-  pytest-s1d \
-  pytest-s2d \
-  pytest-div \
-  pytest-rebin \
-  pytest-iofilter \
-  pytest-operators
+  test-unit.py \
+  test-counter.py \
+  test-h1d.py \
+  test-p1d.py \
+  test-h2d.py \
+  test-p2d.py \
+  test-s1d.py \
+  test-s2d.py \
+  test-div.py \
+  test-rebin.py \
+  test-io.py \
+  test-iofilter.py \
+  test-operators.py
 
 SHTESTS = \
-  shtest-yodamerge \
-  shtest-yodahist \
-  shtest-yodals \
-  shtest-yodacmp \
-  shtest-yoda2flat \
-  shtest-yodascale \
-  shtest-yodaplot \
-  shtest-yodacnv \
-  shtest-yoda2yoda
+  test-yodamerge.sh \
+  test-yodahist.sh \
+  test-yodals.sh \
+  test-yodacmp.sh \
+  test-yoda2flat.sh \
+  test-yodascale.sh \
+  test-yodaplot.sh \
+  test-yodacnv.sh \
+  test-yoda2yoda.sh
 
 EXTRA_DIST = $(PYTESTS) $(SHTESTS) \
-  shtest-yoda2root \
+  testreader.sh testwriter.sh \
+  test-yoda2root.sh \
+  test.yoda test.yoda.gz \
   test1.yoda test2.yoda \
   iofilter.yoda \
   rivetexample.yoda \
@@ -725,11 +722,11 @@ TESTS_ENVIRONMENT = \
 CLEANFILES = h1d.yoda h1d.dat p1d.yoda p1d.dat h2d.yoda h2d.dat \
 	p2d.yoda p2d.dat s1d.yoda s2d.yoda testwriter1.yoda \
 	testwriter2.yoda testwriter2.yoda.gz foo_bar_baz.dat \
-	counter.yoda test.aida $(am__append_3)
+	counter.yoda test.aida y2y_3.yoda $(am__append_2)
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .cc .lo .log .o .obj .test .test$(EXEEXT) .trs
+.SUFFIXES: .cc .lo .log .o .obj .py .py$(EXEEXT) .sh .sh$(EXEEXT) .trs
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -1178,20 +1175,6 @@ testbinsearcher.log: testbinsearcher$(EXEEXT)
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
 	"$$tst" $(AM_TESTS_FD_REDIRECT)
-testwriter.log: testwriter$(EXEEXT)
-	@p='testwriter$(EXEEXT)'; \
-	b='testwriter'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-testreader.log: testreader$(EXEEXT)
-	@p='testreader$(EXEEXT)'; \
-	b='testreader'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
 testhisto1Da.log: testhisto1Da$(EXEEXT)
 	@p='testhisto1Da$(EXEEXT)'; \
 	b='testhisto1Da'; \
@@ -1297,173 +1280,33 @@ testhisto2Dcreate.log: testhisto2Dcreate$(EXEEXT)
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
 	"$$tst" $(AM_TESTS_FD_REDIRECT)
-pytest-unit.log: pytest-unit
-	@p='pytest-unit'; \
-	b='pytest-unit'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-pytest-counter.log: pytest-counter
-	@p='pytest-counter'; \
-	b='pytest-counter'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-pytest-h1d.log: pytest-h1d
-	@p='pytest-h1d'; \
-	b='pytest-h1d'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-pytest-p1d.log: pytest-p1d
-	@p='pytest-p1d'; \
-	b='pytest-p1d'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-pytest-h2d.log: pytest-h2d
-	@p='pytest-h2d'; \
-	b='pytest-h2d'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-pytest-p2d.log: pytest-p2d
-	@p='pytest-p2d'; \
-	b='pytest-p2d'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-pytest-s1d.log: pytest-s1d
-	@p='pytest-s1d'; \
-	b='pytest-s1d'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-pytest-s2d.log: pytest-s2d
-	@p='pytest-s2d'; \
-	b='pytest-s2d'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-pytest-div.log: pytest-div
-	@p='pytest-div'; \
-	b='pytest-div'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-pytest-rebin.log: pytest-rebin
-	@p='pytest-rebin'; \
-	b='pytest-rebin'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-pytest-iofilter.log: pytest-iofilter
-	@p='pytest-iofilter'; \
-	b='pytest-iofilter'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-pytest-operators.log: pytest-operators
-	@p='pytest-operators'; \
-	b='pytest-operators'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-shtest-yodamerge.log: shtest-yodamerge
-	@p='shtest-yodamerge'; \
-	b='shtest-yodamerge'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-shtest-yodahist.log: shtest-yodahist
-	@p='shtest-yodahist'; \
-	b='shtest-yodahist'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-shtest-yodals.log: shtest-yodals
-	@p='shtest-yodals'; \
-	b='shtest-yodals'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-shtest-yodacmp.log: shtest-yodacmp
-	@p='shtest-yodacmp'; \
-	b='shtest-yodacmp'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-shtest-yoda2flat.log: shtest-yoda2flat
-	@p='shtest-yoda2flat'; \
-	b='shtest-yoda2flat'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-shtest-yodascale.log: shtest-yodascale
-	@p='shtest-yodascale'; \
-	b='shtest-yodascale'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-shtest-yodaplot.log: shtest-yodaplot
-	@p='shtest-yodaplot'; \
-	b='shtest-yodaplot'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-shtest-yodacnv.log: shtest-yodacnv
-	@p='shtest-yodacnv'; \
-	b='shtest-yodacnv'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-shtest-yoda2yoda.log: shtest-yoda2yoda
-	@p='shtest-yoda2yoda'; \
-	b='shtest-yoda2yoda'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-shtest-yoda2root.log: shtest-yoda2root
-	@p='shtest-yoda2root'; \
-	b='shtest-yoda2root'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-.test.log:
+.py.log:
 	@p='$<'; \
 	$(am__set_b); \
-	$(am__check_pre) $(TEST_LOG_DRIVER) --test-name "$$f" \
+	$(am__check_pre) $(PY_LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_TEST_LOG_DRIVER_FLAGS) $(TEST_LOG_DRIVER_FLAGS) -- $(TEST_LOG_COMPILE) \
+	$(am__common_driver_flags) $(AM_PY_LOG_DRIVER_FLAGS) $(PY_LOG_DRIVER_FLAGS) -- $(PY_LOG_COMPILE) \
 	"$$tst" $(AM_TESTS_FD_REDIRECT)
-@am__EXEEXT_TRUE@.test$(EXEEXT).log:
+@am__EXEEXT_TRUE@.py$(EXEEXT).log:
 @am__EXEEXT_TRUE@	@p='$<'; \
 @am__EXEEXT_TRUE@	$(am__set_b); \
-@am__EXEEXT_TRUE@	$(am__check_pre) $(TEST_LOG_DRIVER) --test-name "$$f" \
+@am__EXEEXT_TRUE@	$(am__check_pre) $(PY_LOG_DRIVER) --test-name "$$f" \
 @am__EXEEXT_TRUE@	--log-file $$b.log --trs-file $$b.trs \
-@am__EXEEXT_TRUE@	$(am__common_driver_flags) $(AM_TEST_LOG_DRIVER_FLAGS) $(TEST_LOG_DRIVER_FLAGS) -- $(TEST_LOG_COMPILE) \
+@am__EXEEXT_TRUE@	$(am__common_driver_flags) $(AM_PY_LOG_DRIVER_FLAGS) $(PY_LOG_DRIVER_FLAGS) -- $(PY_LOG_COMPILE) \
+@am__EXEEXT_TRUE@	"$$tst" $(AM_TESTS_FD_REDIRECT)
+.sh.log:
+	@p='$<'; \
+	$(am__set_b); \
+	$(am__check_pre) $(SH_LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_SH_LOG_DRIVER_FLAGS) $(SH_LOG_DRIVER_FLAGS) -- $(SH_LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+@am__EXEEXT_TRUE@.sh$(EXEEXT).log:
+@am__EXEEXT_TRUE@	@p='$<'; \
+@am__EXEEXT_TRUE@	$(am__set_b); \
+@am__EXEEXT_TRUE@	$(am__check_pre) $(SH_LOG_DRIVER) --test-name "$$f" \
+@am__EXEEXT_TRUE@	--log-file $$b.log --trs-file $$b.trs \
+@am__EXEEXT_TRUE@	$(am__common_driver_flags) $(AM_SH_LOG_DRIVER_FLAGS) $(SH_LOG_DRIVER_FLAGS) -- $(SH_LOG_COMPILE) \
 @am__EXEEXT_TRUE@	"$$tst" $(AM_TESTS_FD_REDIRECT)
 
 distdir: $(DISTFILES)
@@ -1633,6 +1476,8 @@ uninstall-am:
 
 .PRECIOUS: Makefile
 
+
+testreader.log: testwriter.log
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

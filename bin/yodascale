@@ -75,14 +75,21 @@ parser.add_argument("-c", "--spec", dest="SPECS", metavar="SPECSTR", action="app
                     "may be given. Specs will be _appended_ to any read from a file with -f/--specfile")
 parser.add_argument("-f", "--specfile", dest="SPECFILE", metavar="FILE", default=None,
                     help="specify a file with histogram path patterns (and bin ranges) that are to be normalised")
+parser.add_argument("-o", "--output", default=None, dest="OUTPUT_FILE", metavar="PATH",
+                    help="write output to specified path")
 parser.add_argument("-i", "--in-place", dest="IN_PLACE", default=False, action="store_true",
-                    help="overwrite input file(s) rather than making <input>-scaled.yoda")
+                    help="overwrite input file(s) rather than making <input>-scaled.yoda[.gz]")
 parser.add_argument("-q", "--quiet", dest="VERBOSITY", action="store_const", const=0, default=1,
                     help="reduce printouts to errors-only")
 parser.add_argument("-v", "--debug", dest="VERBOSITY", action="store_const", const=2, default=1,
                     help="increase printouts to include debug info")
 args = parser.parse_args()
 
+
+if args.OUTPUT_FILE is not None and args.IN_PLACE:
+    import sys
+    sys.stderr.write("ERROR: The --output and --in-place options are incompatible\n")
+    sys.exit(1)
 
 ## Define parser for scale specification strings
 from yoda.search import PointMatcher
@@ -303,6 +310,16 @@ for infile in args.INFILES:
         aos_out[aopath] = ao
 
     ## Write out rescaled file, possibly in-place (i.e. replace input -- not the default behaviour!)
-    outfile = infile if args.IN_PLACE else infile.replace('.yoda', '-scaled.yoda')
+    if args.OUTPUT_FILE:
+        outfile = args.OUTPUT_FILE
+    elif args.IN_PLACE:
+        outfile = infile
+    else:
+        gzext = ""
+        stem, ext = os.path.splitext(os.path.basename(infile))
+        if ext == ".gz":
+            gzext = ".gz"
+            stem, _ = os.path.splitext(stem)
+        outfile = stem + "-scaled.yoda" + gzext
 
     yoda.write(aos_out.values(), outfile)

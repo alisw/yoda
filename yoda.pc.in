@@ -10,4 +10,3 @@ URL: https://yoda.hepforge.org
 Version: @VERSION@
 Libs: -L@libdir@ -lYODA
 Cflags: -I@includedir@
-#-I@BOOST_CPPFLAGS@

@@ -40,7 +40,7 @@ args = parser.parse_args()
 
 ## Loop over all input files
 ntotal = len(args.INFILES)
-aos_out, sources = {}, {}
+aos_in, aos_out, sources = None, {}, {}
 for n, fa in enumerate(args.INFILES):
 
     filename, fileweight = fa, 1.0
@@ -55,6 +55,9 @@ for n, fa in enumerate(args.INFILES):
     if args.VERBOSITY > 0:
         msg = "Stacking data file {:s} with weight {:f} [{:d}/{:d}]".format(filename, fileweight, n+1, ntotal)
         sys.stdout.write(msg + "\n")
+
+    ## Release old AOs before loading the new ones to reduce the peak memory usage
+    del aos_in
 
     ## Put the next batch of incoming objects into a dict from each path to a list of histos and scalings
     aos_in = yoda.read(filename, True, args.MATCH, args.UNMATCH)

@@ -47,6 +47,8 @@ namespace YODA {
     /// Get the list of variations stored in the points
     virtual std::vector<std::string> variations() const = 0;
 
+    /// Clear the variations
+    virtual void rmVariations() = 0;
 
     /// Number of points in the scatter
     virtual size_t numPoints() const = 0;

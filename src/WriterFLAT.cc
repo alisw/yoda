@@ -29,7 +29,7 @@ namespace YODA {
   }
 
   void WriterFLAT::_writeAnnotations(std::ostream& os, const AnalysisObject& ao) {
-    os << scientific << setprecision(_precision);
+    os << scientific << setprecision(_aoprecision);
     for (const string& a : ao.annotations()) {
       if (a.empty()) continue;
       if (a == "Type") continue;
@@ -41,7 +41,7 @@ namespace YODA {
 
   void WriterFLAT::writeCounter(std::ostream& os, const Counter& c) {
     ios_base::fmtflags oldflags = os.flags();
-    os << scientific << showpoint << setprecision(_precision);
+    os << scientific << showpoint << setprecision(_aoprecision);
 
     os << "# BEGIN COUNTER " << c.path() << "\n";
     _writeAnnotations(os, c);
@@ -86,7 +86,7 @@ namespace YODA {
 
   void WriterFLAT::writeScatter1D(std::ostream& os, const Scatter1D& s) {
     ios_base::fmtflags oldflags = os.flags();
-    os << scientific << showpoint << setprecision(_precision);
+    os << scientific << showpoint << setprecision(_aoprecision);
 
     os << "# BEGIN VALUE " << s.path() << "\n";
     _writeAnnotations(os, s);
@@ -103,7 +103,7 @@ namespace YODA {
 
   void WriterFLAT::writeScatter2D(std::ostream& os, const Scatter2D& s) {
     ios_base::fmtflags oldflags = os.flags();
-    os << scientific << showpoint << setprecision(_precision);
+    os << scientific << showpoint << setprecision(_aoprecision);
 
     os << "# BEGIN HISTO1D " << s.path() << "\n";
     _writeAnnotations(os, s);
@@ -121,7 +121,7 @@ namespace YODA {
 
   void WriterFLAT::writeScatter3D(std::ostream& os, const Scatter3D& s) { // , bool asHist2D) {
     ios_base::fmtflags oldflags = os.flags();
-    os << scientific << showpoint << setprecision(_precision);
+    os << scientific << showpoint << setprecision(_aoprecision);
 
     os << "# BEGIN HISTO2D " << s.path() << "\n";
     _writeAnnotations(os, s);

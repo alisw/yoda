@@ -119,6 +119,19 @@ namespace YODA {
       return rtn;
     }
 
+    /// Return all the Nbin bin widths on the axis
+    ///
+    /// @note This only returns the finite edges, i.e. -inf and +inf are removed
+    /// @todo Make the +-inf stripping controllable by a default-valued bool arg
+    std::vector<double> xWidths() const {
+      // std::vector<double> rtn; rtn.reserve(numBins());
+      // for (const Bin& b : bins()) rtn.push_back( b.xWidth() );
+      std::vector<double> rtn = xEdges();
+      for (size_t ib = 0; ib < rtn.size()-1; ++ib) rtn[ib] = rtn[ib+1] - rtn[ib];
+      rtn.pop_back();
+      return rtn;
+    }
+
     /// Return a bin at a given index (non-const)
     BIN1D& bin(size_t index) {
       if (index >= numBins()) throw RangeError("YODA::Histo1D: index out of range!");

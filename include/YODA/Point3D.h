@@ -482,6 +482,32 @@ namespace YODA {
 
     // Parse the variations from the parent AO if it exists
     void getVariationsFromParent() const;
+    
+    /// Remove the parsed variations, but keep the total
+    void rmVariations() {
+      std::map< std::string, std::pair<double,double> > tmp;
+      const auto& it = _ez.find("");
+      if (it != _ez.end())  tmp[""] = it->second;
+      _ez.clear();  _ez = tmp;
+    }
+
+    // set the "" error source to the sum in quad of the existing variations 
+    void updateTotalUncertainty() {
+        float totalUp = 0.;
+        float totalDn = 0.;
+        for (const auto& variation : getParent()->variations()) {
+          if (variation=="") continue;
+          float thisUp =  zErrPlus(variation);
+          float thisDn =  zErrMinus(variation);
+          totalUp += thisUp*thisUp;
+          totalDn += thisDn*thisDn;
+        }
+    
+        totalUp = sqrt(totalUp);
+        totalDn = sqrt(totalDn);
+        setErrPlus(3, totalUp);
+        setErrMinus(3, totalDn);
+    }
 
     /// Get error values for direction @a i
     const std::pair<double,double>& errs(size_t i,  std::string source="") const {

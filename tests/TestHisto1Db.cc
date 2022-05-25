@@ -54,7 +54,9 @@ int main() {
     }
   }
 
-  vector<AnalysisObject*> hs3 = ReaderYODA::create().read("test.yoda");
+  const string testsrcdir = YODA_TESTS_SRC;
+  cout << "Reading file from tests src dir = " << testsrcdir << endl;
+  vector<AnalysisObject*> hs3 = ReaderYODA::create().read(testsrcdir + "/test.yoda");
   for (vector<AnalysisObject*>::const_iterator i = hs3.begin(); i != hs3.end(); ++i) {
     cout << (*i)->type() << endl;
     YODA::WriterYODA::write(std::cout, (**i));

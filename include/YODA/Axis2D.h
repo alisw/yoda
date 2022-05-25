@@ -333,6 +333,28 @@ namespace YODA {
       return rtn;
     }
 
+    /// Return all the NbinX bin widths on the x-axis
+    ///
+    /// @note This only returns the finite edges, i.e. -inf and +inf are removed
+    /// @todo Make the +-inf stripping controllable by a default-valued bool arg
+    std::vector<double> xWidths() const {
+      std::vector<double> rtn = xEdges();
+      for (size_t ib = 0; ib < rtn.size()-1; ++ib) rtn[ib] = rtn[ib+1] - rtn[ib];
+      rtn.pop_back();
+      return rtn;
+    }
+
+    /// Return all the NbinY bin widths on the y-axis
+    ///
+    /// @note This only returns the finite edges, i.e. -inf and +inf are removed
+    /// @todo Make the +-inf stripping controllable by a default-valued bool arg
+    std::vector<double> yWidths() const {
+      std::vector<double> rtn = yEdges();
+      for (size_t ib = 0; ib < rtn.size()-1; ++ib) rtn[ib] = rtn[ib+1] - rtn[ib];
+      rtn.pop_back();
+      return rtn;
+    }
+
 
     /// Add a bin, providing its x- and y- edge ranges
     void addBin(EdgePair1D xrange, EdgePair1D yrange) {
@@ -537,12 +559,14 @@ namespace YODA {
       std::sort(ywidths.begin(), ywidths.end());
 
       // Obtain the median widths as a typical scale for uniqueness comparisons
-      const double medianxwidth = xwidths[ (xwidths.size()-1)/2 ];
-      const double medianywidth = ywidths[ (ywidths.size()-1)/2 ];
+      // const double medianxwidth = xwidths[ (xwidths.size()-1)/2 ];
+      // const double medianywidth = ywidths[ (ywidths.size()-1)/2 ];
+      const double minxwidth = xwidths[0];
+      const double minywidth = ywidths[0];
 
       // Uniqueify the bin edges in the x- and y-cut vectors, with some numerical fuzziness
-      xedges.resize(std::unique(xedges.begin(), xedges.end(), CmpFloats(1e-3, medianxwidth)) - xedges.begin());
-      yedges.resize(std::unique(yedges.begin(), yedges.end(), CmpFloats(1e-3, medianywidth)) - yedges.begin());
+      xedges.resize(std::unique(xedges.begin(), xedges.end(), CmpFloats(1e-3, minxwidth)) - xedges.begin());
+      yedges.resize(std::unique(yedges.begin(), yedges.end(), CmpFloats(1e-3, minywidth)) - yedges.begin());
 
       const size_t nx = xedges.size();
       const size_t ny = yedges.size();

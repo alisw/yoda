@@ -1,5 +1,3 @@
-#! /usr/bin/env cython
-
 #cython: embedsignature=True
 
 ## System / stdlib imports

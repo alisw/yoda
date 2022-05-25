@@ -1,4 +1,4 @@
-cimport util
+import util
 
 # cdef class Binned(AnalysisObject):
 #     pass
@@ -296,11 +296,12 @@ cdef class Histo1D(AnalysisObject):
             self.rebinBy(arg, **kwargs)
 
 
-    def mkScatter(self, usefocus=False):
+    def mkScatter(self, usefocus=False, binwidthdiv=True, uflow_binwidth=-1, oflow_binwidth=-1):
         """None -> Scatter2D.
-        Convert this Histo1D to a Scatter2D, with y representing bin heights
-        (not sumW) and height errors."""
-        cdef c.Scatter2D s2 = c.mkScatter_Histo1D(deref(self.h1ptr()), usefocus)
+        Convert this Histo1D to a Scatter2D, with optional argument to control the x-positions
+        of points within the bins, whether y represents sumW or density, and optional under-
+        and overflow points."""
+        cdef c.Scatter2D s2 = c.mkScatter_Histo1D(deref(self.h1ptr()), usefocus, binwidthdiv, uflow_binwidth, oflow_binwidth)
         return cutil.new_owned_cls(Scatter2D, s2.newclone())
 
 
@@ -422,6 +423,10 @@ cdef class Histo1D(AnalysisObject):
     def xEdges(self):
         """All x edges of the histo."""
         return self._mknp(self.h1ptr().xEdges())
+
+    def xWidths(self):
+        """All x widths of the histo."""
+        return self._mknp(self.h1ptr().xWidths())
 
     def xMins(self):
         """All x low edges of the histo."""

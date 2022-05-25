@@ -255,13 +255,25 @@ namespace YODA {
     ///
     /// @note This only returns the finite edges, i.e. -inf and +inf are removed
     /// @todo Make the +-inf stripping controllable by a default-valued bool arg
-    const std::vector<double> xEdges() const { return _axis.xEdges(); }
+    std::vector<double> xEdges() const { return _axis.xEdges(); }
 
     /// All bin edges on this histo's y axis
     ///
     /// @note This only returns the finite edges, i.e. -inf and +inf are removed
     /// @todo Make the +-inf stripping controllable by a default-valued bool arg
-    const std::vector<double> yEdges() const { return _axis.yEdges(); }
+    std::vector<double> yEdges() const { return _axis.yEdges(); }
+
+    /// All bin widths on this histo's x axis
+    ///
+    /// @note This only returns the finite edges, i.e. -inf and +inf are removed
+    /// @todo Make the +-inf stripping controllable by a default-valued bool arg
+    std::vector<double> xWidths() const { return _axis.xWidths(); }
+
+    /// All bin widths on this histo's y axis
+    ///
+    /// @note This only returns the finite edges, i.e. -inf and +inf are removed
+    /// @todo Make the +-inf stripping controllable by a default-valued bool arg
+    std::vector<double> yWidths() const { return _axis.yWidths(); }
 
     /// @todo Add xMins, xMaxs, xMids, xFoci, and y-versions
 

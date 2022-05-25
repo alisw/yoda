@@ -52,8 +52,12 @@ namespace YODA {
         z = std::numeric_limits<double>::quiet_NaN();
       }
       if (binareadiv) z /= b.xWidth()*b.yWidth();
-      const double ez = b.relErr() * z;
-
+      double ez;
+      try {
+        ez = b.relErr() * z;
+      } catch (const Exception&) { // LowStatsError or WeightError
+        ez = std::numeric_limits<double>::quiet_NaN();
+      }
 
       Point3D pt(x, y, z, exminus, explus, eyminus, eyplus, ez, ez);
       pt.setParent(&rtn);
@@ -99,7 +103,6 @@ namespace YODA {
 
       /// END SAME FOR ALL 2D BINS
 
-
       double z;
       try {
         z = b.mean();
@@ -120,9 +123,43 @@ namespace YODA {
   }
 
 
-  void Scatter3D::parseVariations()   {
-    if (this->_variationsParsed) { return; }
-    if (!(this->hasAnnotation("ErrorBreakdown"))) { return; }
+  // Prepare the variations to be written
+  void Scatter3D::writeVariationsToAnnotations(){
+    YAML::Emitter em;
+    em.SetMapFormat(YAML::Flow);
+    em << YAML::BeginMap;
+    for (size_t thisPointIndex = 0; thisPointIndex < this->numPoints(); ++thisPointIndex) {
+      Point3D& thisPoint = this->_points[thisPointIndex];
+      em << YAML::Key << thisPointIndex;
+      em << YAML::Value << YAML::BeginMap;
+      for (const auto& variation : this->variations()) {
+        em << YAML::Key << variation;
+        em << YAML::Value << YAML::BeginMap;
+        em << YAML::Key <<  "up";
+        em << YAML::Value <<  thisPoint.zErrPlus(variation);
+        em << YAML::Key <<  "dn";
+        em << YAML::Value <<  thisPoint.zErrMinus(variation);
+        em << YAML::EndMap;
+      }
+      em << YAML::EndMap;
+    }
+    em << YAML::EndMap;
+    const std::string val = em.c_str();
+    this->setAnnotation("ErrorBreakdown", val);
+  }
+
+
+  void Scatter3D::updateTotalUncertainty() {
+    for (size_t thisPointIndex = 0; thisPointIndex < this->numPoints(); ++thisPointIndex) {
+      Point3D& thisPoint = this->_points[thisPointIndex];
+      thisPoint.updateTotalUncertainty();
+    }
+  }
+
+
+  void Scatter3D::parseVariations() {
+    if (this->_variationsParsed) return;
+    if (!(this->hasAnnotation("ErrorBreakdown"))) return;
     YAML::Node errorBreakdown;
     errorBreakdown = YAML::Load(this->annotation("ErrorBreakdown"));
     if (errorBreakdown.size()) {
@@ -131,9 +168,21 @@ namespace YODA {
         YAML::Node variations = errorBreakdown[thisPointIndex];
         for (const auto& variation : variations) {
           const std::string variationName = variation.first.as<std::string>();
-          double eyp = variation.second["up"].as<double>();
-          double eym = variation.second["dn"].as<double>();
-          thispoint.setZErrs(eym,eyp,variationName);
+          // The empty-name variation is the total and should not be signed
+          double eyp = 0, eym = 0;
+          try {
+            eyp = variation.second["up"].as<double>();
+            //if (variationName.empty()) eyp = fabs(eyp);
+          } catch (...) {
+            eyp = std::numeric_limits<double>::quiet_NaN();
+          }
+          try {
+            eym = variation.second["dn"].as<double>();
+            if (variationName.empty()) eym = fabs(eym);
+          } catch (...) {
+            eym = std::numeric_limits<double>::quiet_NaN();
+          }
+          thispoint.setZErrs(eym, eyp, variationName);
         }
       }
       this->_variationsParsed = true;
@@ -154,5 +203,12 @@ namespace YODA {
     }
     return vecvariations;
   }
+
+
+  void Scatter3D::rmVariations() {
+    _variationsParsed = false;
+    for (Point3D& point : this->_points) point.rmVariations();
+  }
+
 
 }

@@ -93,16 +93,18 @@ namespace YODA {
         try {
           std::ifstream instream;
           instream.open(filename.c_str());
+          if (instream.fail())
+            throw ReadError("Reading from filename " + filename + " failed");
           read(instream, aos);
           instream.close();
         } catch (std::ifstream::failure& e) {
-          throw WriteError("Writing to filename " + filename + " failed: " + e.what());
+          throw ReadError("Reading from filename " + filename + " failed: " + e.what());
         }
       } else {
         try {
           read(std::cin, aos);
         } catch (std::runtime_error& e) {
-          throw ReadError("Writing to stdout failed: " + std::string(e.what()));
+          throw ReadError("Reading from stdin failed: " + std::string(e.what()));
         }
       }
     }

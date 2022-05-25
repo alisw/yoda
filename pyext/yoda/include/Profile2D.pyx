@@ -354,6 +354,10 @@ cdef class Profile2D(AnalysisObject):
         """Unique x edges of the histo."""
         return self._mknp(self.p2ptr().xEdges())
 
+    def xWidths(self):
+        """All x widths of the histo."""
+        return self._mknp(self.p2ptr().xWidths())
+
     def xMin(self):
         """Lowest x value."""
         return self.xEdges()[0]
@@ -424,6 +428,10 @@ cdef class Profile2D(AnalysisObject):
     def yEdges(self):
         """Unique y edges of the histo."""
         return self._mknp(self.p2ptr().yEdges())
+
+    def yWidths(self):
+        """All y widths of the histo."""
+        return self._mknp(self.p2ptr().yWidths())
 
     def yMin(self):
         """Lowest y value."""

@@ -16,6 +16,7 @@ using namespace std;
 
 namespace YODA {
 
+
   /// Singleton creation function
   Writer& WriterYODA::create() {
     static WriterYODA _instance;
@@ -24,10 +25,12 @@ namespace YODA {
   }
 
 
-  // Format version:
-  // - V1/empty = make-plots annotations style
-  // - V2 = YAML annotations
+  /// YODA text-format version
+  ///
+  /// - V1/empty = make-plots annotations style
+  /// - V2 = YAML annotations
   static const int YODA_FORMAT_VERSION = 2;
+
 
   // Version-formatting helper function
   inline string _iotypestr(const string& baseiotype) {
@@ -38,7 +41,7 @@ namespace YODA {
 
 
   void WriterYODA::_writeAnnotations(std::ostream& os, const AnalysisObject& ao) {
-    os << scientific << setprecision(_precision);
+    os << scientific << setprecision(_aoprecision);
     for (const string& a : ao.annotations()) {
       if (a.empty()) continue;
       /// @todo Write out floating point annotations as scientific notation
@@ -54,7 +57,7 @@ namespace YODA {
 
   void WriterYODA::writeCounter(std::ostream& os, const Counter& c) {
     ios_base::fmtflags oldflags = os.flags();
-    os << scientific << showpoint << setprecision(_precision);
+    os << scientific << showpoint << setprecision(_aoprecision);
 
     os << "BEGIN " << _iotypestr("COUNTER") << " " << c.path() << "\n";
     _writeAnnotations(os, c);
@@ -68,7 +71,7 @@ namespace YODA {
 
   void WriterYODA::writeHisto1D(std::ostream& os, const Histo1D& h) {
     ios_base::fmtflags oldflags = os.flags();
-    os << scientific << showpoint << setprecision(_precision);
+    os << scientific << showpoint << setprecision(_aoprecision);
 
     os << "BEGIN " << _iotypestr("HISTO1D") << " " << h.path() << "\n";
     _writeAnnotations(os, h);
@@ -107,8 +110,7 @@ namespace YODA {
 
   void WriterYODA::writeHisto2D(std::ostream& os, const Histo2D& h) {
     ios_base::fmtflags oldflags = os.flags();
-    os << scientific << showpoint << setprecision(_precision);
-
+    os << scientific << showpoint << setprecision(_aoprecision);
     os << "BEGIN " << _iotypestr("HISTO2D") << " " << h.path() << "\n";
     _writeAnnotations(os, h);
     try {
@@ -161,7 +163,7 @@ namespace YODA {
 
   void WriterYODA::writeProfile1D(std::ostream& os, const Profile1D& p) {
     ios_base::fmtflags oldflags = os.flags();
-    os << scientific << showpoint << setprecision(_precision);
+    os << scientific << showpoint << setprecision(_aoprecision);
 
     os << "BEGIN " << _iotypestr("PROFILE1D") << " " << p.path() << "\n";
     _writeAnnotations(os, p);
@@ -197,7 +199,7 @@ namespace YODA {
 
   void WriterYODA::writeProfile2D(std::ostream& os, const Profile2D& p) {
     ios_base::fmtflags oldflags = os.flags();
-    os << scientific << showpoint << setprecision(_precision);
+    os << scientific << showpoint << setprecision(_aoprecision);
 
     os << "BEGIN " << _iotypestr("PROFILE2D") << " " << p.path() << "\n";
     _writeAnnotations(os, p);
@@ -247,15 +249,20 @@ namespace YODA {
 
   void WriterYODA::writeScatter1D(std::ostream& os, const Scatter1D& s) {
     ios_base::fmtflags oldflags = os.flags();
-    os << scientific << showpoint << setprecision(_precision);
+    os << scientific << showpoint << setprecision(_aoprecision);
+
+    // we promised not to modify const s, but we want to add an annotation
+    // we did not promise to not modify the *clone* of s...
+    auto sclone =  s.clone();
+    sclone.writeVariationsToAnnotations();
 
     os << "BEGIN " << _iotypestr("SCATTER1D") << " " << s.path() << "\n";
-    _writeAnnotations(os, s);
-     
+    _writeAnnotations(os, sclone);
+
     //write headers
     std::string headers="# xval\t xerr-\t xerr+\t";
     os << headers << "\n";
-    
+
     //write points
     for (const Point1D& pt : s.points()) {
       // fill central value
@@ -271,16 +278,22 @@ namespace YODA {
 
   void WriterYODA::writeScatter2D(std::ostream& os, const Scatter2D& s) {
     ios_base::fmtflags oldflags = os.flags();
-    os << scientific << showpoint << setprecision(_precision);
+    os << scientific << showpoint << setprecision(_aoprecision);
     os << "BEGIN " << _iotypestr("SCATTER2D") << " " << s.path() << "\n";
-    //  write annotations
-    _writeAnnotations(os, s);
-    
+
+    // Write annotations.
+    // We promised not to modify const s, but we want to add an annotation;
+    // We did not promise to not modify the *clone* of s;
+    // Judge not, lest ye be judged
+    auto sclone = s.clone();
+    sclone.writeVariationsToAnnotations();
+    _writeAnnotations(os, sclone);
+
     //write headers
     /// @todo Change ordering to {vals} {errs} {errs} ...
     std::string headers="# xval\t xerr-\t xerr+\t yval\t yerr-\t yerr+\t";
     os << headers << "\n";
-    
+
     //write points
     for (const Point2D& pt : s.points()) {
       /// @todo Change ordering to {vals} {errs} {errs} ...
@@ -298,17 +311,22 @@ namespace YODA {
 
   void WriterYODA::writeScatter3D(std::ostream& os, const Scatter3D& s) {
     ios_base::fmtflags oldflags = os.flags();
-    os << scientific << showpoint << setprecision(_precision);
+    os << scientific << showpoint << setprecision(_aoprecision);
     os << "BEGIN " << _iotypestr("SCATTER3D") << " " << s.path() << "\n";
-    //  write the annotations
-    _writeAnnotations(os, s);
-    
+
+    // write annotations
+    // we promised not to modify const s, but we want to add an annotation
+    // we did not promise to not modify the *clone* of s...
+    auto sclone =  s.clone();
+    sclone.writeVariationsToAnnotations();
+    _writeAnnotations(os, sclone);
+
    // std::vector<std::string> variations= s.variations();
     //write headers
     /// @todo Change ordering to {vals} {errs} {errs} ...
     std::string headers="# xval\t xerr-\t xerr+\t yval\t yerr-\t yerr+\t zval\t zerr-\t zerr+\t";
     os << headers << "\n";
-    
+
     //write points
     for (const Point3D& pt : s.points()) {
       /// @todo Change ordering to {vals} {errs} {errs} ...

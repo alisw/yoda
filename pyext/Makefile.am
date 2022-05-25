@@ -21,7 +21,8 @@ all-local:
 install-exec-local:
 	$(PYEXT_ENV) $(PYTHON) \
 	  $(abs_builddir)/setup.py install \
-	    --prefix $(DESTDIR)$(prefix) \
+	    --root "$(DESTDIR)///" \
+	    --prefix "$(prefix)" \
 	    --verbose \
 	    --skip-build \
 	    --force 

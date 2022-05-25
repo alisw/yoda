@@ -106,9 +106,8 @@ namespace YODA {
       : AnalysisObject("Scatter2D", (path.size() == 0) ? s2.path() : path, s2, s2.title()),
         _points(s2._points)
     {
-      for ( auto &ann : annotations()){
-        setAnnotation(ann, annotation(ann));
-      }
+      for ( auto &ann : annotations()) setAnnotation(ann, annotation(ann));
+      for ( auto &pt : _points) pt.setParent(this);
     }
 
 
@@ -173,10 +172,16 @@ namespace YODA {
 
     ///////////////////////////////////////////////////
 
+    /// read/write the variations stored in the points as annotations
     void parseVariations();
+    void writeVariationsToAnnotations();
+    void updateTotalUncertainty();
 
     /// Get the list of variations stored in the points
     std::vector<std::string> variations() const;
+
+    /// Remove the variations
+    void rmVariations();
 
     // Construct a covariance matrix from the error breakdown
     std::vector<std::vector<double> > covarianceMatrix(bool ignoreOffDiagonalTerms=false);
@@ -221,8 +226,10 @@ namespace YODA {
     /// @name Point inserters
     /// @{
 
-    /// Insert a new point
-    void addPoint(const Point2D& pt) {
+    // Insert a new point and assign
+    /// this scatter as its parent
+    void addPoint(Point2D pt) {
+      pt.setParent(this);
       _points.insert(pt);
     }
 
@@ -362,7 +369,8 @@ namespace YODA {
   /// focus rather than geometric midpoint. Optional @c binwidthdiv argument can be
   /// used to disable the default (physical, differential!) scaling of y values and
   /// errors by 1/bin-width.
-  Scatter2D mkScatter(const Histo1D& h, bool usefocus=false, bool binwidthdiv=true);
+  Scatter2D mkScatter(const Histo1D& h, bool usefocus=false, bool binwidthdiv=true,
+                      double uflow_binwidth=-1, double oflow_binwidth=-1);
 
   /// Make a Scatter2D representation of a Profile1D
   ///
@@ -370,10 +378,12 @@ namespace YODA {
   /// focus rather than geometric midpoint. Optional @c usestddev argument can
   /// be used to draw the y-distribution sigma rather than the standard error on
   /// the mean as the y-error bar size.
-  Scatter2D mkScatter(const Profile1D& p, bool usefocus=false, bool usestddev=false);
+  Scatter2D mkScatter(const Profile1D& p, bool usefocus=false, bool usestddev=false,
+                      double uflow_binwidth=-1, double oflow_binwidth=-1);
 
   /// Make a Scatter2D representation of... erm, a Scatter2D!
-  /// @note Mainly exists to allow mkScatter to be called on any AnalysisObject type
+  ///
+  /// @note Mainly exists to allow (no-opt-args) mkScatter to be called on any AnalysisObject type
   inline Scatter2D mkScatter(const Scatter2D& s) { return Scatter2D(s); }
   // /// @note The usefocus arg is just for consistency and has no effect for Scatter -> Scatter
   // inline Scatter2D mkScatter(const Scatter2D& s, bool) { return mkScatter(s); }

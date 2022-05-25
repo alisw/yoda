@@ -209,7 +209,17 @@ cdef class Point(util.Base):
 
         Error map of this point
         """
-        return self.pptr().errMap()
+        err_map = self.pptr().errMap()
+        err_map = dict((k.decode('utf-8'), v) for k, v in err_map.items())
+        return err_map
+
+
+    def rmVariations(self):
+        """None -> None
+
+        Remove variations in the error map of this point
+        """
+        return self.pptr().rmVariations()
 
 
     def scale(self, i, scale):

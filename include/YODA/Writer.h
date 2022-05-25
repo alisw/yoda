@@ -130,6 +130,8 @@ namespace YODA {
           std::ofstream stream;
           stream.exceptions(std::ofstream::failbit | std::ofstream::badbit);
           stream.open(filename.c_str());
+          if (stream.fail())
+            throw WriteError("Writing to filename " + filename + " failed");
           write(stream, vec);
         } catch (std::ofstream::failure& e) {
           throw WriteError("Writing to filename " + filename + " failed: " + e.what());
@@ -150,6 +152,11 @@ namespace YODA {
     /// Set precision of numerical quantities in this writer's output.
     void setPrecision(int precision) {
       _precision = precision;
+    }
+
+    /// Set precision of numerical quantities for current AO in this writer's output.
+    void setAOPrecision(bool needsDP = false) {
+      _aoprecision = needsDP? std::numeric_limits<double>::max_digits10 : _precision;
     }
 
     /// Use libz compression?
@@ -200,7 +207,7 @@ namespace YODA {
 
 
     /// Output precision
-    int _precision;
+    int _precision, _aoprecision;
 
     /// Compress the output?
     bool _compress;
