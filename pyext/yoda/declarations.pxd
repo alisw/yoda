@@ -259,6 +259,7 @@ cdef extern from "YODA/Point.h" namespace "YODA":
         void scale(size_t i, double scale) except +yodaerr
 
         errMap errMap() except +yodaerr
+        void rmVariations() except +yodaerr
 
 #}}} Point
 
@@ -288,6 +289,7 @@ cdef extern from "YODA/Point1D.h" namespace "YODA":
 
         void scaleX(double) except +yodaerr
         void scale(size_t i, double scale) except +yodaerr
+        void updateTotalUncertainty() except +yodaerr
 
         bool operator == (Point1D) except +yodaerr
         bool operator != (Point1D b) except +yodaerr
@@ -338,6 +340,8 @@ cdef extern from "YODA/Point2D.h" namespace "YODA":
         void scaleY(double) except +yodaerr
         void scaleXY(double, double) except +yodaerr
         void scale(size_t i, double scale) except +yodaerr
+
+        void updateTotalUncertainty() except +yodaerr
 
         bool operator == (Point2D) except +yodaerr
         bool operator != (Point2D b) except +yodaerr
@@ -396,6 +400,8 @@ cdef extern from "YODA/Point3D.h" namespace "YODA":
         void scaleZ(double) except +yodaerr
         void scaleXYZ(double, double, double) except +yodaerr
         void scale(size_t i, double scale) except +yodaerr
+
+        void updateTotalUncertainty() except +yodaerr
 
         bool operator == (Point3D b)
         bool operator != (Point3D b)
@@ -792,7 +798,7 @@ cdef extern from "YODA/Scatter1D.h" namespace "YODA":
         vector[Point1D]& points() #except +yodaerr
         Point1D& point(size_t index) #except +yodaerr
 
-        void addPoint(const Point1D&) #except +yodaerr
+        void addPoint(Point1D&) #except +yodaerr
         void addPoint(double) #except +yodaerr
         void addPoint(double, const pair[double, double]&) #except +yodaerr
 
@@ -808,6 +814,9 @@ cdef extern from "YODA/Scatter1D.h" namespace "YODA":
         void scale(size_t i, double scale) except +yodaerr
 
         void parseVariations() except +yodaerr
+        void writeVariationsToAnnotations() except +yodaerr
+        void updateTotalUncertainty() except +yodaerr
+        void rmVariations() except +yodaerr
         vector[string] variations() except +yodaerr
 
         vector[vector[double]] covarianceMatrix(bool) except +yodaerr
@@ -853,7 +862,7 @@ cdef extern from "YODA/Scatter2D.h" namespace "YODA":
         vector[Point2D]& points() #except +yodaerr
         Point2D& point(size_t index) #except +yodaerr
 
-        void addPoint(const Point2D&) #except +yodaerr
+        void addPoint(Point2D&) #except +yodaerr
         void addPoint(double, double) #except +yodaerr
         void addPoint(double, double,
                       const pair[double, double]&, const pair[double, double]&) #except +yodaerr
@@ -871,7 +880,10 @@ cdef extern from "YODA/Scatter2D.h" namespace "YODA":
         void scaleXY(double, double) except +yodaerr
         void scale(size_t i, double scale) except +yodaerr
 
+        void writeVariationsToAnnotations() except +yodaerr
+        void updateTotalUncertainty() except +yodaerr
         void parseVariations() except +yodaerr
+        void rmVariations() except +yodaerr
         vector[string] variations() except +yodaerr
 
         vector[vector[double]] covarianceMatrix(bool) except +yodaerr
@@ -920,7 +932,7 @@ cdef extern from "YODA/Scatter3D.h" namespace "YODA":
         sortedvector[Point3D]& points() #except +yodaerr
         Point3D& point(size_t index) #except +yodaerr
 
-        void addPoint(const Point3D&) #except +yodaerr
+        void addPoint(Point3D&) #except +yodaerr
         void addPoint(double, double, double) #except +yodaerr
         void addPoint(double, double, double,
                       const pair[double, double]&, const pair[double, double]&, const pair[double, double]&) #except +yodaerr
@@ -940,6 +952,9 @@ cdef extern from "YODA/Scatter3D.h" namespace "YODA":
         void scale(size_t i, double scale) except +yodaerr
 
         void parseVariations() except +yodaerr
+        void updateTotalUncertainty() except +yodaerr
+        void writeVariationsToAnnotations() except +yodaerr
+        void rmVariations() except +yodaerr
         vector[string] variations() except +yodaerr
 
         vector[vector[double]] covarianceMatrix() except +yodaerr
@@ -1005,6 +1020,7 @@ cdef extern from "YODA/Histo1D.h" namespace "YODA":
         void rmBin(size_t index) except +yodaerr
 
         vector[double] xEdges() except +yodaerr
+        vector[double] xWidths() except +yodaerr
 
         double xMin() except +yodaerr
         double xMax() except +yodaerr
@@ -1059,7 +1075,7 @@ cdef extern from "merge.hh":
     Histo1D* Histo1D_div_Histo1D "cython_div" (Histo1D*, Histo1D*)
 
 cdef extern from "YODA/Scatter2D.h" namespace "YODA":
-    Scatter2D mkScatter_Histo1D "YODA::mkScatter" (const Histo1D&, bool) except +yodaerr
+    Scatter2D mkScatter_Histo1D "YODA::mkScatter" (const Histo1D&, bool, bool, double, double) except +yodaerr
 
 #}}} Histo1D
 
@@ -1119,6 +1135,8 @@ cdef extern from "YODA/Histo2D.h" namespace "YODA":
 
         vector[double] xEdges() except +yodaerr
         vector[double] yEdges() except +yodaerr
+        vector[double] xWidths() except +yodaerr
+        vector[double] yWidths() except +yodaerr
 
         double xMin() except +yodaerr
         double xMax() except +yodaerr
@@ -1165,7 +1183,7 @@ cdef extern from "merge.hh":
     Histo2D* Histo2D_div_Histo2D "cython_div" (Histo2D*, Histo2D*)
 
 cdef extern from "YODA/Scatter3D.h" namespace "YODA":
-    Scatter3D mkScatter_Histo2D "YODA::mkScatter" (const Histo2D&, bool) except +yodaerr
+    Scatter3D mkScatter_Histo2D "YODA::mkScatter" (const Histo2D&, bool, bool) except +yodaerr
 
 # Histo2D }}}
 
@@ -1217,6 +1235,7 @@ cdef extern from "YODA/Profile1D.h" namespace "YODA":
         void rmBin(size_t index) except +yodaerr
 
         vector[double] xEdges() except +yodaerr
+        vector[double] xWidths() except +yodaerr
 
         double xMin() except +yodaerr
         double xMax() except +yodaerr
@@ -1262,7 +1281,7 @@ cdef extern from "merge.hh":
     Profile1D* Profile1D_div_Profile1D "cython_div" (Profile1D*, Profile1D*)
 
 cdef extern from "YODA/Scatter2D.h" namespace "YODA":
-    Scatter2D mkScatter_Profile1D "YODA::mkScatter" (const Profile1D&, bool, bool) except +yodaerr
+    Scatter2D mkScatter_Profile1D "YODA::mkScatter" (const Profile1D&, bool, bool, double, double) except +yodaerr
 
 #}}} Profile1D
 
@@ -1319,6 +1338,8 @@ cdef extern from "YODA/Profile2D.h" namespace "YODA":
 
         vector[double] xEdges() except +yodaerr
         vector[double] yEdges() except +yodaerr
+        vector[double] xWidths() except +yodaerr
+        vector[double] yWidths() except +yodaerr
 
         double xMin() except +yodaerr
         double xMax() except +yodaerr
@@ -1389,6 +1410,7 @@ cdef extern from "<sstream>" namespace "std":
 cdef extern from "YODA/IO.h" namespace "YODA":
     void IO_read_from_file "YODA::read" (string&, vector[AnalysisObject*]&) except +yodaerr
     void IO_read_from_stream "YODA::read" (istream&, vector[AnalysisObject*]& aos, string&) except +yodaerr
+    void IO_read_from_stringstream "YODA::read" (istringstream&, vector[AnalysisObject*]& aos, string&) except +yodaerr
 
 cdef extern from "YODA/Index.h" namespace "YODA":
     cdef cppclass Index:
@@ -1415,12 +1437,14 @@ cdef extern from "YODA/Reader.h" namespace "YODA":
 
 
 cdef extern from "YODA/IO.h" namespace "YODA":
-    void IO_write_to_file "YODA::write" (string&, vector[AnalysisObject*]&) except +yodaerr
+    void IO_write_to_file "YODA::write" (string&, vector[AnalysisObject*]&, int) except +yodaerr
 
 cdef extern from "YODA/Writer.h" namespace "YODA":
     cdef cppclass Writer:
         void write(ostringstream&, vector[AnalysisObject*]&) except +yodaerr
         void write_to_file "YODA::Writer::write" (string&, vector[AnalysisObject*]&) except +yodaerr
+        void setPrecision(int precision)
+        void useCompression(bool compress)
 
 cdef extern from "YODA/WriterYODA.h" namespace "YODA":
     Writer& WriterYODA_create "YODA::WriterYODA::create" ()

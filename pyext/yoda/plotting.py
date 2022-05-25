@@ -168,8 +168,8 @@ def setup_axes_1d(axmain, axratio, **plotkeys):
     ## log/lin measures
     # TODO: Dynamic default based on data ranges?
     # TODO: take log axes and preference for round numbers into account in setting default axis limits
-    xmeasure = "log" if yoda.util.as_bool(plotkeys.get("logX", False)) else "linear"
-    ymeasure = "log" if yoda.util.as_bool(plotkeys.get("logY", False)) else "linear"
+    xmeasure = "log" if yoda.util.as_bool(plotkeys.get("logx", False)) else "linear"
+    ymeasure = "log" if yoda.util.as_bool(plotkeys.get("logy", False)) else "linear"
     ratioymeasure = "log" if yoda.util.as_bool(plotkeys.get("ratiology", False)) else "linear"
     axmain.set_xscale(xmeasure)
     axmain.set_yscale(ymeasure)

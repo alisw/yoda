@@ -579,8 +579,8 @@ maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
 @ENABLE_PYEXT_FALSE@clean-local:
-@ENABLE_PYEXT_FALSE@install-exec-local:
 @ENABLE_PYEXT_FALSE@uninstall-local:
+@ENABLE_PYEXT_FALSE@install-exec-local:
 clean: clean-recursive
 
 clean-am: clean-generic clean-libtool clean-local mostlyclean-am
@@ -677,7 +677,8 @@ uninstall-am: uninstall-local
 @ENABLE_PYEXT_TRUE@install-exec-local:
 @ENABLE_PYEXT_TRUE@	$(PYEXT_ENV) $(PYTHON) \
 @ENABLE_PYEXT_TRUE@	  $(abs_builddir)/setup.py install \
-@ENABLE_PYEXT_TRUE@	    --prefix $(DESTDIR)$(prefix) \
+@ENABLE_PYEXT_TRUE@	    --root "$(DESTDIR)///" \
+@ENABLE_PYEXT_TRUE@	    --prefix "$(prefix)" \
 @ENABLE_PYEXT_TRUE@	    --verbose \
 @ENABLE_PYEXT_TRUE@	    --skip-build \
 @ENABLE_PYEXT_TRUE@	    --force 

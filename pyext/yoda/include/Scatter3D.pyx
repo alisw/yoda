@@ -186,11 +186,52 @@ cdef class Scatter3D(AnalysisObject):
     # # TODO: remove?
     # def __sub__(Scatter3D self, Scatter3D other):
     #     return cutil.new_owned_cls(Scatter3D, c.Scatter3D_sub_Scatter3D(self.s3ptr(), other.s3ptr()))
+    
+    def updateTotalUncertainty(self):
+        """None -> None
+        Sum the error in the error map in quadrature and update the total ("") uncertainty.
+        """
+        return self.s3ptr().updateTotalUncertainty()
+    
+    def writeVariationsToAnnotations(self):
+        """None -> None
+        Parse the variations and add them to the annotations.
+        """
+        return self.s3ptr().writeVariationsToAnnotations()
 
     def variations(self):
         """None -> vector[string]
         Get the list of variations stored in the points of the Scatter"""
-        return self.s3ptr().variations()
+        vars = self.s3ptr().variations()
+        return [var.decode('utf-8') for var in vars]
+    
+    def rmVariations(self):
+        """None -> None
+        Remove the variations stored in the points of the Scatter"""
+        return self.s3ptr().rmVariations()
+    
+    def hasValidErrorBreakdown(self):
+        """
+        Check if the AO's error breakdown is not empty and has no bins with 0 uncertainty
+        """
+        counter = -1
+        for p in self.points():
+            counter += 1
+            binErrs = p.errMap()
+            if len(binErrs) < 2:
+                return False
+            binTotal = [0.,0.]
+            for sys, err in binErrs.iteritems():
+                binTotal[0] = (binTotal[0]**2 + err[0]**2)**0.5
+                binTotal[1] = (binTotal[1]**2 + err[1]**2)**0.5
+            if binTotal[0] == 0 and binTotal[1] == 0:
+                return False
+        return True
+
+    def covarianceMatrix(self, *ignoreOffDiagonalTerms):
+        """bool -> vector[vector[float]]
+        Construct the covariance matrix"""
+        return self._mknp(self.s2ptr().covarianceMatrix(ignoreOffDiagonalTerms))
 
 
     def _mknp(self, xs):

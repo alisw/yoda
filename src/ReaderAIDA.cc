@@ -18,6 +18,7 @@
 // #include "YODA/Scatter3D.h"
 
 #include <iostream>
+#include <locale>
 using namespace std;
 
 namespace YODA {
@@ -87,11 +88,17 @@ namespace YODA {
           //if (!errplusStr) throw ReadError("Couldn't get a valid bin err+");
           //if (!errminusStr) throw ReadError("Couldn't get a valid bin err-");
           istringstream xssC(xcentreStr);
+          xssC.imbue(std::locale::classic()); // Interpret numbers in the "C" locale
           istringstream xssP(xerrplusStr);
+          xssP.imbue(std::locale::classic()); // Interpret numbers in the "C" locale
           istringstream xssM(xerrminusStr);
+          xssM.imbue(std::locale::classic()); // Interpret numbers in the "C" locale
           istringstream yssC(ycentreStr);
+          yssC.imbue(std::locale::classic()); // Interpret numbers in the "C" locale
           istringstream yssP(yerrplusStr);
+          yssP.imbue(std::locale::classic()); // Interpret numbers in the "C" locale
           istringstream yssM(yerrminusStr);
+          yssM.imbue(std::locale::classic()); // Interpret numbers in the "C" locale
           double xcentre, xerrplus, xerrminus, ycentre, yerrplus, yerrminus;
           xssC >> xcentre; xssP >> xerrplus; xssM >> xerrminus;
           yssC >> ycentre; yssP >> yerrplus; yssM >> yerrminus;

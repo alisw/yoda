@@ -257,12 +257,14 @@ cdef class Profile1D(AnalysisObject):
             self.rebinBy(arg, **kwargs)
 
 
-    def mkScatter(self, usefocus=False, usestddev=False):
+    def mkScatter(self, usefocus=False, usestddev=False, uflow_binwidth=-1, oflow_binwidth=-1):
         """None -> Scatter2D.
         Convert this Profile1D to a Scatter2D, with y representing
-        mean bin y values and their standard errors."""
-        cdef c.Scatter2D s2 = c.mkScatter_Profile1D(deref(self.p1ptr()), usefocus, usestddev)
+        mean bin y values and their standard errors (or std deviations if usestddev=True).
+        The remaining optional parameters allow under- and overflow points to be created."""
+        cdef c.Scatter2D s2 = c.mkScatter_Profile1D(deref(self.p1ptr()), usefocus, usestddev, uflow_binwidth, oflow_binwidth)
         return cutil.new_owned_cls(Scatter2D, s2.newclone())
+
 
     def divideBy(self, Profile1D h):
         cdef c.Scatter2D s = c.Profile1D_div_Profile1D(deref(self.p1ptr()), deref(h.p1ptr()))
@@ -315,6 +317,10 @@ cdef class Profile1D(AnalysisObject):
     def xEdges(self):
         """All x edges of the histo."""
         return self._mknp(self.p1ptr().xEdges())
+
+    def xWidths(self):
+        """All x widths of the histo."""
+        return self._mknp(self.p1ptr().xWidths())
 
     def xMins(self):
         """All x low edges of the histo."""

@@ -21,6 +21,14 @@ cdef class Point2D(Point):
 
     # TODO: add clone() as mapping to (not yet existing) C++ newclone()?
 
+    # LC: Can't get this to work :/
+    # use addPoint method instead to
+    # ensure parentage is correctly set
+    #def setParent(self, Scatter2D scatter):
+    #    """Set the parent scatter of this point"""
+    #    #return self.p2ptr().setParent(<Scatter*> scatter.s2ptr()[0])
+    #    self.p2ptr().setParent(deref(scatter.s2ptr()[0]))
+    #    #return None
 
     def x(self):
         """The x value"""

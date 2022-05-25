@@ -1,3 +1,140 @@
+2022-05-13  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Release version 1.9.5
+
+2022-05-13  Chris Gutschow  <chris.g@cern.ch>
+
+	* Add per-AO double-precision writing if the WriterDoublePrecision
+	annotation is set.
+
+2022-04-20  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Ensure that default variation +- errors are both positive, for
+	all Scatter types.  Original patch by Jon Butterworth.
+
+2022-03-28  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Protect against NaNs arising from the YAML parser in error-breakdown calcs.
+
+2021-12-02  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Release version 1.9.4
+
+2021-12-01  Dmitry Kalinkin <dmitry.kalinkin+hepcedar@gmail.com>
+
+	* Fix Scatter.variations keys to be string instead of bytes in Python 3.
+
+2021-11-24  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Release version 1.9.3
+
+2021-11-21  Dmitry Kalinkin <dmitry.kalinkin+hepcedar@gmail.com>
+
+	* yoda2root,root2yoda: use ROOT in the batch mode
+
+2021-11-12  Dmitry Kalinkin <dmitry.kalinkin+hepcedar@gmail.com>
+
+	* Restructure tests to use autotools standard naming and trigger on extensions,
+	and to ensure testwriter runs before testreader.
+
+	* Fix Point.errMap() keys to be string instead of bytes in Python 3.
+
+2021-11-19  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Catch low-stats errors in computing errors in H1 and H2 conversion to scatters.
+
+2021-11-12  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Fix ambiguity/bugginess in the yoda.mkScatter() unbound helper function.
+
+2021-11-05  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Release version 1.9.2
+
+	* Fix ao.path setting to use ao.setPath() in root2yoda. Thanks to
+	Julia Yarba for the report.
+
+2021-10-29 Christian Gutschow <chris.g@cern.ch>
+
+	* Introduce rmVariations() for Points and Scatters
+
+2021-10-29  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Add precision arguments to unbound write functions, and Python
+	mapping of setPrecision() and useCompression() methods of Writer
+	classes.
+
+	* Fix IO failure modes to actually report exceptions, and with
+	correct types and error messages.
+
+2021-06-30  Dmitry Kalinkin <dmitry.kalinkin+hepcedar@gmail.com>
+
+	* Fix broken reading gzipped files in Python (was a regression in
+	1.9.0)
+
+2021-08-13  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Provide more options to specify the Cython command to be
+	used. Thanks to Christian Holm Christensen.
+
+2021-07-22  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Fix yAvgErr -> yErrAvg typo in Scatter2D.yErrAvgs.
+
+2021-07-20  Dmitri Kalinkin  <dmitry.kalinkin@gmail.com>
+
+	* yodascale: improved handling of .yoda.gz extensions, and adding --output.
+
+	* Fix a bug with reading files while running with non-US locales.
+
+2021-06-28 Christian Gutschow <chris.g@cern.ch>
+
+	* Remove rogue s.variations() call, causing rivet-merge to crash
+
+2021-06-07  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Change the Axis2D edge-uniqueness test to be based on the
+	smallest bin width rather than the median. (Smarter could be to
+	comparer with the smallest of the surrounding bin widths. Or drop
+	entirely, as 1D doesn't *seem* to have real problems with
+	numerical near-matches.)
+
+2021-06-06 Christian Gutschow <chris.g@cern.ch>
+
+	* Remove adoptPoint, make addPoint(Point) argument non-const
+	since one should always want to update the parent of the point.
+
+2021-04-28 Louie Corpe  <lcorpe@cern.ch>
+
+	* Add updateTotalUncertainty method which allows the user to
+	automatically set the total error to the sum in quad of the error
+	components for each point.
+
+	* Add adoptPoint(s) methods to the Scatter*D classes, which allows
+	to add a previously-instantiated point while modifying its
+	parentage so that it points back to that Scatter. This is then
+	substituted into the python binding for addPoint so that the user
+	does not need to manually set the parentage of a point.
+
+	* Modify the Scatter*D copy constructor so that the parentage of
+	the relevant points is correctly set, to avoid set faults after a
+	Scatter*D is clone()'d.
+
+	* Add some missing functionality which used to only be available
+	to Scatter2D to also cover Scatter{1,3}D.
+
+	* Add many additional tests to cover the ErrorBreakdown
+	functionality in existing pytest scripts
+
+2021-04-22  Dmitri Kalinkin  <dmitry.kalinkin@gmail.com>
+
+	* Bin2D: use fuzzyEquals for bin edge comparisons. Required for
+	correct rivet-merge behaviour with 2D histograms.
+
+2021-04-09  Andy Buckley  <andy.buckley@cern.ch>
+
+	* Provide x,yWidths() functions on Histos and Profiles.
+
 2021-03-31  Andy Buckley  <andy.buckley@cern.ch>
 
 	* Version 1.9.0 release.

@@ -83,32 +83,58 @@ cdef dict _idxMap_to_dict(unordered_map[string, unordered_map[string, int]]* idx
     return out
 
 ## Set a istringstream's string from a C/Python string
-cdef void _make_iss(c.istringstream &iss, string s):
-    iss.str(s)
+cdef void _make_iss(c.istringstream &iss, bytes bs):
+    iss.str(bs)
 
-## Read a file's contents as a returned string
+
+# Try to detect if the file is opened in binary mode.
+# This is needed to suppport Python 2 where fp.read() always returns an str and not bytes.
+def _is_open_as_binary(fp):
+    import io
+    if hasattr(fp, "mode"):
+        return "b" in fp.mode
+    elif isinstance(fp, io.TextIOBase):
+        return False
+    return True
+
+
+## Read a file's contents as a returned bytestring
 ## The file argument can either be a file object, filename, or special "-" reference to stdin
-def _str_from_file(file_or_filename):
-    if hasattr(file_or_filename, 'read'):
+def _bytestr_from_file(file_or_filename):
+    if hasattr(file_or_filename, "read"):
         s = file_or_filename.read()
+        if type(s) is str and not _is_open_as_binary(file_or_filename):
+            s = s.encode("utf-8")
     elif file_or_filename == "-":
-        s = sys.stdin.read()
+        s = sys.stdin.buffer.read()
     else:
-        with open(file_or_filename, "r") as f:
+        with open(file_or_filename, "rb") as f:
             s = f.read()
     return s
 
 ## Write a string to a file
 ## The file argument can either be a file object, filename, or special "-" reference to stdout
 def _str_to_file(s, file_or_filename):
-    s = s.decode('utf-8')
-    if hasattr(file_or_filename, 'write'):
+    s = s.decode("utf-8")
+    if hasattr(file_or_filename, "write"):
         file_or_filename.write(s)
     elif file_or_filename == "-":
         sys.stdout.write(s)
     else:
         with open(file_or_filename, "w") as f:
             f.write(s)
+
+def _istxt(x):
+    if sys.version_info < (3, 0):
+        return type(x) in [unicode, str]
+    else:
+        return type(x) is str
+
+def _mktxtifstr(x):
+    if sys.version_info < (3, 0):
+        return unicode(x) if type(x) is str else x
+    return x
+
 
 
 ##
@@ -128,17 +154,18 @@ def read(filename, asdict=True, patterns=None, unpatterns=None):
 
     Returns a dict or list of analysis objects depending on the asdict argument.
     """
-    # cdef c.istringstream iss
-    # cdef vector[c.AnalysisObject*] aobjects
-    # with open(filename, "r") as f:
-    #     s = f.read()
-    # _make_iss(iss, s.encode('utf-8'))
-    # c.Reader_create(filename.encode('utf-8')).read(iss, aobjects)
-    # return _aobjects_to_dict(&aobjects, patterns, unpatterns) if asdict \
-    #     else _aobjects_to_list(&aobjects, patterns, unpatterns)
-    #
     cdef vector[c.AnalysisObject*] aobjects
-    c.IO_read_from_file(filename.encode('utf-8'), aobjects)
+    cdef c.istringstream iss
+    filename = _mktxtifstr(filename)
+    if _istxt(filename):
+        c.IO_read_from_file(filename.encode('utf-8'), aobjects)
+    else:
+        s = _bytestr_from_file(filename)
+        # s = _mktxtifstr(filename.read()).encode('utf-8')
+        # if _istxt(s) and not _is_open_as_binary(filename):
+        #     s = s.encode('utf-8')
+        _make_iss(iss, s)
+        c.IO_read_from_stringstream(iss, aobjects, 'yoda')
 
     if asdict:
         d = _aobjects_to_dict(&aobjects, patterns, unpatterns)
@@ -165,8 +192,8 @@ def readYODA(file_or_filename, asdict=True, patterns=None, unpatterns=None):
     """
     cdef c.istringstream iss
     cdef vector[c.AnalysisObject*] aobjects
-    s = _str_from_file(file_or_filename)
-    _make_iss(iss, s.encode('utf-8'))
+    s = _bytestr_from_file(file_or_filename)
+    _make_iss(iss, s)
     c.ReaderYODA_create().read(iss, aobjects)
     # if type(file_or_filename) is str:
     #     c.ReaderYODA_create().read_from_file(file_or_filename.encode('utf-8'), aobjects)
@@ -190,7 +217,7 @@ def readFLAT(filename, asdict=True, patterns=None, unpatterns=None):
     """
     # cdef c.istringstream iss
     cdef vector[c.AnalysisObject*] aobjects
-    # s = _str_from_file(file_or_filename)
+    # s = _bytestr_from_file(file_or_filename)
     # _make_iss(iss, s.encode('utf-8'))
     # c.ReaderFLAT_create().read(iss, aobjects)
     c.ReaderFLAT_create().read_from_file(filename.encode('utf-8'), aobjects)
@@ -214,7 +241,7 @@ def readAIDA(filename, asdict=True, patterns=None, unpatterns=None):
     """
     # cdef c.istringstream iss
     cdef vector[c.AnalysisObject*] aobjects
-    # s = _str_from_file(file_or_filename)
+    # s = _bytestr_from_file(file_or_filename)
     # _make_iss(iss, s.encode('utf-8'))
     # c.ReaderAIDA_create().read(iss, aobjects)
     c.ReaderAIDA_create().read_from_file(filename.encode('utf-8'), aobjects)
@@ -226,7 +253,7 @@ def readAIDA(filename, asdict=True, patterns=None, unpatterns=None):
 ## Writers
 ##
 
-def write(ana_objs, filename):
+def write(ana_objs, filename, precision=-1):
     """
     Write data objects to the provided filename,
     auto-determining the format from the file extension.
@@ -238,61 +265,71 @@ def write(ana_objs, filename):
               else ana_objs if hasattr(ana_objs, "__iter__") else [ana_objs]
     for a in aolist:
         vec.push_back(a.aoptr())
-    c.IO_write_to_file(filename.encode('utf-8'), vec)
+    c.IO_write_to_file(filename.encode('utf-8'), vec, precision)
     #_str_to_file(oss.str(), filename)
 
 
-def writeYODA(ana_objs, file_or_filename):
+def writeYODA(ana_objs, file_or_filename, precision=-1):
     """
     Write data objects to the provided file in YODA format.
     """
     cdef c.ostringstream oss
+    cdef c.Writer* w
     cdef vector[c.AnalysisObject*] vec
     cdef AnalysisObject a
     aolist = ana_objs.values() if hasattr(ana_objs, "values") else ana_objs \
              if hasattr(ana_objs, "__iter__") else [ana_objs]
     for a in aolist:
         vec.push_back(a.aoptr())
-    if type(file_or_filename) is str:
-        c.WriterYODA_create().write_to_file(file_or_filename.encode('utf-8'), vec)
+    w = & c.WriterYODA_create()
+    w.setPrecision(precision)
+    if _istxt(file_or_filename):
+        w.write_to_file(file_or_filename.encode('utf-8'), vec)
     else:
-        c.WriterYODA_create().write(oss, vec)
+        w.write(oss, vec)
         _str_to_file(oss.str(), file_or_filename)
 
 
-def writeFLAT(ana_objs, file_or_filename):
+def writeFLAT(ana_objs, file_or_filename, precision=-1):
     """
     Write data objects to the provided file in FLAT format.
     """
     cdef c.ostringstream oss
+    cdef c.Writer* w
     cdef vector[c.AnalysisObject*] vec
     cdef AnalysisObject a
     aolist = ana_objs.values() if hasattr(ana_objs, "values") else ana_objs \
              if hasattr(ana_objs, "__iter__") else [ana_objs]
     for a in aolist:
         vec.push_back(a.aoptr())
-    if type(file_or_filename) is str:
-        c.WriterFLAT_create().write_to_file(file_or_filename.encode('utf-8'), vec)
+    w = & c.WriterFLAT_create()
+    w.setPrecision(precision)
+    if _istxt(file_or_filename):
+        w.write_to_file(file_or_filename.encode('utf-8'), vec)
     else:
-        c.WriterFLAT_create().write(oss, vec)
+        w.write(oss, vec)
         _str_to_file(oss.str(), file_or_filename)
 
 
-def writeAIDA(ana_objs, file_or_filename):
+# TODO: remove
+def writeAIDA(ana_objs, file_or_filename, precision=-1):
     """
     Write data objects to the provided file in AIDA format.
     """
     cdef c.ostringstream oss
+    cdef c.Writer* w
     cdef vector[c.AnalysisObject*] vec
     cdef AnalysisObject a
     aolist = ana_objs.values() if hasattr(ana_objs, "values") else ana_objs \
              if hasattr(ana_objs, "__iter__") else [ana_objs]
     for a in aolist:
         vec.push_back(a.aoptr())
-    if type(file_or_filename) is str:
-        c.WriterAIDA_create().write_to_file(file_or_filename.encode('utf-8'), vec)
+    w = & c.WriterAIDA_create()
+    w.setPrecision(precision)
+    if _istxt(file_or_filename):
+        w.write_to_file(file_or_filename.encode('utf-8'), vec)
     else:
-        c.WriterAIDA_create().write(oss, vec)
+        w.write(oss, vec)
         _str_to_file(oss.str(), file_or_filename)
 
 ##

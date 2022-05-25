@@ -1,30 +1,35 @@
+TEST_EXTENSIONS = .py .sh
+
 PYTESTS = \
-  pytest-unit \
-  pytest-counter \
-  pytest-h1d \
-  pytest-p1d \
-  pytest-h2d \
-  pytest-p2d \
-  pytest-s1d \
-  pytest-s2d \
-  pytest-div \
-  pytest-rebin \
-  pytest-iofilter \
-  pytest-operators
+  test-unit.py \
+  test-counter.py \
+  test-h1d.py \
+  test-p1d.py \
+  test-h2d.py \
+  test-p2d.py \
+  test-s1d.py \
+  test-s2d.py \
+  test-div.py \
+  test-rebin.py \
+  test-io.py \
+  test-iofilter.py \
+  test-operators.py
 
 SHTESTS = \
-  shtest-yodamerge \
-  shtest-yodahist \
-  shtest-yodals \
-  shtest-yodacmp \
-  shtest-yoda2flat \
-  shtest-yodascale \
-  shtest-yodaplot \
-  shtest-yodacnv \
-  shtest-yoda2yoda
+  test-yodamerge.sh \
+  test-yodahist.sh \
+  test-yodals.sh \
+  test-yodacmp.sh \
+  test-yoda2flat.sh \
+  test-yodascale.sh \
+  test-yodaplot.sh \
+  test-yodacnv.sh \
+  test-yoda2yoda.sh
 
 EXTRA_DIST = $(PYTESTS) $(SHTESTS) \
-  shtest-yoda2root \
+  testreader.sh testwriter.sh \
+  test-yoda2root.sh \
+  test.yoda test.yoda.gz \
   test1.yoda test2.yoda \
   iofilter.yoda \
   rivetexample.yoda \
@@ -62,6 +67,7 @@ check_PROGRAMS = \
 #  testscatter3Dmodify
 
 AM_LDFLAGS = -L$(top_builddir)/src -lYODA
+AM_CPPFLAGS += -DYODA_TESTS_SRC="\"$(srcdir)\""
 
 testtraits_SOURCES = TestTraits.cc
 testannotations_SOURCES = TestAnnotations.cc
@@ -106,8 +112,8 @@ TESTS = \
   testannotations \
   testweights \
   testbinsearcher \
-  testwriter \
-  testreader \
+  testwriter.sh \
+  testreader.sh \
   testhisto1Da \
   testhisto1Db \
   testhisto2Da \
@@ -124,15 +130,9 @@ TESTS = \
   testscatter2Dmodify \
   testhisto2Dcreate
 
-### to make distcheck work on macOS, we need a
-### way to prevent the DYLD_LIBRARY_PATH setting
-### from being removed by system integrity protection
-### when /usr/bin/env is called
-### (same for any other app in /usr/bin)
-###
-if ! WITH_OSX
+testreader.log: testwriter.log
+
 TESTS += $(PYTESTS) $(SHTESTS)
-endif
 
 CLEANFILES = \
   h1d.yoda h1d.dat \
@@ -143,9 +143,10 @@ CLEANFILES = \
   testwriter1.yoda testwriter2.yoda testwriter2.yoda.gz \
   foo_bar_baz.dat \
   counter.yoda \
-  test.aida
+  test.aida \
+  y2y_3.yoda
 
 if ENABLE_ROOT
-  TESTS += shtest-yoda2root
+  TESTS += test-yoda2root.sh
   CLEANFILES += test1.root
 endif

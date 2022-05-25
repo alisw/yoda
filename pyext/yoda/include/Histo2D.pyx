@@ -316,11 +316,11 @@ cdef class Histo2D(AnalysisObject):
     #     self.h2ptr().rebin(n)
 
 
-    def mkScatter(self, usefocus=False):
+    def mkScatter(self, usefocus=False, binareadiv=True):
         """None -> Scatter3D.
-        Convert this Histo2D to a Scatter3D, with y representing bin heights
-        (not sumW) and height errors."""
-        cdef c.Scatter3D s3 = c.mkScatter_Histo2D(deref(self.h2ptr()), usefocus)
+        Convert this Histo2D to a Scatter3D, with optional argument to control the positions
+        of points within the bins, and whether z represents sumW or density."""
+        cdef c.Scatter3D s3 = c.mkScatter_Histo2D(deref(self.h2ptr()), usefocus, binareadiv)
         return cutil.new_owned_cls(Scatter3D, s3.newclone())
 
     def divideBy(self, Histo2D h, efficiency=False):
@@ -381,6 +381,10 @@ cdef class Histo2D(AnalysisObject):
     def xEdges(self):
         """Unique x edges of the histo."""
         return self._mknp(self.h2ptr().xEdges())
+
+    def xWidths(self):
+        """All x widths of the histo."""
+        return self._mknp(self.h2ptr().xWidths())
 
     def xMin(self):
         """Lowest x value."""
@@ -451,6 +455,10 @@ cdef class Histo2D(AnalysisObject):
     def yEdges(self):
         """Unique y edges of the histo."""
         return self._mknp(self.h2ptr().yEdges())
+
+    def yWidths(self):
+        """All y widths of the histo."""
+        return self._mknp(self.h2ptr().yWidths())
 
     def yMin(self):
         """Lowest y value."""

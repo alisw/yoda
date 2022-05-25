@@ -1,4 +1,3 @@
-#! /usr/bin/env cython
 cimport rootcompat as croot
 import yoda
 cimport yoda.declarations as cyoda

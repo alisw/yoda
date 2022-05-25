@@ -1,16 +1,26 @@
-def mkScatter(ao, usefocus=False, usestddev=False):
+def mkScatter(ao, usefocus=False, p_usestddev=False, h_binsizediv=True, uflow_binwidth=-1., oflow_binwidth=-1.):
     """AnalysisObject -> Scatter{1,2,3}D
     Convert an AnalysisObject to a Scatter, using the logic of the bound mkScatter methods.
 
-    @todo This falls back on use of optional args until we find one that works: is there a nicer way?
+    All args other than the AO itself should be supplied as keywords rather than
+    positional, to avoid trouble since several (prefixed with a target-type
+    letter) only apply to specific types of supplied AO.
     """
-    try:
-        return ao.mkScatter(usefocus, usestddev)
-    except:
-        try:
-            return ao.mkScatter(usefocus)
-        except:
-            return ao.mkScatter()
+    s = None
+    if ao.type() == "Histo1D":
+        s = ao.mkScatter(usefocus, h_binsizediv, uflow_binwidth, oflow_binwidth)
+    elif ao.type() == "Histo2D":
+        s = ao.mkScatter(usefocus, h_binsizediv)
+
+    elif ao.type() == "Profile1D":
+        s = ao.mkScatter(usefocus, p_usestddev, uflow_binwidth, oflow_binwidth)
+    elif ao.type() == "Profile2D":
+        s = ao.mkScatter(usefocus, p_usestddev)
+
+    else: # Counter and Scatters
+        s = ao.mkScatter()
+
+    return s
 
 
 def divide(ao1, ao2):

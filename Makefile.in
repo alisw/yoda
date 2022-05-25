@@ -946,7 +946,7 @@ uninstall-am: uninstall-dist_pkgconfigDATA uninstall-local
 @WITH_DOXYGEN_TRUE@.PHONY: pydoc
 @WITH_DOXYGEN_TRUE@pydoc:
 @WITH_DOXYGEN_TRUE@	@echo "Running pydoc..."
-@WITH_DOXYGEN_TRUE@	cd pydoc && $(MAKE) html
+@WITH_DOXYGEN_TRUE@	cd pydoc && $(MKDIR_P) _static && $(MAKE) html
 
 @WITH_DOXYGEN_TRUE@all-local: #dox
 @WITH_DOXYGEN_TRUE@	@true

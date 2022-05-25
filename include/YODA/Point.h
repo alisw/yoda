@@ -84,6 +84,8 @@ namespace YODA {
     /// Parse the variations annotation on the parent scatter
     virtual void getVariationsFromParent() const = 0;
 
+    /// Remove the parsed variations, but keep the total
+    virtual void rmVariations() = 0;
     /// @}
 
 

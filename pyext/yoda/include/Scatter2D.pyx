@@ -168,11 +168,29 @@ cdef class Scatter2D(AnalysisObject):
         Only needs to be done once!"""
         return self.s2ptr().parseVariations()
 
+    def updateTotalUncertainty(self):
+        """None -> None
+        Sum the error in the error map in quadrature and update the total ("") uncertainty.
+        """
+        return self.s2ptr().updateTotalUncertainty()
+
+    def writeVariationsToAnnotations(self):
+        """None -> None
+        Parse the variations and add them to the annotations.
+        """
+        return self.s2ptr().writeVariationsToAnnotations()
+
     def variations(self):
         """None -> vector[string]
         Get the list of variations stored in the points of the Scatter"""
-        return self.s2ptr().variations()
+        vars = self.s2ptr().variations()
+        return [var.decode('utf-8') for var in vars]
 
+    def rmVariations(self):
+        """None -> None
+        Remove the variations stored in the points of the Scatter"""
+        return self.s2ptr().rmVariations()
+    
     def _mknp(self, xs):
         try:
             import numpy
@@ -196,7 +214,7 @@ cdef class Scatter2D(AnalysisObject):
 
     def hasValidErrorBreakdown(self):
         """
-        Check if the AO's error breakdown is not empty and has no bins withh 0 uncertainty
+        Check if the AO's error breakdown is not empty and has no bins with 0 uncertainty
         """
         counter = -1
         for p in self.points():
@@ -284,7 +302,7 @@ cdef class Scatter2D(AnalysisObject):
     def yErrAvgs(self):
         """All y average errors"""
         # TODO: add extra dimensionality for multiple errors?
-        return self._mknp([p.yAvgErr() for p in self.points()])
+        return self._mknp([p.yErrAvg() for p in self.points()])
 
     def yMin(self):
         """Lowest x value."""

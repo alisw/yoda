@@ -31,6 +31,8 @@
 #endif
 
 #include <iostream>
+#include <locale>
+#include <string>
 #include <cstring>
 using namespace std;
 
@@ -48,9 +50,18 @@ namespace YODA {
     class aistringstream {
     public:
       // Constructor from char*
-      aistringstream(const char* line=0) { reset(line); }
+      aistringstream(const char* line=0) {
+        reset(line);
+        _set_locale();
+      }
       // Constructor from std::string
-      aistringstream(const string& line) { reset(line); }
+      aistringstream(const string& line) {
+        reset(line);
+        _set_locale();
+      }
+      ~aistringstream() {
+        _reset_locale();
+      }
 
       // Re-init to new line as char*
       void reset(const char* line=0) {
@@ -73,7 +84,24 @@ namespace YODA {
       // Allow use of operator>> in a while loop
       operator bool() const { return !_error; }
 
+
     private:
+
+      // Changes the thread-local locale to interpret numbers in the "C" locale
+      void _set_locale() {
+        _locale_set = newlocale(LC_NUMERIC_MASK, "C", NULL);
+        _locale_prev = uselocale(_locale_set);
+        if (!_locale_prev) {
+          throw ReadError(std::string("Error setting locale: ") + strerror(errno));
+        }
+      }
+      void _reset_locale() {
+        if (!uselocale(_locale_prev)) {
+          throw ReadError(std::string("Error setting locale: ") + strerror(errno));
+        }
+        freelocale(_locale_set);
+      }
+
       void _get(double& x) { x = std::strtod(_next, &_new_next); }
       void _get(float& x) { x = std::strtof(_next, &_new_next); }
       void _get(int& i) { i = std::strtol(_next, &_new_next, 10); } // force base 10!
@@ -88,6 +116,7 @@ namespace YODA {
         x = string(_next, _new_next-_next);
       }
 
+      locale_t _locale_set, _locale_prev;
       char *_next, *_new_next;
       bool _error;
     };
@@ -526,6 +555,7 @@ namespace YODA {
         }
      }
   }
+
 
   Index ReaderYODA::mkIndex(std::istream& inputStream) {
     Index::AOIndex hmap;

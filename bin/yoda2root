@@ -30,6 +30,7 @@ if not in_out:
 
 try:
     import ROOT
+    ROOT.gROOT.SetBatch(True)
 except ImportError:
     sys.stderr.write("Could not load ROOT Python module, exiting...\n")
     sys.exit(2)

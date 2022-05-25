@@ -142,12 +142,53 @@ cdef class Scatter1D(AnalysisObject):
             raise RuntimeError("Callback is not of type (double) -> double")
         fptr = (<c.dbl_dbl_fptr*><size_t>ctypes.addressof(callback))[0]
         c.Scatter1D_transformX(deref(self.s1ptr()), fptr)
+    
+    def parseVariations(self):
+        """None -> None
+        Parse the YAML which contains the variations stored in the points of the Scatter.
+        Only needs to be done once!"""
+        return self.s1ptr().parseVariations()
+    
+    def updateTotalUncertainty(self):
+        """None -> None
+        Sum the error in the error map in quadrature and update the total ("") uncertainty.
+        """
+        return self.s1ptr().updateTotalUncertainty()
+    
+    def writeVariationsToAnnotations(self):
+        """None -> None
+        Parse the variations and add them to the annotations.
+        """
+        return self.s1ptr().writeVariationsToAnnotations()
 
     def variations(self):
         """None -> vector[string]
-        Get the list of variations stored in the poins of the Scatter"""
-        return self.s1ptr().variations()
+        Get the list of variations stored in the points of the Scatter"""
+        cdef vector[string] vars = self.s1ptr().variations()
+        return [var.decode('utf-8') for var in vars]
 
+    def rmVariations(self):
+        """None -> None
+        Remove the variations stored in the points of the Scatter"""
+        return self.s1ptr().rmVariations()
+    
+    def hasValidErrorBreakdown(self):
+        """
+        Check if the AO's error breakdown is not empty and has no bins with 0 uncertainty
+        """
+        counter = -1
+        for p in self.points():
+            counter += 1
+            binErrs = p.errMap()
+            if len(binErrs) < 2:
+                return False
+            binTotal = [0.,0.]
+            for sys, err in binErrs.iteritems():
+                binTotal[0] = (binTotal[0]**2 + err[0]**2)**0.5
+                binTotal[1] = (binTotal[1]**2 + err[1]**2)**0.5
+            if binTotal[0] == 0 and binTotal[1] == 0:
+                return False
+        return True
 
     # # TODO: remove?
     # def __add__(Scatter1D self, Scatter1D other):

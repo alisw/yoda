@@ -9,13 +9,43 @@
 
 namespace YODA {
 
+  using namespace std;
+
 
   /// Make a Scatter2D representation of a Histo1D
-  Scatter2D mkScatter(const Histo1D& h, bool usefocus, bool binwidthdiv) {
+  Scatter2D mkScatter(const Histo1D& h, bool usefocus, bool binwidthdiv,
+                      double uflow_binwidth, double oflow_binwidth) {
+
     Scatter2D rtn;
     for (const std::string& a : h.annotations()) rtn.setAnnotation(a, h.annotation(a));
     rtn.setAnnotation("Type", h.type()); // might override the copied ones
 
+    // Underflow point
+    if (uflow_binwidth > 0) {
+      const double ex = uflow_binwidth/2;
+      const double x = h.xMin() - ex;
+      const Dbn1D& hu = h.underflow();
+
+      double y;
+      try {
+        y = hu.sumW();
+      } catch (const Exception&) { // LowStatsError or WeightError
+        y = std::numeric_limits<double>::quiet_NaN();
+      }
+      if (binwidthdiv) y /= uflow_binwidth;
+      double ey;
+      try {
+        ey = hu.relErrW() * y;
+      } catch (const Exception&) { // LowStatsError or WeightError
+        ey = std::numeric_limits<double>::quiet_NaN();
+      }
+
+      Point2D pt(x, y, ex, ex, ey, ey);
+      pt.setParent(&rtn);
+      rtn.addPoint(pt);
+    }
+
+    // In-range points
     for (const HistoBin1D& b : h.bins()) {
       const double x = usefocus ? b.xFocus() : b.xMid();
       const double ex_m = x - b.xMin();
@@ -28,7 +58,12 @@ namespace YODA {
         y = std::numeric_limits<double>::quiet_NaN();
       }
       if (binwidthdiv) y /= b.xWidth();
-      const double ey = b.relErr() * y;
+      double ey;
+      try {
+        ey = b.relErr() * y;
+      } catch (const Exception&) { // LowStatsError or WeightError
+        ey = std::numeric_limits<double>::quiet_NaN();
+      }
 
       // Attach the point to its parent
       Point2D pt(x, y, ex_m, ex_p, ey, ey);
@@ -36,17 +71,68 @@ namespace YODA {
       rtn.addPoint(pt);
     }
 
-    assert(h.numBins() == rtn.numPoints());
+    // Overflow point
+    if (oflow_binwidth > 0) {
+      const double ex = oflow_binwidth/2;
+      const double x = h.xMin() - ex;
+      const Dbn1D& ho = h.overflow();
+
+      double y;
+      try {
+        y = ho.sumW();
+      } catch (const Exception&) { // LowStatsError or WeightError
+        y = std::numeric_limits<double>::quiet_NaN();
+      }
+      if (binwidthdiv) y /= oflow_binwidth;
+      double ey;
+      try {
+        ey = ho.relErrW() * y;
+      } catch (const Exception&) { // LowStatsError or WeightError
+        ey = std::numeric_limits<double>::quiet_NaN();
+      }
+
+      Point2D pt(x, y, ex, ex, ey, ey);
+      pt.setParent(&rtn);
+      rtn.addPoint(pt);
+    }
+
     return rtn;
   }
 
 
   /// Make a Scatter2D representation of a Profile1D
-  Scatter2D mkScatter(const Profile1D& p, bool usefocus, bool usestddev) {
+  Scatter2D mkScatter(const Profile1D& p, bool usefocus, bool usestddev,
+                      double uflow_binwidth, double oflow_binwidth) {
+
     Scatter2D rtn;
-    for (const std::string& a : p.annotations())
-      rtn.setAnnotation(a, p.annotation(a));
+    for (const std::string& a : p.annotations()) rtn.setAnnotation(a, p.annotation(a));
     rtn.setAnnotation("Type", p.type());
+
+    // Underflow point
+    if (uflow_binwidth > 0) {
+      const double ex = uflow_binwidth/2;
+      const double x = p.xMin() - ex;
+      const Dbn2D& hu = p.underflow();
+
+      double y;
+      try {
+        y = hu.yMean();
+      } catch (const Exception&) { // LowStatsError or WeightError
+        y = std::numeric_limits<double>::quiet_NaN();
+      }
+      double ey;
+      try {
+        ey = usestddev ? hu.yStdDev() : hu.yStdErr(); ///< Control y-error scheme via usestddev arg
+      } catch (const Exception&) { // LowStatsError or WeightError
+        ey = std::numeric_limits<double>::quiet_NaN();
+      }
+
+      Point2D pt(x, y, ex, ex, ey, ey);
+      pt.setParent(&rtn);
+      rtn.addPoint(pt);
+    }
+
+    // In-range bins
     for (const ProfileBin1D& b : p.bins()) {
       const double x = usefocus ? b.xFocus() : b.xMid();
       const double ex_m = x - b.xMin();
@@ -70,15 +156,76 @@ namespace YODA {
       pt.setParent(&rtn);
       rtn.addPoint(pt);
     }
-    assert(p.numBins() == rtn.numPoints());
+
+    // Overflow point
+    if (oflow_binwidth > 0) {
+      const double ex = oflow_binwidth/2;
+      const double x = p.xMin() - ex;
+      const Dbn2D& ho = p.overflow();
+
+      double y;
+      try {
+        y = ho.yMean();
+      } catch (const Exception&) { // LowStatsError or WeightError
+        y = std::numeric_limits<double>::quiet_NaN();
+      }
+      double ey;
+      try {
+        ey = usestddev ? ho.yStdDev() : ho.yStdErr(); ///< Control y-error scheme via usestddev arg
+      } catch (const Exception&) { // LowStatsError or WeightError
+        ey = std::numeric_limits<double>::quiet_NaN();
+      }
+
+      Point2D pt(x, y, ex, ex, ey, ey);
+      pt.setParent(&rtn);
+      rtn.addPoint(pt);
+    }
+
     return rtn;
+  }
+
+
+  void Scatter2D::updateTotalUncertainty() {
+    for (size_t thisPointIndex = 0; thisPointIndex < this->numPoints(); ++thisPointIndex) {
+      Point2D& thisPoint = this->_points[thisPointIndex];
+      thisPoint.updateTotalUncertainty();
+    }
+  }
+
+
+  // Prepare the variations to be written
+  void Scatter2D::writeVariationsToAnnotations() {
+    // If there are no variations to write, exit early
+    if (variations().empty()) return;
+    // There *are* some variations to encode...
+    YAML::Emitter em;
+    em.SetMapFormat(YAML::Flow);
+    em << YAML::BeginMap;
+    for (size_t thisPointIndex = 0; thisPointIndex < this->numPoints(); ++thisPointIndex) {
+      const Point2D& thisPoint = this->_points[thisPointIndex];
+      em << YAML::Key << thisPointIndex;
+      em << YAML::Value << YAML::BeginMap;
+      for (const auto& variation : this->variations()) {
+        em << YAML::Key << variation;
+        em << YAML::Value << YAML::BeginMap;
+        em << YAML::Key <<  "up";
+        em << YAML::Value <<  thisPoint.yErrPlus(variation);
+        em << YAML::Key <<  "dn";
+        em << YAML::Value <<  thisPoint.yErrMinus(variation);
+        em << YAML::EndMap;
+      }
+      em << YAML::EndMap;
+    }
+    em << YAML::EndMap;
+    const std::string val = em.c_str();
+    this->setAnnotation("ErrorBreakdown", val);
   }
 
 
   // Retrieve variations from annotation, parse them as YAML, and update the points
   void Scatter2D::parseVariations() {
-    if (this->_variationsParsed) { return; }
-    if (!(this->hasAnnotation("ErrorBreakdown"))) { return; }
+    if (this->_variationsParsed) return;
+    if (!(this->hasAnnotation("ErrorBreakdown"))) return;
     YAML::Node errorBreakdown;
     errorBreakdown = YAML::Load(this->annotation("ErrorBreakdown"));
 
@@ -88,12 +235,24 @@ namespace YODA {
         YAML::Node variations = errorBreakdown[thisPointIndex];
         for (const auto& variation : variations) {
           const std::string variationName = variation.first.as<std::string>();
-          double eyp = variation.second["up"].as<double>();
-          double eym = variation.second["dn"].as<double>();
-          thispoint.setYErrs(eym,eyp,variationName);
+          // The empty-name variation is the total and should not be signed
+          double eyp = 0, eym = 0;
+          try {
+            eyp = variation.second["up"].as<double>();
+            //if (variationName.empty()) eyp = fabs(eyp);
+          } catch (...) {
+            eyp = std::numeric_limits<double>::quiet_NaN();
+          }
+          try {
+            eym = variation.second["dn"].as<double>();
+            if (variationName.empty()) eym = fabs(eym);
+          } catch (...) {
+            eym = std::numeric_limits<double>::quiet_NaN();
+          }
+          thispoint.setYErrs(eym, eyp, variationName);
         }
       }
-      this-> _variationsParsed =true;
+      this->_variationsParsed =true;
     }
   }
 
@@ -110,6 +269,12 @@ namespace YODA {
       }
     }
     return vecVariations;
+  }
+
+
+  void Scatter2D::rmVariations() {
+    _variationsParsed = false;
+    for (Point2D& point : this->_points) point.rmVariations();
   }
 
 

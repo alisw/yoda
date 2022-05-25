@@ -15,6 +15,7 @@
 #endif
 
 #include <iostream>
+#include <locale>
 #include <typeinfo>
 #include <sstream>
 using namespace std;
@@ -57,6 +58,10 @@ namespace YODA {
     std::unique_ptr<std::ostream> zos;
     std::ostream* os = &stream;
 
+    // Write numbers in the "C" locale
+    std::locale prev_locale = os->getloc();
+    os->imbue(std::locale::classic());
+
     // Wrap the stream if needed
     if (_compress) {
       #ifdef HAVE_LIBZ
@@ -75,6 +80,7 @@ namespace YODA {
     writeHead(*os);
     bool first = true;
     for (const AnalysisObject* aoptr : aos) {
+      setAOPrecision( aoptr->annotation("WriterDoublePrecision", 0) );
       try {
         if (!first) *os << "\n"; //< blank line between items
         writeBody(*os, aoptr);
@@ -86,6 +92,8 @@ namespace YODA {
     }
     writeFoot(*os);
     *os << flush;
+
+    os->imbue(prev_locale);
   }
 
 

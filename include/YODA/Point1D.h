@@ -73,7 +73,7 @@ namespace YODA {
     /// Space dimension of the point
     size_t dim() { return 1; }
 
-
+    
     /// @name Value accessors
     /// @{
 
@@ -234,6 +234,32 @@ namespace YODA {
     const std::map< std::string, std::pair<double,double>> & errMap() const {
       getVariationsFromParent();
       return _ex;
+    }
+    
+    /// Remove the parsed variations, but keep the total
+    void rmVariations() { 
+      std::map< std::string, std::pair<double,double> > tmp;
+      const auto& it = _ex.find("");
+      if (it != _ex.end())  tmp[""] = it->second;
+      _ex.clear();  _ex = tmp;
+    }
+
+    // set the "" error source to the sum in quad of the existing variations 
+    void updateTotalUncertainty() {
+        float totalUp = 0.;
+        float totalDn = 0.;
+        for (const auto& variation : getParent()->variations()) {
+          if (variation=="") continue;
+          float thisUp =  xErrPlus(variation);
+          float thisDn =  xErrMinus(variation);
+          totalUp += thisUp*thisUp;
+          totalDn += thisDn*thisDn;
+        }
+    
+        totalUp = sqrt(totalUp);
+        totalDn = sqrt(totalDn);
+        setErrPlus(1, totalUp);
+        setErrMinus(1, totalDn);
     }
 
     // Parse the variations from the parent AO if it exists

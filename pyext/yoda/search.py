@@ -34,12 +34,12 @@ def match_aos(aos, patts, unpatts=None, search=False):
         match = False
         if re_patts:
             for rp in re_patts:
-                if (not search and rp.match(ao.path)) or (search and rp.search(ao.path)):
+                if (not search and rp.match(ao.path())) or (search and rp.search(ao.path())):
                     match = True
                     break
         if match and re_unpatts:
             for rp in re_unpatts:
-                if (not search and rp.match(ao.path)) or (search and rp.search(ao.path)):
+                if (not search and rp.match(ao.path())) or (search and rp.search(ao.path())):
                     match = False
                     break
         if match:

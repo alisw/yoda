@@ -14,6 +14,7 @@
 #include "YODA/Scatter3D.h"
 
 #include <iostream>
+#include <locale>
 using namespace std;
 
 namespace YODA {
@@ -32,7 +33,7 @@ namespace YODA {
                    SCATTER1D, SCATTER2D, SCATTER3D };
 
     /// State of the parser: line number, line, parser context, and pointer(s) to the object currently being assembled
-    unsigned int nline = 0;
+    //unsigned int nline = 0;
     string s;
     Context context = NONE;
     //
@@ -43,7 +44,7 @@ namespace YODA {
 
     // Loop over all lines of the input file
     while (Utils::getline(stream, s)) {
-      nline += 1;
+      //nline += 1;
 
       // Trim the line
       Utils::itrim(s);
@@ -64,6 +65,9 @@ namespace YODA {
         // Split into parts
         vector<string> parts;
         istringstream iss(s); string tmp;
+
+        iss.imbue(std::locale::classic()); // Interpret numbers in the "C" locale
+
         while (iss >> tmp) {
           if (tmp != "#") parts.push_back(tmp);
         }

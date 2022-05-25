@@ -17,23 +17,26 @@ namespace YODA {
   /// @{
 
   /// Write out object @a ao to file @a filename
-  inline void write(const std::string& filename, const AnalysisObject& ao) {
+  inline void write(const std::string& filename, const AnalysisObject& ao, int precision=-1) {
     Writer& w = mkWriter(filename);
+    if (precision > 0) w.setPrecision(precision);
     w.write(filename, ao);
   }
 
   /// Write out a collection of objects @a objs to file @a filename.
   template <typename RANGE>
-  inline void write(const std::string& filename, const RANGE& aos) {
+  inline void write(const std::string& filename, const RANGE& aos, int precision=-1) {
     Writer& w = mkWriter(filename);
+    if (precision > 0) w.setPrecision(precision);
     w.write(filename, aos);
   }
 
   /// Write out the objects specified by start iterator @a begin and end
   /// iterator @a end to file @a filename.
   template <typename AOITER>
-  inline void write(const std::string& filename, const AOITER& begin, const AOITER& end) {
+  inline void write(const std::string& filename, const AOITER& begin, const AOITER& end, int precision=-1) {
     Writer& w = mkWriter(filename);
+    if (precision > 0) w.setPrecision(precision);
     w.write(filename, begin, end);
   }
 
@@ -44,23 +47,26 @@ namespace YODA {
   /// @{
 
   /// Write out object @a ao to stream @a os with format @a fmt
-  inline void write(std::ostream& os, const AnalysisObject& ao, const std::string& fmt) {
+  inline void write(std::ostream& os, const AnalysisObject& ao, const std::string& fmt, int precision=-1) {
     Writer& w = mkWriter(fmt);
+    if (precision > 0) w.setPrecision(precision);
     w.write(os, ao);
   }
 
   /// Write out a collection of objects @a objs to file @a filename.
   template <typename RANGE>
-  inline void write(std::ostream& os, const RANGE& aos, const std::string& fmt) {
+  inline void write(std::ostream& os, const RANGE& aos, const std::string& fmt, int precision=-1) {
     Writer& w = mkWriter(fmt);
+    if (precision > 0) w.setPrecision(precision);
     w.write(os, aos);
   }
 
   /// Write out the objects specified by start iterator @a begin and end
   /// iterator @a end to file @a filename.
   template <typename AOITER>
-  inline void write(std::ostream& os, const AOITER& begin, const AOITER& end, const std::string& fmt) {
+  inline void write(std::ostream& os, const AOITER& begin, const AOITER& end, const std::string& fmt, int precision=-1) {
     Writer& w = mkWriter(fmt);
+    if (precision > 0) w.setPrecision(precision);
     w.write(os, begin, end);
   }
 

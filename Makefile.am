@@ -24,7 +24,7 @@ dox:
 .PHONY: pydoc
 pydoc:
 	@echo "Running pydoc..."
-	cd pydoc && $(MAKE) html
+	cd pydoc && $(MKDIR_P) _static && $(MAKE) html
 
 all-local: #dox
 	@true

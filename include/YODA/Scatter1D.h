@@ -96,9 +96,9 @@ namespace YODA {
       : AnalysisObject("Scatter1D", (path.size() == 0) ? s1.path() : path, s1, s1.title()),
         _points(s1._points)
     {
-      for ( auto &ann : annotations()){
-        setAnnotation(ann, annotation(ann));
-      }
+      for ( auto &ann : annotations()) setAnnotation(ann, annotation(ann));
+      for ( auto &pt : _points) pt.setParent(this);;
+      
     }
 
 
@@ -152,10 +152,16 @@ namespace YODA {
 
     ///////////////////////////////////////////////////
 
+    /// read/write the variations stored in the points as annotations
     void parseVariations();
+    void writeVariationsToAnnotations();
+    void updateTotalUncertainty();
 
     /// Get the list of variations stored in the points
     std::vector<std::string> variations() const;
+
+    /// Remove the variations
+    void rmVariations();
 
     /// @name Point accessors
     /// @{
@@ -197,8 +203,10 @@ namespace YODA {
     /// @name Point inserters
     /// @{
 
-    /// Insert a new point
-    void addPoint(const Point1D& pt) {
+    // Insert a new point and assign 
+    /// this scatter as its parent
+    void addPoint(Point1D pt) {
+      pt.setParent(this);
       _points.insert(pt);
     }
 
@@ -292,7 +300,7 @@ namespace YODA {
 
     Points _points;
 
-    bool _variationsParsed =false ;
+    bool _variationsParsed = false;
 
   };
 

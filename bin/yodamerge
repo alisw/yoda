@@ -130,13 +130,16 @@ if args.STACK:
 
 ## Loop over all input files
 ntotal = len(args.INFILES)
-aos_tmp, sfs, sources = {}, {}, {}
+aos_in, aos_tmp, sfs, sources = None, {}, {}, {}
 for n, filename in enumerate(args.INFILES):
 
     ## Update the use on which file is being merged
     if args.VERBOSITY > 0:
         msg = "Merging data file {:s} [{:d}/{:d}]".format(filename, n+1, ntotal)
         sys.stdout.write(msg + "\n")
+
+    ## Release old AOs before loading the new ones to reduce the peak memory usage
+    del aos_in
 
     ## Put the next batch of incoming objects into a dict from each path to a list of histos and scalings
     aos_in = yoda.read(filename, True, args.MATCH, args.UNMATCH)
@@ -221,6 +224,7 @@ for aopath, ao in aos_tmp.items():
         if type(ao) in (yoda.Counter, yoda.Histo1D, yoda.Histo2D, yoda.Profile1D, yoda.Profile2D):
             ao.scaleW(1.0 / sum_sfs)
         else:
+            dim = ao.dim()
             ao.scale(dim, 1.0 / sum_sfs)
 
     ## Put in output container
